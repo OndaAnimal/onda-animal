@@ -987,7 +987,6 @@ async function resetSiteSettings() {
                       const photos = selectedApplication.applicant?.housingPhotos || {};
                       const groups = [
                         ["windows", "Janelas / telas"],
-                        ["home", "Casa / apartamento"],
                         ["patio", "Pátio / área externa"],
                       ].filter(([key]) => Array.isArray(photos[key]) && photos[key].length);
 

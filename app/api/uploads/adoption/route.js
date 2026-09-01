@@ -7,7 +7,7 @@ import {
 
 export const runtime = "nodejs";
 
-const CATEGORIES = new Set(["windows", "home", "patio"]);
+const CATEGORIES = new Set(["windows", "patio"]);
 const APPLICATION_RE = /^OA-\d{4}-[A-Z0-9]{10}$/;
 
 export async function POST(request) {

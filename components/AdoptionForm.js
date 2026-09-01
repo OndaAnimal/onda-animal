@@ -94,7 +94,7 @@ export default function AdoptionForm({ animal }) {
   const [applicationId] = useState(() =>
     `OA-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 12).toUpperCase()}`
   );
-  const [housingFiles, setHousingFiles] = useState({ windows: [], home: [], patio: [] });
+  const [housingFiles, setHousingFiles] = useState({ windows: [], patio: [] });
 
   const compatibilitySummary = useMemo(() => ([
     ["Energia", animal.energy],
@@ -140,15 +140,14 @@ export default function AdoptionForm({ animal }) {
     });
   };
 
+  const isFeline = ["gato", "felino"].includes(String(animal.species || "").toLowerCase());
+
   const validateHousingPhotos = () => {
-    if (animal.species === "Gato" && housingFiles.windows.length < 2) {
-      return "Para adoção de gatos, envie pelo menos 2 fotos das janelas/telas da moradia.";
+    if (isFeline && housingFiles.windows.length < 2) {
+      return "Para adoção de felinos, envie pelo menos 2 fotos das janelas/telas da moradia.";
     }
-    if (animal.species === "Cão" && housingFiles.home.length < 1) {
-      return "Para adoção de cães, envie pelo menos 1 foto da casa ou apartamento.";
-    }
-    if (animal.species === "Cão" && housingFiles.patio.length < 1) {
-      return "Para adoção de cães, envie pelo menos 1 foto do pátio ou área externa disponível.";
+    if (!isFeline && housingFiles.patio.length < 1) {
+      return "Para adoção de caninos, envie pelo menos 1 foto do pátio ou área externa disponível.";
     }
     return "";
   };
@@ -207,9 +206,8 @@ export default function AdoptionForm({ animal }) {
     setSendingStage("Enviando fotos da moradia...");
     try {
       const housingPhotos = {
-        windows: animal.species === "Gato" ? await uploadHousingGroup("windows") : [],
-        home: animal.species === "Cão" ? await uploadHousingGroup("home") : [],
-        patio: animal.species === "Cão" ? await uploadHousingGroup("patio") : [],
+        windows: isFeline ? await uploadHousingGroup("windows") : [],
+        patio: !isFeline ? await uploadHousingGroup("patio") : [],
       };
 
       setSendingStage("Enviando formulário para análise...");
@@ -427,14 +425,14 @@ export default function AdoptionForm({ animal }) {
           <p>Queremos confirmar que o ambiente é seguro e compatível com as necessidades de {animal.name}. As fotos ficam vinculadas somente à solicitação de adoção.</p>
         </div>
 
-        {animal.species === "Gato" && (
+        {isFeline && (
           <HousingPhotoField
             title="Janelas e telas"
             text={form.housingType === "Apartamento"
               ? "Envie fotos das janelas do apartamento para verificarmos se estão devidamente teladas."
               : form.housingType === "Casa"
-                ? "Envie fotos das janelas da casa para verificarmos se estão devidamente teladas e seguras para o gato."
-                : "Envie fotos das principais janelas e acessos da moradia para verificarmos a segurança para o gato."}
+                ? "Envie fotos das janelas da casa para verificarmos se estão devidamente teladas e seguras para o felino."
+                : "Envie fotos das principais janelas da moradia para verificarmos a segurança para o felino."}
             requiredText="OBRIGATÓRIO • MÍNIMO 2"
             items={housingFiles.windows}
             onAdd={(files) => addHousingFiles("windows", files)}
@@ -442,25 +440,15 @@ export default function AdoptionForm({ animal }) {
           />
         )}
 
-        {animal.species === "Cão" && (
-          <div className="housing-photo-groups">
-            <HousingPhotoField
-              title="Casa / apartamento"
-              text="Mostre o ambiente interno onde o cão ficará e circulará no dia a dia."
-              requiredText="OBRIGATÓRIO • MÍNIMO 1"
-              items={housingFiles.home}
-              onAdd={(files) => addHousingFiles("home", files)}
-              onRemove={(id) => removeHousingFile("home", id)}
-            />
-            <HousingPhotoField
-              title="Pátio / área externa"
-              text="Mostre o pátio, cercamento, portões ou a área externa disponível para o cão."
-              requiredText="OBRIGATÓRIO • MÍNIMO 1"
-              items={housingFiles.patio}
-              onAdd={(files) => addHousingFiles("patio", files)}
-              onRemove={(id) => removeHousingFile("patio", id)}
-            />
-          </div>
+        {!isFeline && (
+          <HousingPhotoField
+            title="Pátio / área externa"
+            text="Mostre o pátio, cercamento, portões ou a área externa disponível para o cão."
+            requiredText="OBRIGATÓRIO • MÍNIMO 1"
+            items={housingFiles.patio}
+            onAdd={(files) => addHousingFiles("patio", files)}
+            onRemove={(id) => removeHousingFile("patio", id)}
+          />
         )}
       </section>
 

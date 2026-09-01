@@ -363,3 +363,13 @@ O formulário de adoção passou a exigir evidências fotográficas de seguranç
 - Cães: mínimo de 1 foto da casa/apartamento e 1 foto do pátio/área externa.
 
 As imagens são enviadas diretamente ao Cloudinary por upload assinado e as URLs ficam vinculadas à solicitação no Neon. O painel ADM mostra essas fotos na análise do candidato.
+
+
+## Fotos obrigatórias da moradia (V17)
+
+Regras simplificadas do formulário de adoção:
+- Felinos: mínimo de 2 fotos das janelas/telas, independentemente de casa ou apartamento.
+- Caninos: mínimo de 1 foto do pátio/área externa.
+- O campo de foto “Casa / apartamento” foi removido.
+- O servidor repete a mesma validação antes de gravar a solicitação no Neon.
+- As imagens continuam sendo enviadas ao Cloudinary e as URLs ficam na solicitação.

@@ -24,26 +24,22 @@ export async function POST(request) {
 
     const housingPhotos = application.applicant?.housingPhotos || {};
     const windows = Array.isArray(housingPhotos.windows) ? housingPhotos.windows : [];
-    const home = Array.isArray(housingPhotos.home) ? housingPhotos.home : [];
     const patio = Array.isArray(housingPhotos.patio) ? housingPhotos.patio : [];
     const validPhoto = (url) => typeof url === "string" && /^https:\/\/res\.cloudinary\.com\//.test(url);
+    const isFeline = ["gato", "felino"].includes(String(animal.species || "").toLowerCase());
 
-    if (animal.species === "Gato") {
+    if (isFeline) {
       if (windows.length < 2 || !windows.every(validPhoto)) {
         return NextResponse.json(
-          { error: "Para adoção de gatos, envie pelo menos 2 fotos das janelas/telas da moradia." },
+          { error: "Para adoção de felinos, envie pelo menos 2 fotos das janelas/telas da moradia." },
           { status: 400 }
         );
       }
-    }
-
-    if (animal.species === "Cão") {
-      if (home.length < 1 || patio.length < 1 || !home.every(validPhoto) || !patio.every(validPhoto)) {
-        return NextResponse.json(
-          { error: "Para adoção de cães, envie fotos da casa/apartamento e do pátio/área externa." },
-          { status: 400 }
-        );
-      }
+    } else if (patio.length < 1 || !patio.every(validPhoto)) {
+      return NextResponse.json(
+        { error: "Para adoção de caninos, envie pelo menos 1 foto do pátio/área externa." },
+        { status: 400 }
+      );
     }
 
     const saved = await createApplication(application);
