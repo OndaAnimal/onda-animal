@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { mediaUrl } from "../lib/mediaUrl";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -50,7 +51,7 @@ export default function Header() {
       <header className="site-header" style={{ background: settings.headerBackground }}>
         <div className="container header-inner">
           <Link className="brand" href="/" aria-label={settings.siteName} onClick={close}>
-            <img src={settings.logo || "/logo.png"} alt={settings.siteName} />
+            <img src={mediaUrl(settings.logo || "/logo.png", { width: 160 })} alt={settings.siteName} loading="eager" fetchPriority="high" decoding="async" />
             <span className="brand-copy">
               <strong>{settings.siteName}</strong>
               <small>{settings.siteSubtitle}</small>

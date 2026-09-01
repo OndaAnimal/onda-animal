@@ -342,3 +342,15 @@ git push
 ```
 
 Se o projeto do Vercel estiver conectado ao GitHub, cada `git push` na branch principal fará um novo deploy automaticamente.
+
+
+## Performance de imagens (V15)
+
+- Os animais e configurações são carregados do Neon no servidor antes do HTML ser enviado.
+- A Home não espera mais um `fetch` no navegador para descobrir as fotos reais.
+- Cloudinary entrega tamanhos adequados para card, hero, galeria e histórias.
+- `f_auto` e `q_auto` continuam ativos.
+- Imagens acima da dobra usam prioridade/eager; imagens abaixo usam lazy loading.
+- O layout faz `preconnect` com `res.cloudinary.com`.
+
+Resultado esperado: elimina o atraso visual de aproximadamente 1 segundo que ocorria quando o conteúdo real era buscado somente depois da hidratação.

@@ -1,50 +1,21 @@
-"use client";
+import SiteSettingsProvider from "./SiteSettingsProvider";
+import SiteShellClient from "./SiteShellClient";
+import { DEFAULT_SITE_SETTINGS } from "../lib/localData";
+import { getSiteData } from "../lib/serverStore";
 
-import Link from "next/link";
-import Header from "./Header";
-import Footer from "./Footer";
-import ForgeConnectWidget from "./ForgeConnectWidget";
-import SiteSettingsProvider, { useSiteSettings } from "./SiteSettingsProvider";
+export default async function SiteShell({ children }) {
+  let initialSettings = DEFAULT_SITE_SETTINGS;
 
-function SiteShellContent({ children }) {
-  const { settings } = useSiteSettings();
-
-  if (settings.maintenanceEnabled) {
-    return (
-      <main className="maintenance-page">
-        <div className="maintenance-card">
-          <img src={settings.logo || "/logo.png"} alt={settings.siteName} />
-          <span>{settings.siteName}</span>
-          <h1>{settings.maintenanceTitle}</h1>
-          <p>{settings.maintenanceText}</p>
-          {settings.phone1 && <a href={`tel:${settings.phone1Raw || ""}`}>{settings.phone1}</a>}
-        </div>
-      </main>
-    );
+  try {
+    const stored = await getSiteData("settings", DEFAULT_SITE_SETTINGS);
+    initialSettings = { ...DEFAULT_SITE_SETTINGS, ...(stored || {}) };
+  } catch {
+    // Mantém o site utilizável mesmo durante um build local sem DATABASE_URL.
   }
 
   return (
-    <>
-      <Header />
-      <main>{children}</main>
-
-      {settings.feedbackEnabled && settings.floatingFeedbackEnabled && (
-        <Link className="floating-feedback-link" href="/avaliacao" aria-label="Avaliar o site">
-          <span>★</span>
-          <strong>Avalie o site</strong>
-        </Link>
-      )}
-
-      {settings.forgeConnectEnabled && <ForgeConnectWidget />}
-      <Footer />
-    </>
-  );
-}
-
-export default function SiteShell({ children }) {
-  return (
-    <SiteSettingsProvider>
-      <SiteShellContent>{children}</SiteShellContent>
+    <SiteSettingsProvider initialSettings={initialSettings}>
+      <SiteShellClient>{children}</SiteShellClient>
     </SiteSettingsProvider>
   );
 }

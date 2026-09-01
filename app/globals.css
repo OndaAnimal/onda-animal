@@ -3358,3 +3358,34 @@ footer{background:var(--cms-footer-bg)}
 @media(min-width:1200px){
   .cms-backup-grid{grid-template-columns:repeat(4,1fr)}
 }
+
+/* IMAGE PERFORMANCE V15 */
+.animal-photo-wrap,
+.hero-animal,
+.animal-gallery-main,
+.animal-gallery-thumbs button,
+.public-story-photo,
+.cms-banner-preview,
+.cms-image-preview{
+  background:linear-gradient(110deg,#edf6f5 8%,#f8fbfb 18%,#edf6f5 33%);
+  background-size:200% 100%;
+}
+
+.animal-photo,
+.hero-animal img,
+.animal-gallery-main img,
+.animal-gallery-thumbs img,
+.public-story-photo img{
+  display:block;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
+
+@media (prefers-reduced-motion:no-preference){
+  .animal-photo-wrap:has(img:not([src=""])),
+  .hero-animal:has(img:not([src=""])),
+  .animal-gallery-main:has(img:not([src=""])),
+  .public-story-photo:has(img:not([src=""])){
+    animation:none;
+  }
+}

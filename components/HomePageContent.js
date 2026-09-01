@@ -4,13 +4,14 @@ import Link from "next/link";
 import HomeAnimals from "./HomeAnimals";
 import HomeAnimalCollage from "./HomeAnimalCollage";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { mediaUrl } from "../lib/mediaUrl";
 
 export default function HomePageContent({ initialAnimals }) {
   const { settings } = useSiteSettings();
 
   const heroStyle = settings.heroBannerImage
     ? {
-        backgroundImage: `linear-gradient(rgba(248,251,252,${settings.heroOverlay}), rgba(238,248,247,${settings.heroOverlay})), url("${settings.heroBannerImage}")`,
+        backgroundImage: `linear-gradient(rgba(248,251,252,${settings.heroOverlay}), rgba(238,248,247,${settings.heroOverlay})), url("${mediaUrl(settings.heroBannerImage, { width: 1920, height: 1080, crop: "fill" })}")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }

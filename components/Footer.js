@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { mediaUrl } from "../lib/mediaUrl";
 
 export default function Footer() {
   const { settings } = useSiteSettings();
@@ -17,7 +18,7 @@ export default function Footer() {
     <footer style={{ background: settings.footerBackground }}>
       <div className="container footer-grid footer-grid-v4">
         <Link className="footer-brand" href="/">
-          <img src={settings.logo || "/logo.png"} alt={settings.siteName} />
+          <img src={mediaUrl(settings.logo || "/logo.png", { width: 140 })} alt={settings.siteName} loading="lazy" decoding="async" />
           <div>
             <strong>{settings.siteName}</strong>
             <small>{settings.siteSubtitle}</small>

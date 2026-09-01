@@ -1,20 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+
 import Link from "next/link";
 import AnimalGallery from "./AnimalGallery";
-import { fetchPublicResource } from "../lib/apiClient";
 
 export default function AnimalProfileClient({ slug, initialAnimals }) {
-  const [animal, setAnimal] = useState(() => initialAnimals.find((a) => a.slug === slug) || null);
-
-  useEffect(() => {
-    let active = true;
-    fetchPublicResource("animals", initialAnimals).then((items) => {
-      if (active) setAnimal((items || []).find((a) => a.slug === slug) || null);
-    });
-    return () => { active = false; };
-  }, [slug, initialAnimals]);
+  const animal = initialAnimals.find((a) => a.slug === slug) || null;
 
   if (!animal) {
     return (

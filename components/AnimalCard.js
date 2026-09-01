@@ -1,10 +1,18 @@
 import Link from "next/link";
+import { mediaUrl } from "../lib/mediaUrl";
 
-export default function AnimalCard({ animal }) {
+export default function AnimalCard({ animal, priority = false }) {
   return (
     <article className="animal-card">
       <Link className="animal-photo-wrap" href={`/adocao/${animal.slug}`}>
-        <img className="animal-photo" src={animal.photos?.[0]} alt={`Foto de ${animal.name}`} />
+        <img
+          className="animal-photo"
+          src={mediaUrl(animal.photos?.[0], { width: 720, height: 610, crop: "fill" })}
+          alt={`Foto de ${animal.name}`}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          decoding="async"
+        />
         <span className="animal-status">{animal.status}</span>
         {animal.demo && <span className="animal-demo">EXEMPLO</span>}
       </Link>

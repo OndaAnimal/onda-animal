@@ -12,14 +12,14 @@ export function useSiteSettings() {
   return useContext(SiteSettingsContext);
 }
 
-export default function SiteSettingsProvider({ children }) {
-  const [settings, setSettings] = useState(DEFAULT_SITE_SETTINGS);
+export default function SiteSettingsProvider({ children, initialSettings = DEFAULT_SITE_SETTINGS }) {
+  const [settings, setSettings] = useState({ ...DEFAULT_SITE_SETTINGS, ...(initialSettings || {}) });
 
   useEffect(() => {
     let active = true;
 
     const sync = async () => {
-      const remote = await fetchPublicResource("settings", DEFAULT_SITE_SETTINGS);
+      const remote = await fetchPublicResource("settings", initialSettings);
       if (active) setSettings({ ...DEFAULT_SITE_SETTINGS, ...(remote || {}) });
     };
 
@@ -33,7 +33,7 @@ export default function SiteSettingsProvider({ children }) {
       active = false;
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, []);
+  }, [initialSettings]);
 
   useEffect(() => {
     const root = document.documentElement;
