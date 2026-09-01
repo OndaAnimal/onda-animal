@@ -15,7 +15,7 @@ import {
   saveStories,
   DEFAULT_SITE_SETTINGS,
 } from "../lib/localData";
-import { adminAction, adminLogin, adminLogout, adminSession, loadAdminState } from "../lib/apiClient";
+import { adminAction, adminLogin, adminLogout, adminSession, loadAdminState, uploadAdminImage } from "../lib/apiClient";
 
 const emptyAnimal = {
   slug: "",
@@ -64,32 +64,10 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
-      const image = new Image();
-      image.onerror = reject;
-      image.onload = () => {
-        const maxW = 1200;
-        const maxH = 900;
-        let width = image.width;
-        let height = image.height;
-        const ratio = Math.min(1, maxW / width, maxH / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(image, 0, 0, width, height);
-        resolve(canvas.toDataURL("image/jpeg", 0.76));
-      };
-      image.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
+function dataUrlToFile(dataUrl, filename) {
+  return fetch(dataUrl)
+    .then((response) => response.blob())
+    .then((blob) => new File([blob], filename, { type: blob.type || "image/jpeg" }));
 }
 
 function Metric({ label, value, detail }) {
@@ -128,6 +106,7 @@ export default function AdminPanel({ initialAnimals }) {
   const [settingsSection, setSettingsSection] = useState("visual");
   const [savingSettingImage, setSavingSettingImage] = useState("");
   const [panelLoading, setPanelLoading] = useState(true);
+  const [migratingLegacyImages, setMigratingLegacyImages] = useState(false);
 
   useEffect(() => {
     setAnimals(loadAnimals(initialAnimals));
@@ -270,22 +249,35 @@ export default function AdminPanel({ initialAnimals }) {
     }));
   }
 
-  async function uploadPhoto(index, file) {
-    if (!file) return;
-    setSavingPhoto(true);
-    try {
-      const data = await compressImage(file);
-      setAnimalForm((current) => {
-        const photos = [...current.photos];
-        photos[index] = data;
-        return { ...current, photos };
-      });
-    } finally {
-      setSavingPhoto(false);
-    }
+async function uploadPhoto(index, file) {
+  if (!file) return;
+  const name = animalForm.name.trim();
+  if (!name) {
+    notify("Informe o nome do animal antes de enviar as fotos.");
+    return;
   }
 
-  async function saveAnimal(event) {
+  const slug = animalForm.slug || slugify(name);
+  setSavingPhoto(true);
+  try {
+    const uploaded = await uploadAdminImage(file, {
+      scope: "animal",
+      key: `${slug}/photo-${index + 1}`,
+    });
+    setAnimalForm((current) => {
+      const photos = [...current.photos];
+      photos[index] = uploaded.url;
+      return { ...current, photos };
+    });
+    notify(`Foto ${index + 1} enviada ao Cloudinary.`);
+  } catch (error) {
+    notify(error.detail || error.message || "Não foi possível enviar a foto.");
+  } finally {
+    setSavingPhoto(false);
+  }
+}
+
+async function saveAnimal(event) {
     event.preventDefault();
     const slug = animalForm.slug || slugify(animalForm.name);
     if (!animalForm.name.trim() || !slug) {
@@ -351,18 +343,24 @@ export default function AdminPanel({ initialAnimals }) {
     });
   }
 
-  async function uploadAdoptionPhoto(file) {
-    if (!file) return;
-    setSavingAdoptionPhoto(true);
-    try {
-      const data = await compressImage(file);
-      setAdoptionStoryForm((current) => ({ ...current, photo: data }));
-    } finally {
-      setSavingAdoptionPhoto(false);
-    }
+async function uploadAdoptionPhoto(file) {
+  if (!file || !adoptionAnimal) return;
+  setSavingAdoptionPhoto(true);
+  try {
+    const uploaded = await uploadAdminImage(file, {
+      scope: "story",
+      key: `${adoptionAnimal.slug}/final`,
+    });
+    setAdoptionStoryForm((current) => ({ ...current, photo: uploaded.url }));
+    notify("Foto da adoção enviada ao Cloudinary.");
+  } catch (error) {
+    notify(error.detail || error.message || "Não foi possível enviar a foto.");
+  } finally {
+    setSavingAdoptionPhoto(false);
   }
+}
 
-  async function completeAdoption(event) {
+async function completeAdoption(event) {
     event.preventDefault();
     if (!adoptionAnimal) return;
 
@@ -534,40 +532,112 @@ export default function AdminPanel({ initialAnimals }) {
     setSettings((current) => ({ ...current, [field]: value }));
   }
 
-  function readSettingImage(file, field, options = {}) {
-    if (!file) return;
+async function readSettingImage(file, field) {
+  if (!file) return;
 
-    const { maxWidth = 1800, maxHeight = 1000, png = false } = options;
-    setSavingSettingImage(field);
+  const keyMap = {
+    logo: "logo",
+    favicon: "favicon",
+    heroBannerImage: "hero-banner",
+    socialImage: "social-image",
+  };
+  const key = keyMap[field];
+  if (!key) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const image = new Image();
-      image.onload = () => {
-        let width = image.width;
-        let height = image.height;
-        const ratio = Math.min(1, maxWidth / width, maxHeight / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(image, 0, 0, width, height);
-
-        const data = canvas.toDataURL(png ? "image/png" : "image/jpeg", png ? undefined : 0.78);
-        updateSetting(field, data);
-        setSavingSettingImage("");
-      };
-      image.onerror = () => setSavingSettingImage("");
-      image.src = reader.result;
-    };
-    reader.onerror = () => setSavingSettingImage("");
-    reader.readAsDataURL(file);
+  setSavingSettingImage(field);
+  try {
+    const uploaded = await uploadAdminImage(file, { scope: "cms", key });
+    updateSetting(field, uploaded.url);
+    notify("Imagem enviada ao Cloudinary.");
+  } catch (error) {
+    notify(error.detail || error.message || "Não foi possível enviar a imagem.");
+  } finally {
+    setSavingSettingImage("");
   }
+}
 
-  async function resetSiteSettings() {
+async function migrateLegacyImages() {
+  if (migratingLegacyImages) return;
+  setMigratingLegacyImages(true);
+  let migrated = 0;
+
+  try {
+    const nextAnimals = await Promise.all(
+      animals.map(async (animal) => {
+        const photos = [...(animal.photos || [])];
+        for (let index = 0; index < photos.length; index += 1) {
+          if (typeof photos[index] === "string" && photos[index].startsWith("data:image/")) {
+            const file = await dataUrlToFile(photos[index], `${animal.slug}-foto-${index + 1}.jpg`);
+            const uploaded = await uploadAdminImage(file, {
+              scope: "animal",
+              key: `${animal.slug}/photo-${index + 1}`,
+            });
+            photos[index] = uploaded.url;
+            migrated += 1;
+          }
+        }
+        return { ...animal, photos };
+      })
+    );
+
+    const nextStories = [];
+    for (const story of stories) {
+      let photo = story.photo;
+      if (typeof photo === "string" && photo.startsWith("data:image/")) {
+        const file = await dataUrlToFile(photo, `${story.animalSlug || story.id}-historia.jpg`);
+        const uploaded = await uploadAdminImage(file, {
+          scope: "story",
+          key: `${story.animalSlug || "historia"}/final`,
+        });
+        photo = uploaded.url;
+        migrated += 1;
+      }
+      nextStories.push({ ...story, photo });
+    }
+
+    const nextSettings = { ...settings };
+    const settingImages = {
+      logo: "logo",
+      favicon: "favicon",
+      heroBannerImage: "hero-banner",
+      socialImage: "social-image",
+    };
+    for (const [field, key] of Object.entries(settingImages)) {
+      const value = nextSettings[field];
+      if (typeof value === "string" && value.startsWith("data:image/")) {
+        const file = await dataUrlToFile(value, `${key}.jpg`);
+        const uploaded = await uploadAdminImage(file, { scope: "cms", key });
+        nextSettings[field] = uploaded.url;
+        migrated += 1;
+      }
+    }
+
+    if (!migrated) {
+      notify("Não há imagens antigas em base64 para migrar.");
+      return;
+    }
+
+    await Promise.all([
+      adminAction("saveResource", { resource: "animals", value: nextAnimals }),
+      adminAction("saveResource", { resource: "stories", value: nextStories }),
+      adminAction("saveResource", { resource: "settings", value: nextSettings }),
+    ]);
+
+    setAnimals(nextAnimals);
+    setStories(nextStories);
+    setSettings(nextSettings);
+    localStorage.setItem("ondaAnimals", JSON.stringify(nextAnimals));
+    localStorage.setItem("ondaAdoptionStories", JSON.stringify(nextStories));
+    localStorage.setItem("ondaAdminSettings", JSON.stringify(nextSettings));
+    notify(`${migrated} imagem(ns) migrada(s) para o Cloudinary.`);
+  } catch (error) {
+    notify(error.detail || error.message || "Não foi possível migrar as imagens antigas.");
+  } finally {
+    setMigratingLegacyImages(false);
+  }
+}
+
+async function resetSiteSettings() {
     const next = {
       ...DEFAULT_SITE_SETTINGS,
       adoptionWhatsApp: settings.adoptionWhatsApp || "",
@@ -1148,11 +1218,11 @@ export default function AdminPanel({ initialAnimals }) {
                           <div className="cms-image-preview logo-preview">
                             <img src={settings.logo || "/logo.png"} alt="Logo atual" />
                           </div>
-                          <strong>{savingSettingImage === "logo" ? "Processando..." : "Trocar logo"}</strong>
+                          <strong>{savingSettingImage === "logo" ? "Enviando..." : "Trocar logo"}</strong>
                           <input
                             type="file"
                             accept="image/png,image/jpeg,image/webp"
-                            onChange={(e) => readSettingImage(e.target.files?.[0], "logo", { maxWidth: 700, maxHeight: 700, png: true })}
+                            onChange={(e) => readSettingImage(e.target.files?.[0], "logo")}
                           />
                         </label>
 
@@ -1161,11 +1231,11 @@ export default function AdminPanel({ initialAnimals }) {
                           <div className="cms-image-preview favicon-preview">
                             <img src={settings.favicon || settings.logo || "/logo.png"} alt="Favicon atual" />
                           </div>
-                          <strong>{savingSettingImage === "favicon" ? "Processando..." : "Trocar ícone"}</strong>
+                          <strong>{savingSettingImage === "favicon" ? "Enviando..." : "Trocar ícone"}</strong>
                           <input
                             type="file"
                             accept="image/png,image/jpeg,image/webp"
-                            onChange={(e) => readSettingImage(e.target.files?.[0], "favicon", { maxWidth: 256, maxHeight: 256, png: true })}
+                            onChange={(e) => readSettingImage(e.target.files?.[0], "favicon")}
                           />
                         </label>
                       </div>
@@ -1350,7 +1420,7 @@ export default function AdminPanel({ initialAnimals }) {
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => readSettingImage(e.target.files?.[0], "heroBannerImage", { maxWidth: 2000, maxHeight: 1200 })}
+                            onChange={(e) => readSettingImage(e.target.files?.[0], "heroBannerImage")}
                           />
                         </label>
 
@@ -1610,7 +1680,7 @@ export default function AdminPanel({ initialAnimals }) {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => readSettingImage(e.target.files?.[0], "socialImage", { maxWidth: 1200, maxHeight: 630 })}
+                          onChange={(e) => readSettingImage(e.target.files?.[0], "socialImage")}
                         />
                       </label>
                     </section>
@@ -1648,6 +1718,20 @@ export default function AdminPanel({ initialAnimals }) {
                           <strong className="button secondary">Escolher arquivo</strong>
                           <input type="file" accept="application/json" onChange={(e) => importSiteSettings(e.target.files?.[0])} />
                         </label>
+
+                        <article className="cloudinary-migration-card">
+                          <span>☁</span>
+                          <h4>Migrar imagens antigas</h4>
+                          <p>Move para o Cloudinary fotos antigas que ainda estejam incorporadas no Neon em base64.</p>
+                          <button
+                            type="button"
+                            className="button secondary"
+                            onClick={migrateLegacyImages}
+                            disabled={migratingLegacyImages}
+                          >
+                            {migratingLegacyImages ? "Migrando..." : "Migrar para Cloudinary"}
+                          </button>
+                        </article>
 
                         <article className="danger-zone">
                           <span>↺</span>
@@ -1700,7 +1784,7 @@ export default function AdminPanel({ initialAnimals }) {
               <div className="cms-sticky-save">
                 <div>
                   <strong>Configurações do site</strong>
-                  <span>Salve para publicar as alterações neste navegador.</span>
+                  <span>Salve para publicar as alterações no Neon. Imagens novas ficam no Cloudinary.</span>
                 </div>
                 <button className="button primary" type="submit">Salvar alterações</button>
               </div>
@@ -1759,7 +1843,7 @@ export default function AdminPanel({ initialAnimals }) {
               </div>
 
               {savingAdoptionPhoto && (
-                <div className="admin-adoption-processing">Processando nova foto...</div>
+                <div className="admin-adoption-processing">Enviando foto para o Cloudinary...</div>
               )}
 
               <div className="admin-adoption-story-fields">

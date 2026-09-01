@@ -3340,3 +3340,21 @@ footer{background:var(--cms-footer-bg)}
   .admin-shell .admin-topbar h1,.admin-shell .admin-page-title,.admin-head h1{font-size:30px!important}
   .cms-field-grid input,.cms-field-grid textarea,.cms-field-grid select,.admin-adoption-story-fields input,.admin-adoption-story-fields textarea{font-size:16px!important}
 }
+
+
+/* CLOUDINARY MEDIA STORAGE V14 */
+.cloudinary-migration-card{
+  border-color:#cfe3f6!important;
+  background:#f5faff!important;
+}
+.cloudinary-migration-card>span{
+  color:#2d74b8!important;
+  background:#e6f2fd!important;
+}
+.cloudinary-migration-card button:disabled{
+  opacity:.6;
+  cursor:wait;
+}
+@media(min-width:1200px){
+  .cms-backup-grid{grid-template-columns:repeat(4,1fr)}
+}

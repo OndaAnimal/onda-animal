@@ -6,7 +6,7 @@ Esta é a versão preparada para produção do portal de adoção da Onda Animal
 
 Os dados abaixo deixam de depender do navegador e ficam compartilhados entre os computadores:
 
-- animais e as duas fotos de cada perfil;
+- animais e as URLs das duas fotos de cada perfil;
 - ficha completa dos animais;
 - status: Disponível, Em processo, Adotado e Indisponível;
 - solicitações/formulários de adoção;
@@ -16,7 +16,7 @@ Os dados abaixo deixam de depender do navegador e ficam compartilhados entre os 
 - configurações do CMS;
 - Forge Connect, conversas e mensagens.
 
-O `localStorage` permanece apenas como cache/compatibilidade de interface. O Neon é a fonte persistente do painel em produção.
+O `localStorage` permanece apenas como cache/compatibilidade de interface. O Neon é a fonte persistente dos dados em produção. As imagens novas ficam no Cloudinary e o Neon guarda somente as URLs.
 
 ## Segurança do painel
 
@@ -164,6 +164,9 @@ DATABASE_URL
 ADMIN_PIN
 AUTH_SECRET
 NEXT_PUBLIC_SITE_URL
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
 ```
 
 Use a mesma `DATABASE_URL` copiada do Neon.
@@ -233,11 +236,59 @@ As configurações salvas pelo painel são armazenadas no Neon em `site_store`.
 
 ---
 
-# Observação sobre imagens
+# Armazenamento das imagens — Cloudinary
 
-Nesta versão as imagens enviadas pelo painel são comprimidas no navegador e armazenadas dentro dos dados do Neon. Isso simplifica bastante a primeira publicação e funciona bem para o volume inicial do portal.
+A partir desta versão, uploads feitos no painel **não são mais gravados dentro do Neon**.
 
-Se o acervo crescer muito, o próximo passo recomendado é mover os arquivos de imagem para Vercel Blob/Cloudinary e manter somente as URLs no Neon.
+Fluxo:
+
+```text
+Painel ADM -> upload assinado no servidor -> Cloudinary -> URL salva no Neon
+```
+
+São enviados ao Cloudinary:
+
+- as 2 fotos de cada animal;
+- foto final de uma adoção/História;
+- logo personalizada;
+- favicon;
+- banner da Home;
+- imagem social do CMS.
+
+O upload é feito por uma rota administrativa protegida. O `CLOUDINARY_API_SECRET` nunca é enviado ao navegador.
+
+## Configurar o Cloudinary
+
+1. Crie uma conta no Cloudinary.
+2. No Dashboard, copie `Cloud name`, `API Key` e `API Secret`.
+3. Na Vercel, adicione:
+
+```text
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
+```
+
+As três podem ser cadastradas para Production e Preview. O `API Secret` deve sempre permanecer como Secret.
+
+4. Faça um novo Redeploy na Vercel.
+5. Abra `/api/health`. O retorno deve incluir:
+
+```json
+"media":"cloudinary-configured"
+```
+
+6. Entre em `/admin`, cadastre uma foto de teste e salve o animal.
+
+## Imagens antigas
+
+Se alguma versão anterior já tiver salvado imagens em base64 no Neon, use:
+
+```text
+Painel -> Configurações -> Segurança e backup -> Migrar para Cloudinary
+```
+
+O sistema envia as imagens antigas ao Cloudinary, troca o conteúdo pelo URL e salva novamente os registros no Neon.
 
 ---
 
