@@ -983,6 +983,38 @@ async function resetSiteSettings() {
                         ["Adaptação", selectedApplication.applicant?.adaptationCommitment],
                       ].map(([label,value]) => <div key={label}><small>{label}</small><strong>{value || "—"}</strong></div>)}
                     </div>
+                    {(() => {
+                      const photos = selectedApplication.applicant?.housingPhotos || {};
+                      const groups = [
+                        ["windows", "Janelas / telas"],
+                        ["home", "Casa / apartamento"],
+                        ["patio", "Pátio / área externa"],
+                      ].filter(([key]) => Array.isArray(photos[key]) && photos[key].length);
+
+                      if (!groups.length) return null;
+
+                      return (
+                        <div className="admin-application-photos">
+                          <div className="admin-application-photos-head">
+                            <small>FOTOS DA MORADIA</small>
+                            <strong>Verificação de segurança</strong>
+                          </div>
+                          {groups.map(([key, label]) => (
+                            <div className="admin-application-photo-group" key={key}>
+                              <span>{label}</span>
+                              <div>
+                                {photos[key].map((url, index) => (
+                                  <a href={url} target="_blank" rel="noreferrer" key={`${key}-${index}`}>
+                                    <img src={url} alt={`${label} ${index + 1}`} />
+                                    <small>Foto {index + 1} ↗</small>
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     <div className="admin-long-answer"><small>Onde o animal ficará</small><p>{selectedApplication.applicant?.petStay || "—"}</p></div>
                     <div className="admin-long-answer"><small>Motivo da adoção</small><p>{selectedApplication.applicant?.adoptionReason || "—"}</p></div>
                     <div className="admin-long-answer"><small>Observações do candidato</small><p>{selectedApplication.applicant?.observations || "—"}</p></div>

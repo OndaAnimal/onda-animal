@@ -354,3 +354,12 @@ Se o projeto do Vercel estiver conectado ao GitHub, cada `git push` na branch pr
 - O layout faz `preconnect` com `res.cloudinary.com`.
 
 Resultado esperado: elimina o atraso visual de aproximadamente 1 segundo que ocorria quando o conteúdo real era buscado somente depois da hidratação.
+
+
+## V16 — Fotos obrigatórias da moradia na adoção
+
+O formulário de adoção passou a exigir evidências fotográficas de segurança:
+- Gatos (casa ou apartamento): mínimo de 2 fotos das janelas/telas.
+- Cães: mínimo de 1 foto da casa/apartamento e 1 foto do pátio/área externa.
+
+As imagens são enviadas diretamente ao Cloudinary por upload assinado e as URLs ficam vinculadas à solicitação no Neon. O painel ADM mostra essas fotos na análise do candidato.

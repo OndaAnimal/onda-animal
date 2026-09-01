@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { submitAdoptionApplication } from "../lib/apiClient";
+import { submitAdoptionApplication, uploadAdoptionImage } from "../lib/apiClient";
 
 const initialForm = {
   fullName: "",
@@ -32,6 +32,7 @@ const initialForm = {
   adaptationCommitment: "",
   observations: "",
   contactConsent: false,
+  housingPhotoConsent: false,
   responsibleAdult: false,
 };
 
@@ -50,12 +51,50 @@ function Choice({ name, value, current, onChange, children }) {
   );
 }
 
+function HousingPhotoField({ title, text, requiredText, items, onAdd, onRemove }) {
+  return (
+    <div className="housing-photo-field">
+      <div className="housing-photo-field-head">
+        <div>
+          <strong>{title}</strong>
+          <p>{text}</p>
+        </div>
+        <span>{requiredText}</span>
+      </div>
+
+      <div className="housing-photo-previews">
+        {items.map((item, index) => (
+          <div className="housing-photo-preview" key={item.id}>
+            <img src={item.preview} alt={`${title} ${index + 1}`} />
+            <button type="button" onClick={() => onRemove(item.id)} aria-label="Remover foto">×</button>
+            <small>Foto {index + 1}</small>
+          </div>
+        ))}
+
+        {items.length < 6 && (
+          <label className="housing-photo-add">
+            <span>＋</span>
+            <strong>Adicionar fotos</strong>
+            <small>JPG, PNG ou WEBP</small>
+            <input type="file" accept="image/*" multiple onChange={(e) => { onAdd(e.target.files); e.target.value = ""; }} />
+          </label>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdoptionForm({ animal }) {
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [protocol, setProtocol] = useState("");
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
+  const [sendingStage, setSendingStage] = useState("");
+  const [applicationId] = useState(() =>
+    `OA-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 12).toUpperCase()}`
+  );
+  const [housingFiles, setHousingFiles] = useState({ windows: [], home: [], patio: [] });
 
   const compatibilitySummary = useMemo(() => ([
     ["Energia", animal.energy],
@@ -67,6 +106,66 @@ export default function AdoptionForm({ animal }) {
   const update = (name, value) => {
     setForm((current) => ({ ...current, [name]: value }));
     setError("");
+  };
+
+  const addHousingFiles = (category, fileList) => {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+
+    const invalid = files.find((file) =>
+      (file.type && !file.type.startsWith("image/")) || file.size > 12 * 1024 * 1024
+    );
+    if (invalid) {
+      setError("Envie apenas imagens de até 12 MB por arquivo.");
+      return;
+    }
+
+    setHousingFiles((current) => {
+      const available = Math.max(0, 6 - current[category].length);
+      const nextItems = files.slice(0, available).map((file) => ({
+        id: `${category}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        file,
+        preview: URL.createObjectURL(file),
+      }));
+      return { ...current, [category]: [...current[category], ...nextItems] };
+    });
+    setError("");
+  };
+
+  const removeHousingFile = (category, id) => {
+    setHousingFiles((current) => {
+      const item = current[category].find((entry) => entry.id === id);
+      if (item?.preview) URL.revokeObjectURL(item.preview);
+      return { ...current, [category]: current[category].filter((entry) => entry.id !== id) };
+    });
+  };
+
+  const validateHousingPhotos = () => {
+    if (animal.species === "Gato" && housingFiles.windows.length < 2) {
+      return "Para adoção de gatos, envie pelo menos 2 fotos das janelas/telas da moradia.";
+    }
+    if (animal.species === "Cão" && housingFiles.home.length < 1) {
+      return "Para adoção de cães, envie pelo menos 1 foto da casa ou apartamento.";
+    }
+    if (animal.species === "Cão" && housingFiles.patio.length < 1) {
+      return "Para adoção de cães, envie pelo menos 1 foto do pátio ou área externa disponível.";
+    }
+    return "";
+  };
+
+  const uploadHousingGroup = async (category) => {
+    const items = housingFiles[category] || [];
+    const uploaded = [];
+    for (let index = 0; index < items.length; index += 1) {
+      const result = await uploadAdoptionImage(items[index].file, {
+        applicationId,
+        animalSlug: animal.slug,
+        category,
+        index,
+      });
+      uploaded.push(result.url);
+    }
+    return uploaded;
   };
 
   const requiredFields = [
@@ -82,7 +181,7 @@ export default function AdoptionForm({ animal }) {
     event.preventDefault();
 
     const missing = requiredFields.some((field) => !String(form[field] || "").trim());
-    if (missing || !form.contactConsent || !form.responsibleAdult) {
+    if (missing || !form.contactConsent || !form.housingPhotoConsent || !form.responsibleAdult) {
       setError("Preencha os campos obrigatórios e confirme as declarações no final do formulário.");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -95,19 +194,35 @@ export default function AdoptionForm({ animal }) {
       return;
     }
 
-    const code = `OA-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const photoError = validateHousingPhotos();
+    if (photoError) {
+      setError(photoError);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
 
-    const application = {
+    const code = applicationId;
+
+    setSending(true);
+    setSendingStage("Enviando fotos da moradia...");
+    try {
+      const housingPhotos = {
+        windows: animal.species === "Gato" ? await uploadHousingGroup("windows") : [],
+        home: animal.species === "Cão" ? await uploadHousingGroup("home") : [],
+        patio: animal.species === "Cão" ? await uploadHousingGroup("patio") : [],
+      };
+
+      setSendingStage("Enviando formulário para análise...");
+
+      const application = {
       id: code,
       animalSlug: animal.slug,
       animalName: animal.name,
       status: "EM_ANALISE",
       createdAt: new Date().toISOString(),
-      applicant: form,
+      applicant: { ...form, housingPhotos },
     };
 
-    setSending(true);
-    try {
       await submitAdoptionApplication(application);
       setProtocol(code);
       setSubmitted(true);
@@ -118,6 +233,7 @@ export default function AdoptionForm({ animal }) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setSending(false);
+      setSendingStage("");
     }
   };
 
@@ -297,9 +413,60 @@ export default function AdoptionForm({ animal }) {
         </div>
       </section>
 
-      <section className="adoption-form-section">
+      <section className="adoption-form-section housing-photo-section">
         <div className="form-section-heading">
           <span>03</span>
+          <div>
+            <h2>Fotos da moradia</h2>
+            <p>As imagens são obrigatórias e usadas apenas pela equipe na análise da adoção.</p>
+          </div>
+        </div>
+
+        <div className="housing-photo-notice">
+          <strong>Por que pedimos estas fotos?</strong>
+          <p>Queremos confirmar que o ambiente é seguro e compatível com as necessidades de {animal.name}. As fotos ficam vinculadas somente à solicitação de adoção.</p>
+        </div>
+
+        {animal.species === "Gato" && (
+          <HousingPhotoField
+            title="Janelas e telas"
+            text={form.housingType === "Apartamento"
+              ? "Envie fotos das janelas do apartamento para verificarmos se estão devidamente teladas."
+              : form.housingType === "Casa"
+                ? "Envie fotos das janelas da casa para verificarmos se estão devidamente teladas e seguras para o gato."
+                : "Envie fotos das principais janelas e acessos da moradia para verificarmos a segurança para o gato."}
+            requiredText="OBRIGATÓRIO • MÍNIMO 2"
+            items={housingFiles.windows}
+            onAdd={(files) => addHousingFiles("windows", files)}
+            onRemove={(id) => removeHousingFile("windows", id)}
+          />
+        )}
+
+        {animal.species === "Cão" && (
+          <div className="housing-photo-groups">
+            <HousingPhotoField
+              title="Casa / apartamento"
+              text="Mostre o ambiente interno onde o cão ficará e circulará no dia a dia."
+              requiredText="OBRIGATÓRIO • MÍNIMO 1"
+              items={housingFiles.home}
+              onAdd={(files) => addHousingFiles("home", files)}
+              onRemove={(id) => removeHousingFile("home", id)}
+            />
+            <HousingPhotoField
+              title="Pátio / área externa"
+              text="Mostre o pátio, cercamento, portões ou a área externa disponível para o cão."
+              requiredText="OBRIGATÓRIO • MÍNIMO 1"
+              items={housingFiles.patio}
+              onAdd={(files) => addHousingFiles("patio", files)}
+              onRemove={(id) => removeHousingFile("patio", id)}
+            />
+          </div>
+        )}
+      </section>
+
+      <section className="adoption-form-section">
+        <div className="form-section-heading">
+          <span>04</span>
           <div>
             <h2>Quem mora com você?</h2>
             <p>A convivência da casa faz parte da análise.</p>
@@ -348,7 +515,7 @@ export default function AdoptionForm({ animal }) {
 
       <section className="adoption-form-section">
         <div className="form-section-heading">
-          <span>04</span>
+          <span>05</span>
           <div>
             <h2>Rotina do futuro pet</h2>
             <p>Essas respostas ajudam a comparar sua rotina com o perfil do animal.</p>
@@ -388,7 +555,7 @@ export default function AdoptionForm({ animal }) {
 
       <section className="adoption-form-section">
         <div className="form-section-heading">
-          <span>05</span>
+          <span>06</span>
           <div>
             <h2>Experiência e decisão</h2>
             <p>Queremos entender a motivação e o compromisso com a adoção.</p>
@@ -451,7 +618,7 @@ export default function AdoptionForm({ animal }) {
 
       <section className="adoption-form-section declaration-section">
         <div className="form-section-heading">
-          <span>06</span>
+          <span>07</span>
           <div>
             <h2>Confirmação</h2>
             <p>Antes de enviar, confirme as informações abaixo.</p>
@@ -470,6 +637,12 @@ export default function AdoptionForm({ animal }) {
           <span>Autorizo a equipe da Onda Animal a entrar em contato comigo sobre este pedido de adoção.</span>
         </label>
 
+        <label className="declaration-check">
+          <input type="checkbox" checked={form.housingPhotoConsent}
+            onChange={(e) => update("housingPhotoConsent", e.target.checked)} />
+          <span>Autorizo o uso das fotos da minha moradia exclusivamente para a análise desta solicitação de adoção.</span>
+        </label>
+
         <div className="analysis-notice">
           <strong>O que acontece depois?</strong>
           <p>
@@ -480,7 +653,7 @@ export default function AdoptionForm({ animal }) {
         </div>
 
         <button className="button primary adoption-submit-button" type="submit" disabled={sending}>
-          {sending ? "Enviando..." : "Enviar solicitação para análise"}
+          {sending ? (sendingStage || "Enviando...") : "Enviar solicitação para análise"}
         </button>
       </section>
     </form>
