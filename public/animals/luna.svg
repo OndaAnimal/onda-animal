@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700">
+<rect width="900" height="700" fill="#e4e1f5"/>
+<circle cx="740" cy="90" r="210" fill="#736d96" opacity=".12"/>
+<circle cx="125" cy="610" r="180" fill="#736d96" opacity=".10"/>
+<circle cx="450" cy="328" r="220" fill="#fff" opacity=".55"/>
+<text x="450" y="395" text-anchor="middle" font-size="235" font-family="Segoe UI Emoji, Apple Color Emoji, sans-serif">🐈</text>
+<rect x="56" y="50" rx="24" width="168" height="48" fill="#fff" opacity=".92"/>
+<text x="140" y="82" text-anchor="middle" font-size="20" font-weight="700" font-family="Arial" fill="#736d96">EXEMPLO</text>
+</svg>
