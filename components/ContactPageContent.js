@@ -3,9 +3,12 @@
 import Link from "next/link";
 import PageHero from "./PageHero";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { adoptionWhatsAppUrl } from "../lib/whatsapp";
 
 export default function ContactPageContent() {
   const { settings } = useSiteSettings();
+  const adoptionContactName = settings.adoptionContactName || "Luise";
+  const adoptionWhatsApp = adoptionWhatsAppUrl(settings.adoptionWhatsApp, { contactName: adoptionContactName });
 
   return (
     <>
@@ -26,9 +29,15 @@ export default function ContactPageContent() {
               Escolher um animal
             </Link>
 
+            {adoptionWhatsApp && (
+              <a className="button whatsapp-adoption-button full" href={adoptionWhatsApp} target="_blank" rel="noreferrer">
+                Falar com {adoptionContactName} no WhatsApp
+              </a>
+            )}
+
             {(settings.adoptionWhatsApp || settings.adoptionEmail) && (
               <div className="cms-contact-extra">
-                {settings.adoptionWhatsApp && <span>WhatsApp: {settings.adoptionWhatsApp}</span>}
+                {settings.adoptionWhatsApp && <span>{adoptionContactName}: {settings.adoptionWhatsApp}</span>}
                 {settings.adoptionEmail && <span>{settings.adoptionEmail}</span>}
               </div>
             )}

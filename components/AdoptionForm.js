@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { submitAdoptionApplication, uploadAdoptionImage } from "../lib/apiClient";
+import { useSiteSettings } from "./SiteSettingsProvider";
+import { adoptionWhatsAppUrl } from "../lib/whatsapp";
 
 const initialForm = {
   fullName: "",
@@ -85,6 +87,7 @@ function HousingPhotoField({ title, text, requiredText, items, onAdd, onRemove }
 }
 
 export default function AdoptionForm({ animal }) {
+  const { settings } = useSiteSettings();
   const [form, setForm] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [protocol, setProtocol] = useState("");
@@ -235,6 +238,12 @@ export default function AdoptionForm({ animal }) {
     }
   };
 
+  const adoptionContactName = settings.adoptionContactName || "Luise";
+  const adoptionWhatsApp = adoptionWhatsAppUrl(settings.adoptionWhatsApp, {
+    animalName: animal.name,
+    contactName: adoptionContactName,
+  });
+
   if (submitted) {
     return (
       <div className="adoption-success">
@@ -271,6 +280,11 @@ export default function AdoptionForm({ animal }) {
         </div>
 
         <div className="hero-actions adoption-success-actions">
+          {adoptionWhatsApp && (
+            <a className="button whatsapp-adoption-button" href={adoptionWhatsApp} target="_blank" rel="noreferrer">
+              Falar com {adoptionContactName} no WhatsApp
+            </a>
+          )}
           <Link className="button primary" href="/adocao">Ver outros animais</Link>
           <Link className="button secondary" href="/">Voltar ao início</Link>
         </div>

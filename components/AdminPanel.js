@@ -43,7 +43,7 @@ const emptyAnimal = {
   summary: "",
   story: "",
   observations: "",
-  photos: ["", ""],
+  photos: [""],
 };
 
 const applicationStatusLabels = {
@@ -223,7 +223,7 @@ export default function AdminPanel({ initialAnimals }) {
 
   function beginNewAnimal() {
     setEditing("new");
-    setAnimalForm({ ...emptyAnimal, compatibility: { ...emptyAnimal.compatibility }, photos: ["", ""] });
+    setAnimalForm({ ...emptyAnimal, compatibility: { ...emptyAnimal.compatibility }, photos: [""] });
     setTemperamentText("");
     setTab("animals");
   }
@@ -233,7 +233,7 @@ export default function AdminPanel({ initialAnimals }) {
     setAnimalForm({
       ...animal,
       compatibility: { ...emptyAnimal.compatibility, ...(animal.compatibility || {}) },
-      photos: [...(animal.photos || ["", ""]), "", ""].slice(0, 2),
+      photos: (animal.photos || []).filter(Boolean).length ? (animal.photos || []).filter(Boolean) : [""],
     });
     setTemperamentText((animal.temperament || []).join(", "));
   }
@@ -277,6 +277,20 @@ async function uploadPhoto(index, file) {
   }
 }
 
+function addAnimalPhotoSlot() {
+  setAnimalForm((current) => ({
+    ...current,
+    photos: [...(current.photos || []), ""],
+  }));
+}
+
+function removeAnimalPhoto(index) {
+  setAnimalForm((current) => {
+    const next = (current.photos || []).filter((_, photoIndex) => photoIndex !== index);
+    return { ...current, photos: next.length ? next : [""] };
+  });
+}
+
 async function saveAnimal(event) {
     event.preventDefault();
     const slug = animalForm.slug || slugify(animalForm.name);
@@ -284,14 +298,16 @@ async function saveAnimal(event) {
       notify("Informe o nome do animal.");
       return;
     }
-    if (!animalForm.photos[0] || !animalForm.photos[1]) {
-      notify("Adicione as duas fotos do animal.");
+    const cleanPhotos = (animalForm.photos || []).filter(Boolean);
+    if (!cleanPhotos.length) {
+      notify("Adicione pelo menos uma foto do animal.");
       return;
     }
 
     const record = {
       ...animalForm,
       slug,
+      photos: cleanPhotos,
       temperament: temperamentText.split(",").map((item) => item.trim()).filter(Boolean),
     };
 
@@ -836,16 +852,39 @@ async function resetSiteSettings() {
 
                 <div className="admin-form-section">
                   <h3>Fotos</h3>
-                  <p>Adicione duas fotos. Elas são comprimidas automaticamente para teste local.</p>
-                  <div className="admin-photo-grid">
-                    {[0, 1].map((index) => (
-                      <label className="admin-photo-uploader" key={index}>
-                        {animalForm.photos[index] ? <img src={animalForm.photos[index]} alt={`Foto ${index + 1}`} /> : <div><strong>+ Foto {index + 1}</strong><span>JPG ou PNG</span></div>}
-                        <input type="file" accept="image/*" onChange={(e) => uploadPhoto(index, e.target.files?.[0])} />
-                      </label>
+                  <p>É obrigatória apenas 1 foto. Se tiver outras, adicione quantas quiser para formar a galeria do animal.</p>
+                  <div className="admin-photo-grid dynamic">
+                    {(animalForm.photos || [""]).map((photo, index) => (
+                      <div className="admin-photo-item" key={`${index}-${photo || "empty"}`}>
+                        <label className="admin-photo-uploader">
+                          {photo ? (
+                            <>
+                              <img src={photo} alt={`Foto ${index + 1}`} />
+                              <span className="admin-photo-replace">Trocar foto</span>
+                            </>
+                          ) : (
+                            <div>
+                              <strong>+ {index === 0 ? "Foto principal" : `Foto ${index + 1}`}</strong>
+                              <span>JPG, PNG ou WEBP</span>
+                            </div>
+                          )}
+                          <input type="file" accept="image/*" onChange={(e) => uploadPhoto(index, e.target.files?.[0])} />
+                        </label>
+                        {(animalForm.photos || []).length > 1 && (
+                          <button className="admin-photo-remove" type="button" onClick={() => removeAnimalPhoto(index)}>
+                            Remover
+                          </button>
+                        )}
+                      </div>
                     ))}
+
+                    <button className="admin-add-photo" type="button" onClick={addAnimalPhotoSlot}>
+                      <span>＋</span>
+                      <strong>Adicionar outra foto</strong>
+                      <small>Opcional</small>
+                    </button>
                   </div>
-                  {savingPhoto && <small className="admin-uploading">Processando foto...</small>}
+                  {savingPhoto && <small className="admin-uploading">Enviando foto para o Cloudinary...</small>}
                 </div>
 
                 <div className="admin-form-section">
@@ -1565,13 +1604,22 @@ async function resetSiteSettings() {
 
                       <div className="cms-field-grid">
                         <label>
-                          <span>WhatsApp de adoção</span>
-                          <input value={settings.adoptionWhatsApp} onChange={(e) => updateSetting("adoptionWhatsApp", e.target.value)} placeholder="(51) 99999-9999" />
+                          <span>Responsável pelas adoções</span>
+                          <input value={settings.adoptionContactName || "Luise"} onChange={(e) => updateSetting("adoptionContactName", e.target.value)} placeholder="Luise" />
                         </label>
                         <label>
+                          <span>WhatsApp da Luise / adoções</span>
+                          <input value={settings.adoptionWhatsApp} onChange={(e) => updateSetting("adoptionWhatsApp", e.target.value)} placeholder="(51) 99999-9999" />
+                        </label>
+                        <label className="span-2">
                           <span>E-mail de adoção</span>
                           <input type="email" value={settings.adoptionEmail} onChange={(e) => updateSetting("adoptionEmail", e.target.value)} />
                         </label>
+                      </div>
+
+                      <div className="cms-note">
+                        <strong>Botão do WhatsApp</strong>
+                        <p>Depois de preencher o número acima, o site exibe “Falar com {settings.adoptionContactName || "Luise"} no WhatsApp” nos perfis dos animais e na área de contato.</p>
                       </div>
 
                       <div className="cms-switch-list">

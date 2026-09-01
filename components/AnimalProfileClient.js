@@ -3,8 +3,11 @@
 
 import Link from "next/link";
 import AnimalGallery from "./AnimalGallery";
+import { useSiteSettings } from "./SiteSettingsProvider";
+import { adoptionWhatsAppUrl } from "../lib/whatsapp";
 
 export default function AnimalProfileClient({ slug, initialAnimals }) {
+  const { settings } = useSiteSettings();
   const animal = initialAnimals.find((a) => a.slug === slug) || null;
 
   if (!animal) {
@@ -19,6 +22,11 @@ export default function AnimalProfileClient({ slug, initialAnimals }) {
   }
 
   const canApply = animal.status === "Disponível" || animal.status === "Em processo";
+  const adoptionContactName = settings.adoptionContactName || "Luise";
+  const whatsappHref = adoptionWhatsAppUrl(settings.adoptionWhatsApp, {
+    animalName: animal.name,
+    contactName: adoptionContactName,
+  });
 
   return (
     <>
@@ -46,11 +54,18 @@ export default function AnimalProfileClient({ slug, initialAnimals }) {
               <span className={animal.neutered ? "ok" : ""}>{animal.neutered ? "✓ Castrado" : "Ainda não castrado"}</span>
               <span className={animal.dewormed ? "ok" : ""}>{animal.dewormed ? "✓ Vermifugado" : "Vermifugação pendente"}</span>
             </div>
-            {canApply ? (
-              <Link className="button primary adoption-main-button" href={`/adocao/${animal.slug}/formulario`}>Quero adotar {animal.name}</Link>
-            ) : (
-              <span className="animal-unavailable-note">Este animal está com status: {animal.status}.</span>
-            )}
+            <div className="animal-adoption-actions">
+              {canApply ? (
+                <Link className="button primary adoption-main-button" href={`/adocao/${animal.slug}/formulario`}>Quero adotar {animal.name}</Link>
+              ) : (
+                <span className="animal-unavailable-note">Este animal está com status: {animal.status}.</span>
+              )}
+              {whatsappHref && (
+                <a className="button whatsapp-adoption-button" href={whatsappHref} target="_blank" rel="noreferrer">
+                  Falar com {adoptionContactName} no WhatsApp
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -66,7 +81,23 @@ export default function AnimalProfileClient({ slug, initialAnimals }) {
       </section>
 
       {canApply && (
-        <section className="profile-cta-section"><div className="container profile-cta-box"><div><span className="eyebrow light">Gostou de {animal.name}?</span><h2>Envie seu formulário para análise.</h2><p>A equipe verifica se sua rotina combina com as necessidades do animal.</p></div><Link className="button white" href={`/adocao/${animal.slug}/formulario`}>Preencher formulário</Link></div></section>
+        <section className="profile-cta-section">
+          <div className="container profile-cta-box">
+            <div>
+              <span className="eyebrow light">Gostou de {animal.name}?</span>
+              <h2>Envie seu formulário para análise.</h2>
+              <p>A equipe verifica se sua rotina combina com as necessidades do animal.</p>
+            </div>
+            <div className="profile-cta-actions">
+              <Link className="button white" href={`/adocao/${animal.slug}/formulario`}>Preencher formulário</Link>
+              {whatsappHref && (
+                <a className="button profile-whatsapp-button" href={whatsappHref} target="_blank" rel="noreferrer">
+                  WhatsApp da {adoptionContactName}
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
       )}
     </>
   );

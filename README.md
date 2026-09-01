@@ -373,3 +373,10 @@ Regras simplificadas do formulário de adoção:
 - O campo de foto “Casa / apartamento” foi removido.
 - O servidor repete a mesma validação antes de gravar a solicitação no Neon.
 - As imagens continuam sendo enviadas ao Cloudinary e as URLs ficam na solicitação.
+
+
+## V18 — fotos flexíveis e WhatsApp de adoção
+- Cadastro de animal exige somente 1 foto.
+- É possível adicionar várias fotos; com uma única foto o perfil público não mostra miniaturas nem contador.
+- O CMS ganhou o campo `Responsável pelas adoções` (padrão: Luise) e usa `adoptionWhatsApp` para o contato.
+- Perfis dos animais, página de contato e confirmação do formulário podem exibir botão direto para o WhatsApp da responsável.

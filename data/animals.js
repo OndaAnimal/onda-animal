@@ -21,7 +21,7 @@ export const animals = [
     compatibility: { dogs: "Sim", cats: "Não avaliado", children: "Sim, maiores" },
     idealHome: "Lar tranquilo, com espaço e pessoas que gostem de companhia constante.",
     summary: "Grandão, tranquilo e muito companheiro.",
-    story: "Thor é um cadastro de demonstração. A página já está preparada para receber duas fotos reais, histórico, comportamento e necessidades especiais.",
+    story: "Thor é um cadastro de demonstração. A página já está preparada para receber fotos reais, histórico, comportamento e necessidades especiais.",
     observations: "Perfil ilustrativo. A convivência com outros animais precisa ser confirmada no cadastro real.",
     photos: ["/animals/thor-1.svg", "/animals/thor-2.svg"],
   },

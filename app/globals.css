@@ -3433,3 +3433,90 @@ footer{background:var(--cms-footer-bg)}
 @media(max-width:440px){
   .housing-photo-previews,.admin-application-photo-group>div{grid-template-columns:1fr}
 }
+
+/* FLEXIBLE ANIMAL PHOTOS + ADOPTION WHATSAPP V18 */
+.admin-photo-grid.dynamic{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:stretch;
+}
+.admin-photo-item{position:relative;min-width:0}
+.admin-photo-item .admin-photo-uploader{height:100%}
+.admin-photo-replace{
+  position:absolute;
+  left:50%;
+  bottom:12px;
+  transform:translateX(-50%);
+  padding:7px 10px;
+  border-radius:999px;
+  color:#fff!important;
+  background:rgba(11,55,64,.8);
+  font-size:9px!important;
+  font-weight:900;
+  white-space:nowrap;
+}
+.admin-photo-remove{
+  position:absolute;
+  z-index:3;
+  top:10px;
+  right:10px;
+  padding:7px 9px;
+  border:0;
+  border-radius:9px;
+  color:#fff;
+  background:rgba(157,49,71,.9);
+  font-size:9px;
+  font-weight:850;
+  cursor:pointer;
+  box-shadow:0 5px 15px rgba(80,20,35,.15);
+}
+.admin-add-photo{
+  min-height:230px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:5px;
+  border:1px dashed #9fcfd0;
+  border-radius:16px;
+  color:var(--teal-deep);
+  background:#f2faf9;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.admin-add-photo:hover{border-color:var(--teal-dark);background:#eaf7f5;transform:translateY(-2px)}
+.admin-add-photo>span{font-size:28px;line-height:1}
+.admin-add-photo>strong{font-size:12px}
+.admin-add-photo>small{color:#82969a;font-size:9px}
+
+.animal-adoption-actions{
+  margin-top:26px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+.animal-adoption-actions .adoption-main-button{margin-top:0}
+.whatsapp-adoption-button{
+  border:1px solid #21a663!important;
+  color:#fff!important;
+  background:#25d366!important;
+  box-shadow:0 12px 26px rgba(37,211,102,.18)!important;
+}
+.whatsapp-adoption-button:hover{background:#20bd5a!important;transform:translateY(-1px)}
+.profile-cta-actions{display:flex;flex-direction:column;gap:9px;min-width:220px}
+.profile-whatsapp-button{
+  border:1px solid rgba(255,255,255,.28)!important;
+  color:#fff!important;
+  background:#25b960!important;
+  text-align:center;
+}
+.contact-purpose-card .whatsapp-adoption-button{margin-top:9px}
+
+@media(max-width:900px){
+  .admin-photo-grid.dynamic{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .admin-photo-grid.dynamic{grid-template-columns:1fr}
+  .animal-adoption-actions{align-items:stretch;flex-direction:column}
+  .animal-adoption-actions .button{width:100%;text-align:center}
+  .profile-cta-actions{width:100%;min-width:0}
+}

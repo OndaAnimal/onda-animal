@@ -20,7 +20,7 @@ function destination(scope, key) {
   }
 
   if (scope === "animal") {
-    if (!/^[a-z0-9-]+\/photo-[12]$/.test(safeKey)) {
+    if (!/^[a-z0-9-]+\/photo-[1-9][0-9]*$/.test(safeKey)) {
       throw new Error("Destino da foto do animal inválido.");
     }
     return `onda-animal/animals/${safeKey}`;
