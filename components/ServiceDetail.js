@@ -22,7 +22,7 @@ export default function ServiceDetail({ service }) {
             <span className="unit-label">PRÓXIMO PASSO</span>
             <h3>Quer saber horários ou disponibilidade?</h3>
             <p>Escolha sua unidade ou fale diretamente com a equipe.</p>
-            <Link className="button primary full" href="/agendamento">Agendar atendimento</Link>
+            <Link className="button primary full" href={`/agendamento?servico=${encodeURIComponent(service.title)}`}>Agendar atendimento</Link>
             <Link className="button secondary full" href="/unidades">Ver unidades</Link>
           </aside>
         </div>

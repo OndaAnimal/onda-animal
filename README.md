@@ -380,3 +380,11 @@ Regras simplificadas do formulário de adoção:
 - É possível adicionar várias fotos; com uma única foto o perfil público não mostra miniaturas nem contador.
 - O CMS ganhou o campo `Responsável pelas adoções` (padrão: Luise) e usa `adoptionWhatsApp` para o contato.
 - Perfis dos animais, página de contato e confirmação do formulário podem exibir botão direto para o WhatsApp da responsável.
+
+
+## V19 — WhatsApp por unidade da clínica
+
+- O painel possui campos separados de WhatsApp para Gravataí e Cachoeirinha em `Configurações → Contatos`.
+- Ao abrir um serviço e clicar em `Agendar atendimento`, a página de agendamento mostra as duas unidades com o número configurado e botão direto para WhatsApp.
+- O serviço escolhido é preservado na mensagem enviada ao WhatsApp.
+- Nas páginas individuais das unidades, o botão de agendamento também abre o WhatsApp correspondente e não retorna mais ao fluxo de agendamento.

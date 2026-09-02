@@ -1651,6 +1651,8 @@ async function resetSiteSettings() {
                         <label><span>Telefone 1 para link</span><input value={settings.phone1Raw} onChange={(e) => updateSetting("phone1Raw", e.target.value)} placeholder="+5551..." /></label>
                         <label><span>Telefone 2 exibido</span><input value={settings.phone2} onChange={(e) => updateSetting("phone2", e.target.value)} /></label>
                         <label><span>Telefone 2 para link</span><input value={settings.phone2Raw} onChange={(e) => updateSetting("phone2Raw", e.target.value)} placeholder="+5551..." /></label>
+                        <label><span>WhatsApp Gravataí</span><input value={settings.gravataiWhatsApp || ""} onChange={(e) => updateSetting("gravataiWhatsApp", e.target.value)} placeholder="(51) 99999-9999" /></label>
+                        <label><span>WhatsApp Cachoeirinha</span><input value={settings.cachoeirinhaWhatsApp || ""} onChange={(e) => updateSetting("cachoeirinhaWhatsApp", e.target.value)} placeholder="(51) 99999-9999" /></label>
                         <label className="span-2"><span>E-mail geral</span><input type="email" value={settings.generalEmail} onChange={(e) => updateSetting("generalEmail", e.target.value)} /></label>
                         <label className="span-2"><span>Instagram (URL completa)</span><input value={settings.instagram} onChange={(e) => updateSetting("instagram", e.target.value)} placeholder="https://instagram.com/..." /></label>
                         <label className="span-2"><span>Facebook (URL completa)</span><input value={settings.facebook} onChange={(e) => updateSetting("facebook", e.target.value)} placeholder="https://facebook.com/..." /></label>

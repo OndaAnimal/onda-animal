@@ -3520,3 +3520,75 @@ footer{background:var(--cms-footer-bg)}
   .animal-adoption-actions .button{width:100%;text-align:center}
   .profile-cta-actions{width:100%;min-width:0}
 }
+
+/* WHATSAPP POR UNIDADE V19 */
+.booking-card-whatsapp{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.booking-service-selected{
+  margin:8px 0 18px!important;
+  color:var(--muted)!important;
+  font-size:12px!important;
+}
+
+.booking-service-selected strong{
+  color:var(--navy);
+}
+
+.whatsapp-clinic-button{
+  margin-top:auto;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:6px 10px;
+  color:#fff!important;
+  background:#1fa855!important;
+  border-color:#1fa855!important;
+  box-shadow:0 12px 28px rgba(31,168,85,.18)!important;
+}
+
+.whatsapp-clinic-button:hover{
+  background:#178c47!important;
+  border-color:#178c47!important;
+}
+
+.whatsapp-clinic-button strong{
+  font-size:inherit;
+  color:inherit;
+}
+
+.booking-whatsapp-missing{
+  width:100%;
+  margin-top:auto;
+  padding:14px 15px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  border:1px solid #e3eaea;
+  border-radius:12px;
+  color:#667b80;
+  background:#f8fbfb;
+}
+
+.booking-whatsapp-missing strong{
+  color:var(--navy);
+  font-size:11px;
+}
+
+.booking-whatsapp-missing span{
+  font-size:9px;
+  line-height:1.45;
+}
+
+.booking-loading{
+  padding:30px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  color:var(--muted);
+  background:#fff;
+  text-align:center;
+}

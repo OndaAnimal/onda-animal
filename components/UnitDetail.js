@@ -1,7 +1,7 @@
-import Link from "next/link";
 import SiteShell from "./SiteShell";
 import PageHero from "./PageHero";
 import ContactCTA from "./ContactCTA";
+import UnitContactActions from "./UnitContactActions";
 
 export default function UnitDetail({ city, address, description }) {
   return (
@@ -21,8 +21,7 @@ export default function UnitDetail({ city, address, description }) {
             <span className="unit-label">ATENDIMENTO</span>
             <h3>Fale com a unidade.</h3>
             <p>Consulte horários, serviços e disponibilidade antes de se deslocar.</p>
-            <Link className="button primary full" href="/agendamento">Agendar atendimento</Link>
-            <Link className="button secondary full" href="/contato">Ver contatos</Link>
+            <UnitContactActions city={city} />
           </aside>
         </div>
       </section>
