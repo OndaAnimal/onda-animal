@@ -4,6 +4,7 @@ import Link from "next/link";
 import PageHero from "./PageHero";
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { adoptionWhatsAppUrl } from "../lib/whatsapp";
+import { maskBrazilPhone } from "../lib/masks";
 
 export default function ContactPageContent() {
   const { settings } = useSiteSettings();
@@ -37,7 +38,7 @@ export default function ContactPageContent() {
 
             {(settings.adoptionWhatsApp || settings.adoptionEmail) && (
               <div className="cms-contact-extra">
-                {settings.adoptionWhatsApp && <span>{adoptionContactName}: {settings.adoptionWhatsApp}</span>}
+                {settings.adoptionWhatsApp && <span>{adoptionContactName}: {maskBrazilPhone(settings.adoptionWhatsApp)}</span>}
                 {settings.adoptionEmail && <span>{settings.adoptionEmail}</span>}
               </div>
             )}
@@ -51,12 +52,12 @@ export default function ContactPageContent() {
             <div className="contact-list">
               {settings.phone1 && (
                 <a href={`tel:${settings.phone1Raw || ""}`}>
-                  <strong>{settings.phone1}</strong><span>Ligar</span>
+                  <strong>{maskBrazilPhone(settings.phone1)}</strong><span>Ligar</span>
                 </a>
               )}
               {settings.phone2 && (
                 <a href={`tel:${settings.phone2Raw || ""}`}>
-                  <strong>{settings.phone2}</strong><span>Ligar</span>
+                  <strong>{maskBrazilPhone(settings.phone2)}</strong><span>Ligar</span>
                 </a>
               )}
             </div>

@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { clinicWhatsAppUrl } from "../lib/whatsapp";
+import { maskBrazilPhone } from "../lib/masks";
 
 function UnitBookingCard({ city, whatsapp, service }) {
   const url = clinicWhatsAppUrl(whatsapp, { city, service });
@@ -16,7 +17,7 @@ function UnitBookingCard({ city, whatsapp, service }) {
       {url ? (
         <a className="button whatsapp-clinic-button full" href={url} target="_blank" rel="noreferrer">
           <span>WhatsApp {city}</span>
-          <strong>{whatsapp}</strong>
+          <strong>{maskBrazilPhone(whatsapp)}</strong>
         </a>
       ) : (
         <div className="booking-whatsapp-missing">

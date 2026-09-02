@@ -6,6 +6,7 @@ import {
   connectAction,
   getConnectConversation,
 } from "../lib/apiClient";
+import { maskBrazilPhone } from "../lib/masks";
 
 const VISITOR_KEY = "forge_connect_onda_visitor_v1";
 
@@ -225,9 +226,12 @@ export default function ForgeConnectWidget() {
               <label>
                 <span>WhatsApp</span>
                 <input
+                  type="tel"
+                  inputMode="tel"
                   value={profileForm.whatsapp}
-                  onChange={(e) => setProfileForm({ ...profileForm, whatsapp: e.target.value })}
+                  onChange={(e) => setProfileForm({ ...profileForm, whatsapp: maskBrazilPhone(e.target.value) })}
                   placeholder="(51) 99999-9999"
+                  maxLength={15}
                   required
                 />
               </label>

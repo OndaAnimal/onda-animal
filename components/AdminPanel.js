@@ -16,6 +16,7 @@ import {
   DEFAULT_SITE_SETTINGS,
 } from "../lib/localData";
 import { adminAction, adminLogin, adminLogout, adminSession, loadAdminState, uploadAdminImage } from "../lib/apiClient";
+import { maskBrazilPhone, maskPin, maskYear } from "../lib/masks";
 
 const emptyAnimal = {
   slug: "",
@@ -733,7 +734,7 @@ async function resetSiteSettings() {
           <p>Entre com o PIN administrativo.</p>
           <label>
             <span>PIN</span>
-            <input autoFocus type="password" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="••••" />
+            <input autoFocus type="password" inputMode="numeric" value={pin} onChange={(e) => setPin(maskPin(e.target.value))} placeholder="••••" maxLength={8} />
           </label>
           {loginError && <div className="admin-login-error">{loginError}</div>}
           <button className="button primary full" type="submit">Entrar no painel</button>
@@ -894,7 +895,7 @@ async function resetSiteSettings() {
                     <label><span>Espécie</span><select value={animalForm.species} onChange={(e) => updateAnimal("species", e.target.value)}><option>Cão</option><option>Gato</option></select></label>
                     <label><span>Sexo</span><select value={animalForm.sex} onChange={(e) => updateAnimal("sex", e.target.value)}><option>Macho</option><option>Fêmea</option></select></label>
                     <label><span>Idade</span><input value={animalForm.age} onChange={(e) => updateAnimal("age", e.target.value)} placeholder="Ex.: 2 anos" /></label>
-                    <label><span>Nascimento aproximado</span><input value={animalForm.approximateBirth || ""} onChange={(e) => updateAnimal("approximateBirth", e.target.value)} placeholder="Ex.: 2024" /></label>
+                    <label><span>Nascimento aproximado</span><input inputMode="numeric" value={animalForm.approximateBirth || ""} onChange={(e) => updateAnimal("approximateBirth", maskYear(e.target.value))} placeholder="Ex.: 2024" maxLength={4} /></label>
                     <label><span>Raça</span><input value={animalForm.breed || ""} onChange={(e) => updateAnimal("breed", e.target.value)} /></label>
                     <label><span>Cor</span><input value={animalForm.color || ""} onChange={(e) => updateAnimal("color", e.target.value)} /></label>
                     <label><span>Porte</span><select value={animalForm.size} onChange={(e) => updateAnimal("size", e.target.value)}><option>Pequeno</option><option>Médio</option><option>Grande</option></select></label>
@@ -1005,7 +1006,7 @@ async function resetSiteSettings() {
                 {!selectedApplication ? <div className="admin-empty big">Selecione uma solicitação para analisar.</div> : (
                   <>
                     <div className="admin-app-detail-head"><div><span>{selectedApplication.id}</span><h2>{selectedApplication.applicant?.fullName}</h2><p>Interesse em <b>{selectedApplication.animalName}</b></p></div><select value={selectedApplication.status} onChange={(e) => updateApplication(selectedApplication.id, { status: e.target.value })}>{Object.entries(applicationStatusLabels).map(([value,label]) => <option value={value} key={value}>{label}</option>)}</select></div>
-                    <div className="admin-applicant-contact"><a href={`tel:${selectedApplication.applicant?.whatsapp || ''}`}>{selectedApplication.applicant?.whatsapp || "Sem telefone"}</a><span>{selectedApplication.applicant?.email || "Sem e-mail"}</span><span>{selectedApplication.applicant?.city || ""} • {selectedApplication.applicant?.neighborhood || ""}</span></div>
+                    <div className="admin-applicant-contact"><a href={`tel:${selectedApplication.applicant?.whatsapp || ''}`}>{selectedApplication.applicant?.whatsapp ? maskBrazilPhone(selectedApplication.applicant.whatsapp) : "Sem telefone"}</a><span>{selectedApplication.applicant?.email || "Sem e-mail"}</span><span>{selectedApplication.applicant?.city || ""} • {selectedApplication.applicant?.neighborhood || ""}</span></div>
                     <div className="admin-answer-grid">
                       {[
                         ["Idade", selectedApplication.applicant?.age],
@@ -1149,7 +1150,7 @@ async function resetSiteSettings() {
                         <div>
                           <strong>{selected.visitor?.name || "Visitante"}</strong>
                           <span>
-                            {selected.visitor?.whatsapp || "Sem WhatsApp"} •{" "}
+                            {selected.visitor?.whatsapp ? maskBrazilPhone(selected.visitor.whatsapp) : "Sem WhatsApp"} •{" "}
                             {selected.topic || "Sem assunto"}
                           </span>
                         </div>
@@ -1609,7 +1610,7 @@ async function resetSiteSettings() {
                         </label>
                         <label>
                           <span>WhatsApp da Luise / adoções</span>
-                          <input value={settings.adoptionWhatsApp} onChange={(e) => updateSetting("adoptionWhatsApp", e.target.value)} placeholder="(51) 99999-9999" />
+                          <input type="tel" inputMode="tel" value={maskBrazilPhone(settings.adoptionWhatsApp)} onChange={(e) => updateSetting("adoptionWhatsApp", maskBrazilPhone(e.target.value))} placeholder="(51) 99999-9999" maxLength={15} />
                         </label>
                         <label className="span-2">
                           <span>E-mail de adoção</span>
@@ -1647,12 +1648,12 @@ async function resetSiteSettings() {
                       </div>
 
                       <div className="cms-field-grid">
-                        <label><span>Telefone 1 exibido</span><input value={settings.phone1} onChange={(e) => updateSetting("phone1", e.target.value)} /></label>
+                        <label><span>Telefone 1 exibido</span><input type="tel" inputMode="tel" value={maskBrazilPhone(settings.phone1)} onChange={(e) => updateSetting("phone1", maskBrazilPhone(e.target.value))} maxLength={15} /></label>
                         <label><span>Telefone 1 para link</span><input value={settings.phone1Raw} onChange={(e) => updateSetting("phone1Raw", e.target.value)} placeholder="+5551..." /></label>
-                        <label><span>Telefone 2 exibido</span><input value={settings.phone2} onChange={(e) => updateSetting("phone2", e.target.value)} /></label>
+                        <label><span>Telefone 2 exibido</span><input type="tel" inputMode="tel" value={maskBrazilPhone(settings.phone2)} onChange={(e) => updateSetting("phone2", maskBrazilPhone(e.target.value))} maxLength={15} /></label>
                         <label><span>Telefone 2 para link</span><input value={settings.phone2Raw} onChange={(e) => updateSetting("phone2Raw", e.target.value)} placeholder="+5551..." /></label>
-                        <label><span>WhatsApp Gravataí</span><input value={settings.gravataiWhatsApp || ""} onChange={(e) => updateSetting("gravataiWhatsApp", e.target.value)} placeholder="(51) 99999-9999" /></label>
-                        <label><span>WhatsApp Cachoeirinha</span><input value={settings.cachoeirinhaWhatsApp || ""} onChange={(e) => updateSetting("cachoeirinhaWhatsApp", e.target.value)} placeholder="(51) 99999-9999" /></label>
+                        <label><span>WhatsApp Gravataí</span><input type="tel" inputMode="tel" value={maskBrazilPhone(settings.gravataiWhatsApp || "")} onChange={(e) => updateSetting("gravataiWhatsApp", maskBrazilPhone(e.target.value))} placeholder="(51) 99999-9999" maxLength={15} /></label>
+                        <label><span>WhatsApp Cachoeirinha</span><input type="tel" inputMode="tel" value={maskBrazilPhone(settings.cachoeirinhaWhatsApp || "")} onChange={(e) => updateSetting("cachoeirinhaWhatsApp", maskBrazilPhone(e.target.value))} placeholder="(51) 99999-9999" maxLength={15} /></label>
                         <label className="span-2"><span>E-mail geral</span><input type="email" value={settings.generalEmail} onChange={(e) => updateSetting("generalEmail", e.target.value)} /></label>
                         <label className="span-2"><span>Instagram (URL completa)</span><input value={settings.instagram} onChange={(e) => updateSetting("instagram", e.target.value)} placeholder="https://instagram.com/..." /></label>
                         <label className="span-2"><span>Facebook (URL completa)</span><input value={settings.facebook} onChange={(e) => updateSetting("facebook", e.target.value)} placeholder="https://facebook.com/..." /></label>

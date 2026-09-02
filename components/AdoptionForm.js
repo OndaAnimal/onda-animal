@@ -5,6 +5,7 @@ import Link from "next/link";
 import { submitAdoptionApplication, uploadAdoptionImage } from "../lib/apiClient";
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { adoptionWhatsAppUrl } from "../lib/whatsapp";
+import { maskBrazilPhone, maskInteger } from "../lib/masks";
 
 const initialForm = {
   fullName: "",
@@ -353,12 +354,12 @@ export default function AdoptionForm({ animal }) {
 
           <label className="field">
             <span>Idade *</span>
-            <input type="number" min="18" value={form.age} onChange={(e) => update("age", e.target.value)} placeholder="Ex.: 31" />
+            <input inputMode="numeric" value={form.age} onChange={(e) => update("age", maskInteger(e.target.value, 3))} placeholder="Ex.: 31" maxLength={3} />
           </label>
 
           <label className="field">
             <span>WhatsApp *</span>
-            <input value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="(51) 99999-9999" />
+            <input type="tel" inputMode="tel" value={form.whatsapp} onChange={(e) => update("whatsapp", maskBrazilPhone(e.target.value))} placeholder="(51) 99999-9999" maxLength={15} />
           </label>
 
           <label className="field span-2">
@@ -478,7 +479,7 @@ export default function AdoptionForm({ animal }) {
         <div className="adoption-fields-grid">
           <label className="field">
             <span>Quantos adultos moram na casa? *</span>
-            <input type="number" min="1" value={form.adults} onChange={(e) => update("adults", e.target.value)} placeholder="Ex.: 2" />
+            <input inputMode="numeric" value={form.adults} onChange={(e) => update("adults", maskInteger(e.target.value, 2))} placeholder="Ex.: 2" maxLength={2} />
           </label>
 
           <label className="field">

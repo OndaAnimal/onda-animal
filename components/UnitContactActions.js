@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { clinicWhatsAppUrl } from "../lib/whatsapp";
+import { maskBrazilPhone } from "../lib/masks";
 
 export default function UnitContactActions({ city }) {
   const { settings } = useSiteSettings();
@@ -13,7 +14,7 @@ export default function UnitContactActions({ city }) {
     <>
       {url ? (
         <a className="button whatsapp-clinic-button full" href={url} target="_blank" rel="noreferrer">
-          WhatsApp {city} • {whatsapp}
+          WhatsApp {city} • {maskBrazilPhone(whatsapp)}
         </a>
       ) : (
         <Link className="button primary full" href="/agendamento">Escolher unidade para agendar</Link>

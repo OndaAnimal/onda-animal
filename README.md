@@ -388,3 +388,13 @@ Regras simplificadas do formulário de adoção:
 - Ao abrir um serviço e clicar em `Agendar atendimento`, a página de agendamento mostra as duas unidades com o número configurado e botão direto para WhatsApp.
 - O serviço escolhido é preservado na mensagem enviada ao WhatsApp.
 - Nas páginas individuais das unidades, o botão de agendamento também abre o WhatsApp correspondente e não retorna mais ao fluxo de agendamento.
+
+
+## V20 — máscaras padronizadas
+
+- Telefones e WhatsApps usam máscara brasileira `(DD) 99999-9999` / `(DD) 9999-9999`.
+- A máscara foi aplicada ao formulário de adoção, Forge Connect, contatos e campos do painel.
+- Nascimento aproximado aceita somente 4 dígitos.
+- PIN do painel e campos numéricos relevantes aceitam somente números.
+- Datas continuam usando o seletor nativo de data do navegador.
+- Nenhum fluxo, regra ou layout foi alterado nesta versão.
