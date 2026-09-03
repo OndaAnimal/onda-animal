@@ -15,9 +15,10 @@ import {
   saveStories,
   DEFAULT_SITE_SETTINGS,
 } from "../lib/localData";
-import { adminAction, adminLogin, adminLogout, adminSession, loadAdminState, uploadAdminImage, analyzeAnimalWithAi, composeAnimalTextsWithAi, rewriteAnimalTextWithAi } from "../lib/apiClient";
+import { adminAction, adminLogin, adminLogout, adminSession, loadAdminState, uploadAdminImage } from "../lib/apiClient";
 import { maskBrazilPhone, maskPin, maskYear } from "../lib/masks";
 import { veterinarians as seedVeterinarians } from "../data/veterinarians";
+import { ANIMAL_SELECTION_FIELDS } from "../data/animalProfileOptions";
 
 const emptyAnimal = {
   slug: "",
@@ -134,10 +135,8 @@ export default function AdminPanel({ initialAnimals }) {
   const [migratingLegacyImages, setMigratingLegacyImages] = useState(false);
 
 const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
-const [aiLoading, setAiLoading] = useState(false);
-const [aiReview, setAiReview] = useState(null);
-const [aiComposeLoading, setAiComposeLoading] = useState(false);
-const [aiRewriteField, setAiRewriteField] = useState("");
+  const [animalSelectionModal, setAnimalSelectionModal] = useState(null);
+  const [animalSelectionDraft, setAnimalSelectionDraft] = useState("");
 
   useEffect(() => {
     setAnimals(loadAnimals(initialAnimals));
@@ -402,7 +401,6 @@ const [aiRewriteField, setAiRewriteField] = useState("");
     setAnimalForm({ ...emptyAnimal, compatibility: { ...emptyAnimal.compatibility }, photos: [""] });
     setTemperamentText("");
     setAnimalDraftKey(`rascunho-${Date.now()}`);
-    setAiReview(null);
     setTab("animals");
   }
 
@@ -413,9 +411,8 @@ const [aiRewriteField, setAiRewriteField] = useState("");
       compatibility: { ...emptyAnimal.compatibility, ...(animal.compatibility || {}) },
       photos: (animal.photos || []).filter(Boolean).length ? (animal.photos || []).filter(Boolean) : [""],
     });
-    setTemperamentText((animal.temperament || []).join(", "));
+    setTemperamentText((animal.temperament || [])[0] || "");
     setAnimalDraftKey(animal.slug || `rascunho-${Date.now()}`);
-    setAiReview(null);
   }
 
   function updateAnimal(field, value) {
@@ -468,163 +465,45 @@ function removeAnimalPhoto(index) {
 
 
 
-async function startAnimalAiAnalysis() {
-  const photos = (animalForm.photos || []).filter(Boolean).slice(0, 4);
-  if (!photos.length) {
-    notify("Adicione pelo menos uma foto antes de usar a IA.");
-    return;
-  }
 
-  setAiLoading(true);
-  try {
-    const result = await analyzeAnimalWithAi(photos);
-    setAiReview({
-      name: result.nameSuggestion || animalForm.name || "",
-      species: result.species || animalForm.species || "Cão",
-      sex: result.sex || "Não identificado",
-      age: result.age || animalForm.age || "",
-      approximateBirth: maskYear(result.approximateBirth || animalForm.approximateBirth || ""),
-      breed: result.breed || animalForm.breed || "Sem raça definida",
-      color: result.color || animalForm.color || "",
-      size: result.size || animalForm.size || "Não identificado",
-      weight: result.weight === "Não estimado" ? "" : (result.weight || animalForm.weight || ""),
-      visualNotes: result.visualNotes || "",
-      confidenceSummary: result.confidenceSummary || "",
-      uncertainFields: Array.isArray(result.uncertainFields) ? result.uncertainFields : [],
-      vaccinated: Boolean(animalForm.vaccinated),
-      neutered: Boolean(animalForm.neutered),
-      dewormed: Boolean(animalForm.dewormed),
-      specialNeeds: Boolean(animalForm.specialNeeds),
-      energy: animalForm.energy || "Moderada",
-      temperament: temperamentText || "",
-      dogs: animalForm.compatibility?.dogs || "Não avaliado",
-      cats: animalForm.compatibility?.cats || "Não avaliado",
-      children: animalForm.compatibility?.children || "Não avaliado",
-    });
-  } catch (error) {
-    notify(error.detail || error.message || "Não foi possível analisar as fotos com IA.");
-  } finally {
-    setAiLoading(false);
-  }
+function openAnimalSelection(field) {
+  const config = ANIMAL_SELECTION_FIELDS[field];
+  if (!config) return;
+
+  const currentValue = field === "temperament"
+    ? temperamentText
+    : String(animalForm[field] || "");
+
+  setAnimalSelectionDraft(currentValue);
+  setAnimalSelectionModal({ field, ...config });
 }
 
-function updateAiReview(field, value) {
-  setAiReview((current) => current ? { ...current, [field]: value } : current);
+function applyAnimalSelection() {
+  if (!animalSelectionModal) return;
+  const field = animalSelectionModal.field;
+
+  if (field === "temperament") {
+    setTemperamentText(animalSelectionDraft);
+  } else {
+    updateAnimal(field, animalSelectionDraft);
+  }
+
+  setAnimalSelectionModal(null);
+  setAnimalSelectionDraft("");
 }
 
-function aiAnimalSnapshot(overrides = {}) {
-  return {
-    ...animalForm,
-    ...overrides,
-    temperament: (overrides.temperament ?? temperamentText)
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean),
-    compatibility: {
-      dogs: overrides.dogs ?? animalForm.compatibility?.dogs ?? "Não avaliado",
-      cats: overrides.cats ?? animalForm.compatibility?.cats ?? "Não avaliado",
-      children: overrides.children ?? animalForm.compatibility?.children ?? "Não avaliado",
-    },
-  };
-}
+function clearAnimalSelection() {
+  if (!animalSelectionModal) return;
+  const field = animalSelectionModal.field;
 
-async function applyAiReviewAndGenerate() {
-  if (!aiReview) return;
-  if (!aiReview.name?.trim()) {
-    notify("Confirme um nome para o animal.");
-    return;
-  }
-  if (aiReview.sex === "Não identificado") {
-    notify("Confirme o sexo do animal antes de aplicar.");
-    return;
-  }
-  if (aiReview.size === "Não identificado") {
-    notify("Confirme o porte do animal antes de aplicar.");
-    return;
+  if (field === "temperament") {
+    setTemperamentText("");
+  } else {
+    updateAnimal(field, "");
   }
 
-  const patch = {
-    name: aiReview.name.trim(),
-    species: aiReview.species,
-    sex: aiReview.sex,
-    age: aiReview.age,
-    approximateBirth: maskYear(aiReview.approximateBirth || ""),
-    breed: aiReview.breed,
-    color: aiReview.color,
-    size: aiReview.size,
-    weight: aiReview.weight,
-    vaccinated: aiReview.vaccinated,
-    neutered: aiReview.neutered,
-    dewormed: aiReview.dewormed,
-    specialNeeds: aiReview.specialNeeds,
-    energy: aiReview.energy,
-    temperament: aiReview.temperament,
-    dogs: aiReview.dogs,
-    cats: aiReview.cats,
-    children: aiReview.children,
-  };
-
-  const snapshot = aiAnimalSnapshot(patch);
-  setAiComposeLoading(true);
-  try {
-    const copy = await composeAnimalTextsWithAi(snapshot);
-    setAnimalForm((current) => ({
-      ...current,
-      name: patch.name,
-      species: patch.species,
-      sex: patch.sex,
-      age: patch.age,
-      approximateBirth: patch.approximateBirth,
-      breed: patch.breed,
-      color: patch.color,
-      size: patch.size,
-      weight: patch.weight,
-      vaccinated: patch.vaccinated,
-      neutered: patch.neutered,
-      dewormed: patch.dewormed,
-      specialNeeds: patch.specialNeeds,
-      energy: patch.energy,
-      compatibility: {
-        dogs: patch.dogs,
-        cats: patch.cats,
-        children: patch.children,
-      },
-      summary: copy.summary || current.summary,
-      story: copy.story || current.story,
-      idealHome: copy.idealHome || current.idealHome,
-    }));
-    setTemperamentText(patch.temperament);
-    setAiReview(null);
-    notify("Cadastro preenchido com IA. Revise os textos antes de salvar.");
-  } catch (error) {
-    notify(error.detail || error.message || "Não foi possível gerar os textos com IA.");
-  } finally {
-    setAiComposeLoading(false);
-  }
-}
-
-async function rewriteAiField(field) {
-  const fieldMap = {
-    summary: animalForm.summary,
-    story: animalForm.story,
-    idealHome: animalForm.idealHome,
-  };
-  if (!(field in fieldMap)) return;
-
-  setAiRewriteField(field);
-  try {
-    const result = await rewriteAnimalTextWithAi(
-      field,
-      aiAnimalSnapshot(),
-      fieldMap[field] || ""
-    );
-    updateAnimal(field, result.text || fieldMap[field]);
-    notify("Texto atualizado com IA.");
-  } catch (error) {
-    notify(error.detail || error.message || "Não foi possível reescrever com IA.");
-  } finally {
-    setAiRewriteField("");
-  }
+  setAnimalSelectionModal(null);
+  setAnimalSelectionDraft("");
 }
 
 async function saveAnimal(event) {
@@ -1190,7 +1069,7 @@ async function resetSiteSettings() {
 
                 <div className="admin-form-section">
                   <h3>Fotos</h3>
-                  <p>É obrigatória apenas 1 foto. Se tiver outras, adicione quantas quiser para formar a galeria. A IA analisa até 4 fotos.</p>
+                  <p>É obrigatória apenas 1 foto. Se tiver outras, adicione quantas quiser para formar a galeria.</p>
                   <div className="admin-photo-grid dynamic">
                     {(animalForm.photos || [""]).map((photo, index) => (
                       <div className="admin-photo-item" key={`${index}-${photo || "empty"}`}>
@@ -1224,21 +1103,6 @@ async function resetSiteSettings() {
                   </div>
                   {savingPhoto && <small className="admin-uploading">Enviando foto para o Cloudinary...</small>}
 
-                  <div className="admin-ai-entry">
-                    <div className="admin-ai-entry-icon">✨</div>
-                    <div className="admin-ai-entry-copy">
-                      <strong>Assistente IA de Adoção</strong>
-                      <span>Analisa até 4 fotos, sugere a identificação e depois gera os textos do perfil com os dados que você confirmar.</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="admin-ai-primary"
-                      onClick={startAnimalAiAnalysis}
-                      disabled={aiLoading || savingPhoto || !(animalForm.photos || []).some(Boolean)}
-                    >
-                      {aiLoading ? "Analisando fotos..." : "✨ Preencher cadastro com IA"}
-                    </button>
-                  </div>
                 </div>
 
                 <div className="admin-form-section">
@@ -1271,13 +1135,25 @@ async function resetSiteSettings() {
                 <div className="admin-form-section">
                   <h3>Perfil e comportamento</h3>
                   <div className="admin-fields-grid">
-                    <label className="span-2"><span>Temperamento</span><input value={temperamentText} onChange={(e) => setTemperamentText(e.target.value)} placeholder="Carinhoso, calmo, sociável" /><small>Separe por vírgulas.</small></label>
+                    <div className="span-2 admin-preset-field">
+                      <div><span>Temperamento</span><strong>{temperamentText || "Nenhuma opção selecionada"}</strong></div>
+                      <button type="button" onClick={() => openAnimalSelection("temperament")}>{temperamentText ? "Alterar" : "Selecionar"}</button>
+                    </div>
                     <label><span>Convive com cães</span><input value={animalForm.compatibility.dogs} onChange={(e) => updateCompatibility("dogs", e.target.value)} /></label>
                     <label><span>Convive com gatos</span><input value={animalForm.compatibility.cats} onChange={(e) => updateCompatibility("cats", e.target.value)} /></label>
                     <label className="span-2"><span>Convive com crianças</span><input value={animalForm.compatibility.children} onChange={(e) => updateCompatibility("children", e.target.value)} /></label>
-                    <label className="span-2 admin-ai-text-field"><div className="admin-ai-field-heading"><span>Resumo do card</span><button type="button" onClick={() => rewriteAiField("summary")} disabled={aiRewriteField === "summary"}>{aiRewriteField === "summary" ? "Escrevendo..." : "✨ Reescrever com IA"}</button></div><textarea value={animalForm.summary} onChange={(e) => updateAnimal("summary", e.target.value)} /></label>
-                    <label className="span-2 admin-ai-text-field"><div className="admin-ai-field-heading"><span>História completa</span><button type="button" onClick={() => rewriteAiField("story")} disabled={aiRewriteField === "story"}>{aiRewriteField === "story" ? "Escrevendo..." : "✨ Reescrever com IA"}</button></div><textarea value={animalForm.story} onChange={(e) => updateAnimal("story", e.target.value)} /></label>
-                    <label className="span-2 admin-ai-text-field"><div className="admin-ai-field-heading"><span>Lar ideal</span><button type="button" onClick={() => rewriteAiField("idealHome")} disabled={aiRewriteField === "idealHome"}>{aiRewriteField === "idealHome" ? "Escrevendo..." : "✨ Reescrever com IA"}</button></div><textarea value={animalForm.idealHome} onChange={(e) => updateAnimal("idealHome", e.target.value)} /></label>
+                    <div className="span-2 admin-preset-field">
+                      <div><span>Resumo do card</span><strong>{animalForm.summary || "Nenhuma opção selecionada"}</strong></div>
+                      <button type="button" onClick={() => openAnimalSelection("summary")}>{animalForm.summary ? "Alterar" : "Selecionar"}</button>
+                    </div>
+                    <div className="span-2 admin-preset-field large">
+                      <div><span>História completa</span><strong>{animalForm.story || "Nenhuma opção selecionada"}</strong></div>
+                      <button type="button" onClick={() => openAnimalSelection("story")}>{animalForm.story ? "Alterar" : "Selecionar"}</button>
+                    </div>
+                    <div className="span-2 admin-preset-field">
+                      <div><span>Lar ideal</span><strong>{animalForm.idealHome || "Nenhuma opção selecionada"}</strong></div>
+                      <button type="button" onClick={() => openAnimalSelection("idealHome")}>{animalForm.idealHome ? "Alterar" : "Selecionar"}</button>
+                    </div>
                     <label className="span-2"><span>Observações</span><textarea value={animalForm.observations} onChange={(e) => updateAnimal("observations", e.target.value)} /></label>
                   </div>
                 </div>
@@ -2441,87 +2317,82 @@ async function resetSiteSettings() {
         )}
       </section>
 
-      {aiReview && (
-        <div
-          className="admin-ai-modal-backdrop"
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target && !aiComposeLoading) setAiReview(null);
+
+{animalSelectionModal && (
+  <div
+    className="admin-preset-modal-backdrop"
+    onMouseDown={(event) => {
+      if (event.currentTarget === event.target) {
+        setAnimalSelectionModal(null);
+        setAnimalSelectionDraft("");
+      }
+    }}
+  >
+    <section className="admin-preset-modal" role="dialog" aria-modal="true" aria-label={animalSelectionModal.title}>
+      <header className="admin-preset-modal-head">
+        <div>
+          <span>{animalSelectionModal.eyebrow}</span>
+          <h2>{animalSelectionModal.title}</h2>
+          <p>{animalSelectionModal.description}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setAnimalSelectionModal(null);
+            setAnimalSelectionDraft("");
           }}
         >
-          <section className="admin-ai-modal" role="dialog" aria-modal="true" aria-label="Revisar cadastro sugerido pela IA">
-            <header className="admin-ai-modal-head">
-              <div>
-                <span>✨ ASSISTENTE IA DE ADOÇÃO</span>
-                <h2>Revise antes de preencher o cadastro</h2>
-                <p>A IA consegue sugerir características visuais, mas saúde e comportamento precisam ser confirmados pela equipe.</p>
-              </div>
-              <button type="button" onClick={() => setAiReview(null)} disabled={aiComposeLoading}>×</button>
-            </header>
+          ×
+        </button>
+      </header>
 
-            <div className="admin-ai-modal-body">
-              <div className="admin-ai-confidence">
-                <div>
-                  <small>ANÁLISE VISUAL</small>
-                  <strong>{aiReview.confidenceSummary || "Revise todas as sugestões."}</strong>
-                  {aiReview.visualNotes && <p>{aiReview.visualNotes}</p>}
-                </div>
-                {!!aiReview.uncertainFields?.length && (
-                  <div className="admin-ai-uncertain">
-                    <small>CONFIRMAR</small>
-                    <div>{aiReview.uncertainFields.map((item) => <span key={item}>{item}</span>)}</div>
-                  </div>
-                )}
-              </div>
-
-              <div className="admin-ai-review-section">
-                <div className="admin-ai-section-title"><span>1</span><div><strong>Identificação sugerida</strong><small>Edite qualquer campo que não esteja correto.</small></div></div>
-                <div className="admin-ai-review-grid">
-                  <label className="span-2"><span>Nome sugerido</span><input value={aiReview.name} onChange={(e) => updateAiReview("name", e.target.value)} /></label>
-                  <label><span>Espécie</span><select value={aiReview.species} onChange={(e) => updateAiReview("species", e.target.value)}><option>Cão</option><option>Gato</option></select></label>
-                  <label><span>Sexo</span><select value={aiReview.sex} onChange={(e) => updateAiReview("sex", e.target.value)}><option>Não identificado</option><option>Macho</option><option>Fêmea</option></select></label>
-                  <label><span>Idade aproximada</span><input value={aiReview.age} onChange={(e) => updateAiReview("age", e.target.value)} placeholder="Ex.: aprox. 2 anos" /></label>
-                  <label><span>Nascimento aproximado</span><input inputMode="numeric" maxLength={4} value={aiReview.approximateBirth} onChange={(e) => updateAiReview("approximateBirth", maskYear(e.target.value))} /></label>
-                  <label><span>Raça</span><input value={aiReview.breed} onChange={(e) => updateAiReview("breed", e.target.value)} /></label>
-                  <label><span>Cor</span><input value={aiReview.color} onChange={(e) => updateAiReview("color", e.target.value)} /></label>
-                  <label><span>Porte</span><select value={aiReview.size} onChange={(e) => updateAiReview("size", e.target.value)}><option>Não identificado</option><option>Pequeno</option><option>Médio</option><option>Grande</option></select></label>
-                  <label><span>Peso aproximado</span><input value={aiReview.weight} onChange={(e) => updateAiReview("weight", e.target.value)} placeholder="Se souber, confirme aqui" /></label>
-                </div>
-              </div>
-
-              <div className="admin-ai-review-section">
-                <div className="admin-ai-section-title"><span>2</span><div><strong>Confirmação da equipe</strong><small>Esses dados não devem ser deduzidos somente pela foto.</small></div></div>
-
-                <div className="admin-ai-health-checks">
-                  <label><input type="checkbox" checked={aiReview.vaccinated} onChange={(e) => updateAiReview("vaccinated", e.target.checked)} /><span>Vacinado</span></label>
-                  <label><input type="checkbox" checked={aiReview.neutered} onChange={(e) => updateAiReview("neutered", e.target.checked)} /><span>Castrado</span></label>
-                  <label><input type="checkbox" checked={aiReview.dewormed} onChange={(e) => updateAiReview("dewormed", e.target.checked)} /><span>Vermifugado</span></label>
-                  <label><input type="checkbox" checked={aiReview.specialNeeds} onChange={(e) => updateAiReview("specialNeeds", e.target.checked)} /><span>Necessidades especiais</span></label>
-                </div>
-
-                <div className="admin-ai-review-grid behavior">
-                  <label><span>Nível de energia</span><select value={aiReview.energy} onChange={(e) => updateAiReview("energy", e.target.value)}><option>Baixa</option><option>Baixa a moderada</option><option>Moderada</option><option>Alta</option></select></label>
-                  <label className="span-2"><span>Temperamento confirmado</span><input value={aiReview.temperament} onChange={(e) => updateAiReview("temperament", e.target.value)} placeholder="Carinhoso, calmo, sociável..." /></label>
-                  <label><span>Convive com cães</span><select value={aiReview.dogs} onChange={(e) => updateAiReview("dogs", e.target.value)}><option>Não avaliado</option><option>Sim</option><option>Não</option><option>Com adaptação</option></select></label>
-                  <label><span>Convive com gatos</span><select value={aiReview.cats} onChange={(e) => updateAiReview("cats", e.target.value)}><option>Não avaliado</option><option>Sim</option><option>Não</option><option>Com adaptação</option></select></label>
-                  <label className="span-2"><span>Convive com crianças</span><select value={aiReview.children} onChange={(e) => updateAiReview("children", e.target.value)}><option>Não avaliado</option><option>Sim</option><option>Não</option><option>Com supervisão</option></select></label>
-                </div>
-              </div>
-
-              <div className="admin-ai-safety-note">
-                <strong>Importante</strong>
-                <p>A IA é um assistente de preenchimento. A publicação continua sob revisão da equipe da Onda Animal e nada é salvo no Neon até você clicar em “Cadastrar animal” ou “Salvar alterações”.</p>
-              </div>
-            </div>
-
-            <footer className="admin-ai-modal-footer">
-              <button type="button" className="button secondary" onClick={() => setAiReview(null)} disabled={aiComposeLoading}>Cancelar</button>
-              <button type="button" className="button primary admin-ai-apply" onClick={applyAiReviewAndGenerate} disabled={aiComposeLoading}>
-                {aiComposeLoading ? "Gerando textos..." : "✨ Aplicar e gerar textos"}
-              </button>
-            </footer>
-          </section>
+      <div className="admin-preset-modal-body">
+        <div className="admin-preset-option-list">
+          {animalSelectionModal.options.map((option, index) => {
+            const checked = animalSelectionDraft === option;
+            return (
+              <label className={checked ? "admin-preset-option selected" : "admin-preset-option"} key={`${index}-${option}`}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => setAnimalSelectionDraft(checked ? "" : option)}
+                />
+                <span className="admin-preset-check">{checked ? "✓" : ""}</span>
+                <strong>{option}</strong>
+              </label>
+            );
+          })}
         </div>
-      )}
+      </div>
+
+      <footer className="admin-preset-modal-footer">
+        <button type="button" className="button secondary" onClick={clearAnimalSelection}>
+          Limpar
+        </button>
+        <div>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() => {
+              setAnimalSelectionModal(null);
+              setAnimalSelectionDraft("");
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="button primary"
+            onClick={applyAnimalSelection}
+            disabled={!animalSelectionDraft}
+          >
+            Usar esta opção
+          </button>
+        </div>
+      </footer>
+    </section>
+  </div>
+)}
 
       {adoptionAnimal && (
         <div
