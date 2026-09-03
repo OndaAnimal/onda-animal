@@ -7,6 +7,8 @@ import {
   getConnectConversation,
 } from "../lib/apiClient";
 import { maskBrazilPhone } from "../lib/masks";
+import { useSiteSettings } from "./SiteSettingsProvider";
+import { forgeAssistantReply } from "../lib/forgeAssistant";
 
 const VISITOR_KEY = "forge_connect_onda_visitor_v1";
 
@@ -32,6 +34,7 @@ function loadVisitor() {
 
 export default function ForgeConnectWidget() {
   const pathname = usePathname();
+  const { settings } = useSiteSettings();
   const [open, setOpen] = useState(false);
   const [visitor, setVisitor] = useState(null);
   const [conversation, setConversation] = useState(null);
@@ -132,7 +135,9 @@ export default function ForgeConnectWidget() {
           initialMessage: {
             id: makeId("msg"),
             from: "support",
-            text: `Olá, ${visitorData.name}! Você está falando com a Onda Animal pelo Forge Connect. Como podemos ajudar?`,
+            text: settings.forgeAssistantEnabled !== false
+              ? `🤖 ${settings.forgeAssistantName || "Assistente Onda"}\n\n${settings.forgeAssistantWelcome || `Olá, ${visitorData.name}! Como posso ajudar?`}`
+              : `Olá, ${visitorData.name}! Você está falando com a Onda Animal pelo Forge Connect. Como podemos ajudar?`,
             date: now,
             readByClient: true,
             readBySupport: true,
@@ -172,6 +177,22 @@ export default function ForgeConnectWidget() {
       });
       setConversation(updated);
       setMessage("");
+
+      const assistant = forgeAssistantReply(text, settings);
+      if (assistant?.answer) {
+        const answered = await connectAction("message", {
+          conversationId: conversation.id,
+          message: {
+            id: makeId("assistant"),
+            from: "support",
+            text: `🤖 ${settings.forgeAssistantName || "Assistente Onda"}\n\n${assistant.answer}`,
+            date: new Date().toISOString(),
+            readByClient: false,
+            readBySupport: true,
+          },
+        });
+        setConversation(answered);
+      }
     } catch (error) {
       setStatusText(error.message || "Não foi possível enviar sua mensagem.");
     } finally {
@@ -259,6 +280,9 @@ export default function ForgeConnectWidget() {
                 <div>
                   <small>ASSUNTO</small>
                   <strong>{conversation.topic}</strong>
+                  {settings.forgeAssistantEnabled !== false && (
+                    <span className="forge-assistant-online">● Assistente virtual ativo</span>
+                  )}
                 </div>
                 <button type="button" onClick={resetConversation}>Nova conversa</button>
               </div>

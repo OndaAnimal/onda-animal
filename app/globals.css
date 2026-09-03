@@ -4636,3 +4636,133 @@ footer{background:var(--cms-footer-bg)}
     gap:8px;
   }
 }
+
+
+/* V31 — ASSISTENTE VIRTUAL GRATUITO DO FORGE CONNECT */
+.forge-assistant-online{
+  display:block;
+  width:max-content;
+  margin-top:4px;
+  color:#2b896f;
+  font-size:9px;
+  font-weight:800;
+}
+
+.forge-connect-message.support p{
+  white-space:pre-line;
+}
+
+.cms-forge-knowledge{
+  display:grid;
+  gap:13px;
+}
+
+.cms-forge-knowledge-card{
+  padding:18px;
+  border:1px solid #dce8e9;
+  border-radius:17px;
+  background:#fbfdfd;
+}
+
+.cms-forge-knowledge-card>header{
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+
+.cms-forge-knowledge-card>header>div{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.cms-forge-knowledge-card>header small{
+  color:var(--teal-dark);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.11em;
+}
+
+.cms-forge-knowledge-card>header strong{
+  margin-top:3px;
+  overflow:hidden;
+  color:var(--navy);
+  font-size:14px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.cms-forge-active{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center;
+  gap:7px!important;
+  color:#657d82!important;
+  font-size:10px!important;
+}
+
+.cms-forge-knowledge-card textarea{
+  min-height:105px;
+}
+
+.cms-forge-knowledge-card>footer{
+  margin-top:13px;
+  padding-top:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-top:1px solid #e5eeee;
+}
+
+.cms-forge-knowledge-card>footer>div{
+  display:flex;
+  gap:6px;
+}
+
+.cms-forge-knowledge-card>footer button{
+  min-height:34px;
+  padding:0 10px;
+  border:1px solid #d8e5e6;
+  border-radius:9px;
+  color:#60777c;
+  background:#fff;
+  font-size:10px;
+  font-weight:850;
+  cursor:pointer;
+}
+
+.cms-forge-knowledge-card>footer button:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+
+.cms-forge-knowledge-card>footer button.danger{
+  color:#a63c54;
+}
+
+.cms-forge-add{
+  width:max-content;
+}
+
+.cms-config-heading.compact{
+  margin-top:28px;
+  margin-bottom:15px;
+}
+
+@media(max-width:640px){
+  .cms-forge-knowledge-card{
+    padding:14px 10px;
+  }
+
+  .cms-forge-knowledge-card>footer{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .cms-forge-knowledge-card>footer>div{
+    width:100%;
+  }
+}

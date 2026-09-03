@@ -527,3 +527,24 @@ No CMS, em `Configurações → Rodapé`, é possível:
 - informar o link da Forge Labs.
 
 Se o link não for informado, `Forge Labs` aparece em destaque sem ser clicável.
+
+
+## V31 — Assistente virtual gratuito no Forge Connect
+
+O Forge Connect agora possui um assistente de dúvidas sem API externa.
+
+- Zero custo por mensagem.
+- Não usa OpenAI, Gemini ou serviço de IA pago.
+- Reconhece perguntas por tema, palavras-chave e similaridade simples.
+- Responde usando uma base de conhecimento editável no CMS.
+- Quando não encontra uma resposta segura, não inventa: informa que a equipe continuará o atendimento.
+- Todas as mensagens, inclusive respostas automáticas, continuam salvas no Neon e visíveis no painel.
+- Configuração em `Configurações → Assistente Forge`.
+
+Placeholders disponíveis nas respostas:
+- `{{adoptionContactName}}`
+- `{{adoptionWhatsApp}}`
+- `{{gravataiWhatsApp}}`
+- `{{cachoeirinhaWhatsApp}}`
+- `{{gravataiAddress}}`
+- `{{cachoeirinhaAddress}}`

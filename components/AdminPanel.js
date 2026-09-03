@@ -20,6 +20,7 @@ import { maskBrazilPhone, maskPin, maskYear } from "../lib/masks";
 import { veterinarians as seedVeterinarians } from "../data/veterinarians";
 import { ANIMAL_SELECTION_FIELDS, DEFAULT_ANIMAL_PROFILE_OPTIONS, OTHER_OPTION } from "../data/animalProfileOptions";
 import CmsOptionEditor from "./CmsOptionEditor";
+import CmsForgeAssistantEditor from "./CmsForgeAssistantEditor";
 
 const emptyAnimal = {
   slug: "",
@@ -1898,6 +1899,7 @@ async function resetSiteSettings() {
                     ["contact", "☎", "Contatos"],
                     ["footer", "▤", "Rodapé"],
                     ["modules", "⚡", "Módulos"],
+                    ["forge-assistant", "✦", "Assistente Forge"],
                     ["seo", "⌕", "SEO"],
                     ["security", "⚙", "Segurança e backup"],
                     ["advanced", "</>", "Avançado"],
@@ -2514,6 +2516,87 @@ async function resetSiteSettings() {
                         <label className="span-2"><span>Título da manutenção</span><input value={settings.maintenanceTitle} onChange={(e) => updateSetting("maintenanceTitle", e.target.value)} /></label>
                         <label className="span-2"><span>Mensagem da manutenção</span><textarea value={settings.maintenanceText} onChange={(e) => updateSetting("maintenanceText", e.target.value)} /></label>
                       </div>
+                    </section>
+                  )}
+
+                  {settingsSection === "forge-assistant" && (
+                    <section className="cms-config-section">
+                      <div className="cms-config-heading">
+                        <span>FORGE CONNECT</span>
+                        <h3>Assistente virtual gratuito</h3>
+                        <p>
+                          Responde dúvidas usando somente a base de conhecimento abaixo.
+                          Não usa OpenAI, Gemini ou API paga e não gera custos por mensagem.
+                        </p>
+                      </div>
+
+                      <div className="cms-switch-list large">
+                        <label className="cms-switch-row">
+                          <div>
+                            <strong>Assistente virtual</strong>
+                            <span>Responde automaticamente antes da equipe assumir a conversa.</span>
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={settings.forgeAssistantEnabled !== false}
+                            onChange={(e) => updateSetting("forgeAssistantEnabled", e.target.checked)}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="cms-field-grid">
+                        <label>
+                          <span>Nome do assistente</span>
+                          <input
+                            value={settings.forgeAssistantName || ""}
+                            onChange={(e) => updateSetting("forgeAssistantName", e.target.value)}
+                          />
+                        </label>
+                        <div />
+
+                        <label className="span-2">
+                          <span>Mensagem de boas-vindas</span>
+                          <textarea
+                            rows={4}
+                            value={settings.forgeAssistantWelcome || ""}
+                            onChange={(e) => updateSetting("forgeAssistantWelcome", e.target.value)}
+                          />
+                        </label>
+
+                        <label className="span-2">
+                          <span>Resposta quando não souber</span>
+                          <textarea
+                            rows={4}
+                            value={settings.forgeAssistantFallback || ""}
+                            onChange={(e) => updateSetting("forgeAssistantFallback", e.target.value)}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="cms-note">
+                        <strong>Dados automáticos</strong>
+                        <p>
+                          Nas respostas você pode usar: <b>{"{{adoptionContactName}}"}</b>,
+                          <b> {"{{adoptionWhatsApp}}"}</b>, <b>{"{{gravataiWhatsApp}}"}</b>,
+                          <b> {"{{cachoeirinhaWhatsApp}}"}</b>, <b>{"{{gravataiAddress}}"}</b> e
+                          <b> {"{{cachoeirinhaAddress}}"}</b>. O assistente substitui pelos dados
+                          atuais configurados no CMS.
+                        </p>
+                      </div>
+
+                      <div className="cms-config-heading compact">
+                        <span>BASE DE CONHECIMENTO</span>
+                        <h3>O que o assistente sabe responder</h3>
+                        <p>
+                          Quanto melhores forem as palavras-chave, mais fácil ele reconhece
+                          diferentes formas de fazer a mesma pergunta.
+                        </p>
+                      </div>
+
+                      <CmsForgeAssistantEditor
+                        items={settings.forgeAssistantKnowledge || []}
+                        onChange={(value) => updateSetting("forgeAssistantKnowledge", value)}
+                      />
                     </section>
                   )}
 
