@@ -411,3 +411,35 @@ O CMS permite mostrar/esconder o link `Veterinários` no menu e rodapé.
 
 O botão `Agendar` leva o nome do profissional para a página de agendamento.
 Ao escolher Gravataí ou Cachoeirinha, a mensagem do WhatsApp inclui o profissional selecionado.
+
+
+## Assistente IA de Adoção (V22)
+
+A IA foi integrada ao cadastro de animais já existente no `/admin` — não existe cadastro paralelo.
+
+Fluxo:
+1. adicione uma ou mais fotos do animal (a galeria continua ilimitada; a IA usa até 4 fotos);
+2. clique em `✨ Preencher cadastro com IA`;
+3. a IA sugere nome, espécie, sexo quando visualmente identificável, idade/nascimento aproximados, raça/SRD, cor, porte e peso aproximado quando possível;
+4. um modal exige revisão humana e confirmação de vacinação, castração, vermifugação, necessidades especiais, energia, temperamento e convivência;
+5. ao aplicar, a IA gera `Resumo do card`, `História completa` e `Lar ideal` usando somente os dados confirmados;
+6. cada um desses três textos tem `✨ Reescrever com IA`;
+7. nada é salvo no Neon até o usuário salvar o cadastro normalmente.
+
+### Variáveis na Vercel
+
+Adicione em `Settings → Environment Variables`:
+
+- `OPENAI_API_KEY` — Secret, somente servidor;
+- `OPENAI_MODEL` — opcional; padrão do projeto: `gpt-5.6-luna`.
+
+Depois faça `Redeploy`.
+
+O endpoint `/api/health` informa `ai: openai-configured` quando a chave está disponível.
+
+### Segurança e responsabilidade
+
+- A chave OpenAI nunca é enviada para o navegador.
+- A rota `/api/admin/ai` exige sessão administrativa válida.
+- A IA é instruída a não inventar vacinação, castração, vermifugação, doenças, temperamento, energia ou compatibilidade.
+- Sexo não é inferido por aparência geral: quando a anatomia não permite identificação, o modal exige confirmação humana.
