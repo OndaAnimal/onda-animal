@@ -2425,6 +2425,48 @@ async function resetSiteSettings() {
                         </label>
                       </div>
 
+                      <div className="cms-subsection">
+                        <h4>Crédito de desenvolvimento</h4>
+                        <div className="cms-switch-list">
+                          <label className="cms-switch-row">
+                            <div>
+                              <strong>Mostrar “Desenvolvido por”</strong>
+                              <span>Exibe o crédito da Forge Labs na faixa inferior do rodapé.</span>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={settings.footerShowDeveloperCredit !== false}
+                              onChange={(e) => updateSetting("footerShowDeveloperCredit", e.target.checked)}
+                            />
+                          </label>
+                        </div>
+
+                        <div className="cms-field-grid">
+                          <label>
+                            <span>Texto antes do nome</span>
+                            <input
+                              value={settings.footerDeveloperPrefix || "Desenvolvido por"}
+                              onChange={(e) => updateSetting("footerDeveloperPrefix", e.target.value)}
+                            />
+                          </label>
+                          <label>
+                            <span>Nome do desenvolvedor</span>
+                            <input
+                              value={settings.footerDeveloperName || "Forge Labs"}
+                              onChange={(e) => updateSetting("footerDeveloperName", e.target.value)}
+                            />
+                          </label>
+                          <label className="span-2">
+                            <span>Link da Forge Labs</span>
+                            <input
+                              value={settings.footerDeveloperUrl || ""}
+                              onChange={(e) => updateSetting("footerDeveloperUrl", e.target.value)}
+                              placeholder="https://..."
+                            />
+                          </label>
+                        </div>
+                      </div>
+
                       <div className="cms-switch-list">
                         {[
                           ["footerShowAnimals", "Link Animais"],

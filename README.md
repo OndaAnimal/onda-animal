@@ -513,3 +513,17 @@ As visualizações dos perfis agora também aparecem nos cards públicos:
 
 Os cards usam o mesmo contador salvo no Neon.
 A configuração `showPublicAnimalViews` agora controla a exibição nos cards e no perfil completo.
+
+
+## V30 — Crédito Forge Labs
+
+O rodapé ganhou uma faixa inferior discreta com:
+`Desenvolvido por Forge Labs`
+
+No CMS, em `Configurações → Rodapé`, é possível:
+- mostrar/esconder o crédito;
+- editar o texto antes do nome;
+- editar o nome;
+- informar o link da Forge Labs.
+
+Se o link não for informado, `Forge Labs` aparece em destaque sem ser clicável.

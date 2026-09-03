@@ -4550,3 +4550,89 @@ footer{background:var(--cms-footer-bg)}
 .animal-card-views>small{
   font-size:10px;
 }
+
+
+/* V30 — CRÉDITO FORGE LABS NO RODAPÉ */
+.site-footer .footer-grid-v4{
+  min-height:138px;
+}
+
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.09);
+  background:rgba(0,0,0,.08);
+}
+
+.footer-bottom-inner{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+
+.footer-bottom-inner>p{
+  color:rgba(255,255,255,.47);
+  font-size:10px;
+  letter-spacing:.02em;
+}
+
+.footer-developer-credit{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:rgba(255,255,255,.52);
+  font-size:10px;
+  white-space:nowrap;
+}
+
+.footer-developer-mark{
+  margin-right:2px;
+  color:#75d7d4;
+  font-size:7px;
+}
+
+.footer-developer-credit strong,
+.footer-developer-credit a{
+  position:relative;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+
+.footer-developer-credit a{
+  transition:color .2s ease;
+}
+
+.footer-developer-credit a::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-3px;
+  height:1px;
+  border-radius:999px;
+  background:#75d7d4;
+  transform:scaleX(.35);
+  transform-origin:left;
+  opacity:.7;
+  transition:transform .2s ease, opacity .2s ease;
+}
+
+.footer-developer-credit a:hover{
+  color:#9be8e5;
+}
+
+.footer-developer-credit a:hover::after{
+  transform:scaleX(1);
+  opacity:1;
+}
+
+@media(max-width:720px){
+  .footer-bottom-inner{
+    padding:18px 0;
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px;
+  }
+}

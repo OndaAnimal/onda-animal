@@ -15,11 +15,19 @@ export default function Footer() {
     settings.footerShowContact && ["Contato", "/contato"],
   ].filter(Boolean);
 
+  const developerName = settings.footerDeveloperName || "Forge Labs";
+  const developerUrl = String(settings.footerDeveloperUrl || "").trim();
+
   return (
-    <footer style={{ background: settings.footerBackground }}>
+    <footer className="site-footer" style={{ background: settings.footerBackground }}>
       <div className="container footer-grid footer-grid-v4">
         <Link className="footer-brand" href="/">
-          <img src={mediaUrl(settings.logo || "/logo.png", { width: 140 })} alt={settings.siteName} loading="lazy" decoding="async" />
+          <img
+            src={mediaUrl(settings.logo || "/logo.png", { width: 140 })}
+            alt={settings.siteName}
+            loading="lazy"
+            decoding="async"
+          />
           <div>
             <strong>{settings.siteName}</strong>
             <small>{settings.siteSubtitle}</small>
@@ -31,8 +39,26 @@ export default function Footer() {
             <Link href={href} key={href}>{label}</Link>
           ))}
         </div>
+      </div>
 
-        <p>{settings.footerText}</p>
+      <div className="footer-bottom">
+        <div className="container footer-bottom-inner">
+          <p>{settings.footerText}</p>
+
+          {settings.footerShowDeveloperCredit !== false && (
+            <div className="footer-developer-credit">
+              <span className="footer-developer-mark" aria-hidden="true">◆</span>
+              <span>{settings.footerDeveloperPrefix || "Desenvolvido por"}</span>
+              {developerUrl ? (
+                <a href={developerUrl} target="_blank" rel="noreferrer">
+                  {developerName}
+                </a>
+              ) : (
+                <strong>{developerName}</strong>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </footer>
   );
