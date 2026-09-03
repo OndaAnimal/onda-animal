@@ -1398,6 +1398,7 @@ async function resetSiteSettings() {
                           ["showMenuHowAdopt", "Mostrar Como adotar"],
                           ["showMenuStories", "Mostrar Histórias"],
                           ["showMenuClinic", "Mostrar Clínica"],
+                          ["showMenuVeterinarians", "Mostrar Veterinários"],
                           ["showMenuContact", "Mostrar Contato"],
                           ["showMenuFeedback", "Mostrar Avalie"],
                           ["showAdoptButton", "Mostrar botão Quero adotar"],
@@ -1694,6 +1695,7 @@ async function resetSiteSettings() {
                         {[
                           ["footerShowAnimals", "Link Animais"],
                           ["footerShowHowAdopt", "Link Como adotar"],
+                          ["footerShowVeterinarians", "Link Veterinários"],
                           ["footerShowFeedback", "Link Avalie o site"],
                           ["footerShowContact", "Link Contato"],
                         ].map(([field, label]) => (

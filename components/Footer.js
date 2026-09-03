@@ -10,6 +10,7 @@ export default function Footer() {
   const links = [
     settings.footerShowAnimals && ["Animais", "/adocao"],
     settings.footerShowHowAdopt && ["Como adotar", "/como-adotar"],
+    settings.footerShowVeterinarians && ["Veterinários", "/veterinarios"],
     settings.footerShowFeedback && settings.feedbackEnabled && ["Avalie o site", "/avaliacao"],
     settings.footerShowContact && ["Contato", "/contato"],
   ].filter(Boolean);

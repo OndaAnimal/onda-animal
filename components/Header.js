@@ -18,6 +18,7 @@ export default function Header() {
     settings.showMenuHowAdopt && ["Como adotar", "/como-adotar"],
     settings.showMenuStories && settings.storiesEnabled && ["Histórias", "/historias"],
     settings.showMenuClinic && ["Clínica", "/servicos"],
+    settings.showMenuVeterinarians && ["Veterinários", "/veterinarios"],
     settings.showMenuContact && ["Contato", "/contato"],
     settings.showMenuFeedback && settings.feedbackEnabled && ["Avalie", "/avaliacao"],
   ].filter(Boolean);

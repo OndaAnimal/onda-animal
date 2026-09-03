@@ -5,14 +5,15 @@ import { useSiteSettings } from "./SiteSettingsProvider";
 import { clinicWhatsAppUrl } from "../lib/whatsapp";
 import { maskBrazilPhone } from "../lib/masks";
 
-function UnitBookingCard({ city, whatsapp, service }) {
-  const url = clinicWhatsAppUrl(whatsapp, { city, service });
+function UnitBookingCard({ city, whatsapp, service, professional }) {
+  const url = clinicWhatsAppUrl(whatsapp, { city, service, professional });
 
   return (
     <article className="booking-card booking-card-whatsapp">
       <span>UNIDADE</span>
       <h2>{city}</h2>
       {service && <p className="booking-service-selected">Serviço: <strong>{service}</strong></p>}
+      {professional && <p className="booking-service-selected">Profissional: <strong>{professional}</strong></p>}
 
       {url ? (
         <a className="button whatsapp-clinic-button full" href={url} target="_blank" rel="noreferrer">
@@ -33,11 +34,12 @@ export default function BookingUnits() {
   const searchParams = useSearchParams();
   const { settings } = useSiteSettings();
   const service = searchParams.get("servico") || "";
+  const professional = searchParams.get("profissional") || "";
 
   return (
     <div className="booking-grid">
-      <UnitBookingCard city="Gravataí" whatsapp={settings.gravataiWhatsApp} service={service} />
-      <UnitBookingCard city="Cachoeirinha" whatsapp={settings.cachoeirinhaWhatsApp} service={service} />
+      <UnitBookingCard city="Gravataí" whatsapp={settings.gravataiWhatsApp} service={service} professional={professional} />
+      <UnitBookingCard city="Cachoeirinha" whatsapp={settings.cachoeirinhaWhatsApp} service={service} professional={professional} />
     </div>
   );
 }

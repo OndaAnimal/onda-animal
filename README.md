@@ -398,3 +398,16 @@ Regras simplificadas do formulário de adoção:
 - PIN do painel e campos numéricos relevantes aceitam somente números.
 - Datas continuam usando o seletor nativo de data do navegador.
 - Nenhum fluxo, regra ou layout foi alterado nesta versão.
+
+
+## Equipe veterinária (V21)
+
+Rotas:
+- `/veterinarios`
+- perfis individuais em `/veterinarios/[nome]`
+
+A página utiliza as 6 artes originais enviadas pela Onda Animal.
+O CMS permite mostrar/esconder o link `Veterinários` no menu e rodapé.
+
+O botão `Agendar` leva o nome do profissional para a página de agendamento.
+Ao escolher Gravataí ou Cachoeirinha, a mensagem do WhatsApp inclui o profissional selecionado.
