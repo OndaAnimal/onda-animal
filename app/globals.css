@@ -4238,3 +4238,46 @@ footer{background:var(--cms-footer-bg)}
   .admin-preset-field{align-items:stretch;flex-direction:column}
   .admin-preset-field button{width:100%}
 }
+
+
+/* V25 — SELEÇÕES DE COMPATIBILIDADE + OPÇÃO OUTRO */
+.admin-custom-option-modal{
+  max-width:650px;
+}
+
+.admin-custom-option-field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.admin-custom-option-field>span{
+  color:#4d666d;
+  font-size:12px;
+  font-weight:900;
+}
+
+.admin-custom-option-field textarea{
+  width:100%;
+  min-height:150px;
+  padding:14px 15px;
+  resize:vertical;
+  border:1px solid #d4e3e4;
+  border-radius:13px;
+  color:var(--ink);
+  background:#fbfdfd;
+  font:inherit;
+  font-size:14px;
+  line-height:1.6;
+  outline:none;
+}
+
+.admin-custom-option-field textarea:focus{
+  border-color:var(--teal-dark);
+  box-shadow:0 0 0 3px rgba(21,141,146,.08);
+  background:#fff;
+}
+
+.admin-preset-option strong{
+  line-height:1.45;
+}

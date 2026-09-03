@@ -453,3 +453,11 @@ Na seção `Perfil e comportamento`, os campos abaixo não são mais digitados m
 Cada campo abre um modal com opções pré-cadastradas. A seleção é única: apenas uma alternativa pode ficar marcada por vez.
 
 As opções são mantidas em `data/animalProfileOptions.js`, facilitando novas alterações futuras.
+
+
+## V25 — Perfil por seleção
+
+- `Convive com cães`, `Convive com gatos` e `Convive com crianças` agora usam modais de seleção.
+- Todos os modais do perfil possuem a opção `Outro`.
+- Ao escolher `Outro`, abre um segundo modal para texto personalizado.
+- O texto personalizado é salvo normalmente no cadastro do animal no Neon.

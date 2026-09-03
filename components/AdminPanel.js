@@ -18,7 +18,7 @@ import {
 import { adminAction, adminLogin, adminLogout, adminSession, loadAdminState, uploadAdminImage } from "../lib/apiClient";
 import { maskBrazilPhone, maskPin, maskYear } from "../lib/masks";
 import { veterinarians as seedVeterinarians } from "../data/veterinarians";
-import { ANIMAL_SELECTION_FIELDS } from "../data/animalProfileOptions";
+import { ANIMAL_SELECTION_FIELDS, OTHER_OPTION } from "../data/animalProfileOptions";
 
 const emptyAnimal = {
   slug: "",
@@ -137,6 +137,8 @@ export default function AdminPanel({ initialAnimals }) {
 const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
   const [animalSelectionModal, setAnimalSelectionModal] = useState(null);
   const [animalSelectionDraft, setAnimalSelectionDraft] = useState("");
+  const [animalCustomModal, setAnimalCustomModal] = useState(null);
+  const [animalCustomDraft, setAnimalCustomDraft] = useState("");
 
   useEffect(() => {
     setAnimals(loadAnimals(initialAnimals));
@@ -466,45 +468,92 @@ function removeAnimalPhoto(index) {
 
 
 
+function getAnimalSelectionValue(field) {
+  if (field === "temperament") return temperamentText;
+  if (field === "compatibilityDogs") return String(animalForm.compatibility?.dogs || "");
+  if (field === "compatibilityCats") return String(animalForm.compatibility?.cats || "");
+  if (field === "compatibilityChildren") return String(animalForm.compatibility?.children || "");
+  return String(animalForm[field] || "");
+}
+
+function setAnimalSelectionValue(field, value) {
+  if (field === "temperament") {
+    setTemperamentText(value);
+    return;
+  }
+  if (field === "compatibilityDogs") {
+    updateCompatibility("dogs", value);
+    return;
+  }
+  if (field === "compatibilityCats") {
+    updateCompatibility("cats", value);
+    return;
+  }
+  if (field === "compatibilityChildren") {
+    updateCompatibility("children", value);
+    return;
+  }
+  updateAnimal(field, value);
+}
+
 function openAnimalSelection(field) {
   const config = ANIMAL_SELECTION_FIELDS[field];
   if (!config) return;
 
-  const currentValue = field === "temperament"
-    ? temperamentText
-    : String(animalForm[field] || "");
+  const currentValue = getAnimalSelectionValue(field);
+  const isPreset = !currentValue || config.options.includes(currentValue);
 
-  setAnimalSelectionDraft(currentValue);
+  setAnimalCustomDraft(!isPreset && currentValue !== OTHER_OPTION ? currentValue : "");
+  setAnimalSelectionDraft(isPreset ? currentValue : OTHER_OPTION);
   setAnimalSelectionModal({ field, ...config });
 }
 
-function applyAnimalSelection() {
-  if (!animalSelectionModal) return;
-  const field = animalSelectionModal.field;
-
-  if (field === "temperament") {
-    setTemperamentText(animalSelectionDraft);
-  } else {
-    updateAnimal(field, animalSelectionDraft);
-  }
-
+function closeAnimalSelection() {
   setAnimalSelectionModal(null);
   setAnimalSelectionDraft("");
+}
+
+function applyAnimalSelection() {
+  if (!animalSelectionModal || !animalSelectionDraft) return;
+
+  if (animalSelectionDraft === OTHER_OPTION) {
+    setAnimalCustomModal({
+      field: animalSelectionModal.field,
+      title: animalSelectionModal.title,
+      eyebrow: animalSelectionModal.eyebrow,
+    });
+    setAnimalCustomDraft((current) => current || "");
+    closeAnimalSelection();
+    return;
+  }
+
+  setAnimalSelectionValue(animalSelectionModal.field, animalSelectionDraft);
+  closeAnimalSelection();
+  setAnimalCustomDraft("");
 }
 
 function clearAnimalSelection() {
   if (!animalSelectionModal) return;
-  const field = animalSelectionModal.field;
-
-  if (field === "temperament") {
-    setTemperamentText("");
-  } else {
-    updateAnimal(field, "");
-  }
-
-  setAnimalSelectionModal(null);
-  setAnimalSelectionDraft("");
+  setAnimalSelectionValue(animalSelectionModal.field, "");
+  closeAnimalSelection();
+  setAnimalCustomDraft("");
 }
+
+function applyCustomAnimalSelection() {
+  if (!animalCustomModal) return;
+  const value = animalCustomDraft.trim();
+  if (!value) return;
+
+  setAnimalSelectionValue(animalCustomModal.field, value);
+  setAnimalCustomModal(null);
+  setAnimalCustomDraft("");
+}
+
+function closeCustomAnimalSelection() {
+  setAnimalCustomModal(null);
+  setAnimalCustomDraft("");
+}
+
 
 async function saveAnimal(event) {
     event.preventDefault();
@@ -523,7 +572,7 @@ async function saveAnimal(event) {
       ...animalForm,
       slug,
       photos: cleanPhotos,
-      temperament: temperamentText.split(",").map((item) => item.trim()).filter(Boolean),
+      temperament: temperamentText.trim() ? [temperamentText.trim()] : [],
     };
 
     let next;
@@ -1139,9 +1188,18 @@ async function resetSiteSettings() {
                       <div><span>Temperamento</span><strong>{temperamentText || "Nenhuma opção selecionada"}</strong></div>
                       <button type="button" onClick={() => openAnimalSelection("temperament")}>{temperamentText ? "Alterar" : "Selecionar"}</button>
                     </div>
-                    <label><span>Convive com cães</span><input value={animalForm.compatibility.dogs} onChange={(e) => updateCompatibility("dogs", e.target.value)} /></label>
-                    <label><span>Convive com gatos</span><input value={animalForm.compatibility.cats} onChange={(e) => updateCompatibility("cats", e.target.value)} /></label>
-                    <label className="span-2"><span>Convive com crianças</span><input value={animalForm.compatibility.children} onChange={(e) => updateCompatibility("children", e.target.value)} /></label>
+                    <div className="admin-preset-field">
+                      <div><span>Convive com cães</span><strong>{animalForm.compatibility.dogs || "Nenhuma opção selecionada"}</strong></div>
+                      <button type="button" onClick={() => openAnimalSelection("compatibilityDogs")}>{animalForm.compatibility.dogs ? "Alterar" : "Selecionar"}</button>
+                    </div>
+                    <div className="admin-preset-field">
+                      <div><span>Convive com gatos</span><strong>{animalForm.compatibility.cats || "Nenhuma opção selecionada"}</strong></div>
+                      <button type="button" onClick={() => openAnimalSelection("compatibilityCats")}>{animalForm.compatibility.cats ? "Alterar" : "Selecionar"}</button>
+                    </div>
+                    <div className="span-2 admin-preset-field">
+                      <div><span>Convive com crianças</span><strong>{animalForm.compatibility.children || "Nenhuma opção selecionada"}</strong></div>
+                      <button type="button" onClick={() => openAnimalSelection("compatibilityChildren")}>{animalForm.compatibility.children ? "Alterar" : "Selecionar"}</button>
+                    </div>
                     <div className="span-2 admin-preset-field">
                       <div><span>Resumo do card</span><strong>{animalForm.summary || "Nenhuma opção selecionada"}</strong></div>
                       <button type="button" onClick={() => openAnimalSelection("summary")}>{animalForm.summary ? "Alterar" : "Selecionar"}</button>
@@ -2323,8 +2381,7 @@ async function resetSiteSettings() {
     className="admin-preset-modal-backdrop"
     onMouseDown={(event) => {
       if (event.currentTarget === event.target) {
-        setAnimalSelectionModal(null);
-        setAnimalSelectionDraft("");
+        closeAnimalSelection();
       }
     }}
   >
@@ -2338,8 +2395,7 @@ async function resetSiteSettings() {
         <button
           type="button"
           onClick={() => {
-            setAnimalSelectionModal(null);
-            setAnimalSelectionDraft("");
+            closeAnimalSelection();
           }}
         >
           ×
@@ -2358,7 +2414,7 @@ async function resetSiteSettings() {
                   onChange={() => setAnimalSelectionDraft(checked ? "" : option)}
                 />
                 <span className="admin-preset-check">{checked ? "✓" : ""}</span>
-                <strong>{option}</strong>
+                <strong>{option}{option === OTHER_OPTION ? " — digitar manualmente" : ""}</strong>
               </label>
             );
           })}
@@ -2393,6 +2449,62 @@ async function resetSiteSettings() {
     </section>
   </div>
 )}
+
+
+      {animalCustomModal && (
+        <div
+          className="admin-preset-modal-backdrop"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) closeCustomAnimalSelection();
+          }}
+        >
+          <section
+            className="admin-preset-modal admin-custom-option-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Outra opção para ${animalCustomModal.title}`}
+          >
+            <header className="admin-preset-modal-head">
+              <div>
+                <span>{animalCustomModal.eyebrow}</span>
+                <h2>Outra opção</h2>
+                <p>Digite como você quer que apareça em “{animalCustomModal.title}”.</p>
+              </div>
+              <button type="button" onClick={closeCustomAnimalSelection}>×</button>
+            </header>
+
+            <div className="admin-preset-modal-body">
+              <label className="admin-custom-option-field">
+                <span>Texto personalizado</span>
+                <textarea
+                  autoFocus
+                  value={animalCustomDraft}
+                  onChange={(event) => setAnimalCustomDraft(event.target.value)}
+                  placeholder="Digite a opção personalizada..."
+                  rows={5}
+                />
+              </label>
+            </div>
+
+            <footer className="admin-preset-modal-footer">
+              <span />
+              <div>
+                <button type="button" className="button secondary" onClick={closeCustomAnimalSelection}>
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="button primary"
+                  disabled={!animalCustomDraft.trim()}
+                  onClick={applyCustomAnimalSelection}
+                >
+                  Usar este texto
+                </button>
+              </div>
+            </footer>
+          </section>
+        </div>
+      )}
 
       {adoptionAnimal && (
         <div

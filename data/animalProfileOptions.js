@@ -1,3 +1,9 @@
+export const OTHER_OPTION = "Outro";
+
+function withOther(options) {
+  return [...options, OTHER_OPTION];
+}
+
 export const TEMPERAMENT_OPTIONS = [
   "Dócil e carinhoso",
   "Brincalhão e alegre",
@@ -109,29 +115,62 @@ export const SUMMARY_OPTIONS = [
   "Adotar é transformar duas vidas.",
 ];
 
+export const COMPATIBILITY_OPTIONS = [
+  "Não avaliado",
+  "Convive bem",
+  "Convive com adaptação",
+  "Não recomendamos",
+];
+
+export const CHILDREN_COMPATIBILITY_OPTIONS = [
+  "Não avaliado",
+  "Convive bem com crianças",
+  "Convive com crianças maiores",
+  "Convive com supervisão",
+  "Não recomendamos crianças",
+];
+
 export const ANIMAL_SELECTION_FIELDS = {
   temperament: {
     title: "Temperamento",
     eyebrow: "PERFIL E COMPORTAMENTO",
     description: "Escolha uma característica principal para o perfil do animal.",
-    options: TEMPERAMENT_OPTIONS,
+    options: withOther(TEMPERAMENT_OPTIONS),
+  },
+  compatibilityDogs: {
+    title: "Convive com cães",
+    eyebrow: "PERFIL E COMPORTAMENTO",
+    description: "Selecione como é a convivência deste animal com cães.",
+    options: withOther(COMPATIBILITY_OPTIONS),
+  },
+  compatibilityCats: {
+    title: "Convive com gatos",
+    eyebrow: "PERFIL E COMPORTAMENTO",
+    description: "Selecione como é a convivência deste animal com gatos.",
+    options: withOther(COMPATIBILITY_OPTIONS),
+  },
+  compatibilityChildren: {
+    title: "Convive com crianças",
+    eyebrow: "PERFIL E COMPORTAMENTO",
+    description: "Selecione como é a convivência deste animal com crianças.",
+    options: withOther(CHILDREN_COMPATIBILITY_OPTIONS),
   },
   summary: {
     title: "Resumo do card",
     eyebrow: "TEXTO DO CARD",
     description: "Escolha a frase curta que aparecerá no card público do animal.",
-    options: SUMMARY_OPTIONS,
+    options: withOther(SUMMARY_OPTIONS),
   },
   story: {
     title: "História completa",
     eyebrow: "HISTÓRIA DO ANIMAL",
     description: "Escolha a história que melhor representa o resgate deste animal.",
-    options: STORY_OPTIONS,
+    options: withOther(STORY_OPTIONS),
   },
   idealHome: {
     title: "Lar ideal",
     eyebrow: "LAR IDEAL",
     description: "Escolha a característica principal do lar ideal para este animal.",
-    options: IDEAL_HOME_OPTIONS,
+    options: withOther(IDEAL_HOME_OPTIONS),
   },
 };
