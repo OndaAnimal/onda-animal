@@ -47,6 +47,7 @@ const emptyAnimal = {
   story: "",
   observations: "",
   photos: [""],
+  profileSelections: {},
 };
 
 
@@ -136,7 +137,7 @@ export default function AdminPanel({ initialAnimals }) {
 
 const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
   const [animalSelectionModal, setAnimalSelectionModal] = useState(null);
-  const [animalSelectionDraft, setAnimalSelectionDraft] = useState("");
+  const [animalSelectionDraft, setAnimalSelectionDraft] = useState([]);
   const [animalCustomModal, setAnimalCustomModal] = useState(null);
   const [animalCustomDraft, setAnimalCustomDraft] = useState("");
 
@@ -400,7 +401,7 @@ const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
 
   function beginNewAnimal() {
     setEditing("new");
-    setAnimalForm({ ...emptyAnimal, compatibility: { ...emptyAnimal.compatibility }, photos: [""] });
+    setAnimalForm({ ...emptyAnimal, compatibility: { ...emptyAnimal.compatibility }, photos: [""], profileSelections: {} });
     setTemperamentText("");
     setAnimalDraftKey(`rascunho-${Date.now()}`);
     setTab("animals");
@@ -412,8 +413,9 @@ const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
       ...animal,
       compatibility: { ...emptyAnimal.compatibility, ...(animal.compatibility || {}) },
       photos: (animal.photos || []).filter(Boolean).length ? (animal.photos || []).filter(Boolean) : [""],
+      profileSelections: { ...(animal.profileSelections || {}) },
     });
-    setTemperamentText((animal.temperament || [])[0] || "");
+    setTemperamentText(Array.isArray(animal.temperament) ? animal.temperament.join(" • ") : "");
     setAnimalDraftKey(animal.slug || `rascunho-${Date.now()}`);
   }
 
@@ -476,65 +478,122 @@ function getAnimalSelectionValue(field) {
   return String(animalForm[field] || "");
 }
 
-function setAnimalSelectionValue(field, value) {
+function formatAnimalSelectionValue(field, values) {
+  const clean = (values || []).map((item) => String(item || "").trim()).filter(Boolean);
+
+  if (field === "story") return clean.join(" ");
+  if (field === "idealHome") return clean.join(" • ");
+  return clean.join(" • ");
+}
+
+function getStoredAnimalSelections(field) {
+  const stored = animalForm.profileSelections?.[field];
+  if (Array.isArray(stored) && stored.length) return stored.slice(0, 3);
+
+  if (field === "temperament" && Array.isArray(animalForm.temperament) && animalForm.temperament.length) {
+    return animalForm.temperament.slice(0, 3);
+  }
+
+  const current = getAnimalSelectionValue(field).trim();
+  return current ? [current] : [];
+}
+
+function setAnimalSelectionValue(field, values) {
+  const clean = (Array.isArray(values) ? values : [values])
+    .map((item) => String(item || "").trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
+  const displayValue = formatAnimalSelectionValue(field, clean);
+
   if (field === "temperament") {
-    setTemperamentText(value);
-    return;
+    setTemperamentText(displayValue);
+  } else if (field === "compatibilityDogs") {
+    updateCompatibility("dogs", displayValue);
+  } else if (field === "compatibilityCats") {
+    updateCompatibility("cats", displayValue);
+  } else if (field === "compatibilityChildren") {
+    updateCompatibility("children", displayValue);
+  } else {
+    updateAnimal(field, displayValue);
   }
-  if (field === "compatibilityDogs") {
-    updateCompatibility("dogs", value);
-    return;
-  }
-  if (field === "compatibilityCats") {
-    updateCompatibility("cats", value);
-    return;
-  }
-  if (field === "compatibilityChildren") {
-    updateCompatibility("children", value);
-    return;
-  }
-  updateAnimal(field, value);
+
+  setAnimalForm((current) => ({
+    ...current,
+    profileSelections: {
+      ...(current.profileSelections || {}),
+      [field]: clean,
+    },
+  }));
 }
 
 function openAnimalSelection(field) {
   const config = ANIMAL_SELECTION_FIELDS[field];
   if (!config) return;
 
-  const currentValue = getAnimalSelectionValue(field);
-  const isPreset = !currentValue || config.options.includes(currentValue);
+  const selected = getStoredAnimalSelections(field);
+  const presetSelections = [];
+  let customValue = "";
 
-  setAnimalCustomDraft(!isPreset && currentValue !== OTHER_OPTION ? currentValue : "");
-  setAnimalSelectionDraft(isPreset ? currentValue : OTHER_OPTION);
+  selected.forEach((value) => {
+    if (config.options.includes(value) && value !== OTHER_OPTION) {
+      presetSelections.push(value);
+    } else if (!customValue) {
+      customValue = value;
+    }
+  });
+
+  const draft = [...presetSelections];
+  if (customValue && draft.length < 3) draft.push(OTHER_OPTION);
+
+  setAnimalCustomDraft(customValue);
+  setAnimalSelectionDraft(draft.slice(0, 3));
   setAnimalSelectionModal({ field, ...config });
 }
 
 function closeAnimalSelection() {
   setAnimalSelectionModal(null);
-  setAnimalSelectionDraft("");
+  setAnimalSelectionDraft([]);
+}
+
+function toggleAnimalSelectionOption(option) {
+  setAnimalSelectionDraft((current) => {
+    const selected = Array.isArray(current) ? current : [];
+    if (selected.includes(option)) {
+      return selected.filter((item) => item !== option);
+    }
+    if (selected.length >= 3) {
+      notify("Você pode selecionar no máximo 3 opções.");
+      return selected;
+    }
+    return [...selected, option];
+  });
 }
 
 function applyAnimalSelection() {
-  if (!animalSelectionModal || !animalSelectionDraft) return;
+  if (!animalSelectionModal || !animalSelectionDraft.length) return;
 
-  if (animalSelectionDraft === OTHER_OPTION) {
+  const selected = animalSelectionDraft.slice(0, 3);
+
+  if (selected.includes(OTHER_OPTION)) {
     setAnimalCustomModal({
       field: animalSelectionModal.field,
       title: animalSelectionModal.title,
       eyebrow: animalSelectionModal.eyebrow,
+      selectedOptions: selected.filter((item) => item !== OTHER_OPTION),
     });
-    setAnimalCustomDraft((current) => current || "");
     closeAnimalSelection();
     return;
   }
 
-  setAnimalSelectionValue(animalSelectionModal.field, animalSelectionDraft);
+  setAnimalSelectionValue(animalSelectionModal.field, selected);
   closeAnimalSelection();
   setAnimalCustomDraft("");
 }
 
 function clearAnimalSelection() {
   if (!animalSelectionModal) return;
-  setAnimalSelectionValue(animalSelectionModal.field, "");
+  setAnimalSelectionValue(animalSelectionModal.field, []);
   closeAnimalSelection();
   setAnimalCustomDraft("");
 }
@@ -544,7 +603,12 @@ function applyCustomAnimalSelection() {
   const value = animalCustomDraft.trim();
   if (!value) return;
 
-  setAnimalSelectionValue(animalCustomModal.field, value);
+  const selected = [
+    ...(animalCustomModal.selectedOptions || []),
+    value,
+  ].slice(0, 3);
+
+  setAnimalSelectionValue(animalCustomModal.field, selected);
   setAnimalCustomModal(null);
   setAnimalCustomDraft("");
 }
@@ -572,7 +636,9 @@ async function saveAnimal(event) {
       ...animalForm,
       slug,
       photos: cleanPhotos,
-      temperament: temperamentText.trim() ? [temperamentText.trim()] : [],
+      temperament: Array.isArray(animalForm.profileSelections?.temperament) && animalForm.profileSelections.temperament.length
+        ? animalForm.profileSelections.temperament.slice(0, 3)
+        : (temperamentText.trim() ? [temperamentText.trim()] : []),
     };
 
     let next;
@@ -2391,6 +2457,7 @@ async function resetSiteSettings() {
           <span>{animalSelectionModal.eyebrow}</span>
           <h2>{animalSelectionModal.title}</h2>
           <p>{animalSelectionModal.description}</p>
+          <small className="admin-preset-limit">Selecione até 3 opções.</small>
         </div>
         <button
           type="button"
@@ -2405,13 +2472,18 @@ async function resetSiteSettings() {
       <div className="admin-preset-modal-body">
         <div className="admin-preset-option-list">
           {animalSelectionModal.options.map((option, index) => {
-            const checked = animalSelectionDraft === option;
+            const checked = animalSelectionDraft.includes(option);
+            const blocked = !checked && animalSelectionDraft.length >= 3;
             return (
-              <label className={checked ? "admin-preset-option selected" : "admin-preset-option"} key={`${index}-${option}`}>
+              <label
+                className={`${checked ? "admin-preset-option selected" : "admin-preset-option"}${blocked ? " disabled" : ""}`}
+                key={`${index}-${option}`}
+              >
                 <input
                   type="checkbox"
                   checked={checked}
-                  onChange={() => setAnimalSelectionDraft(checked ? "" : option)}
+                  disabled={blocked}
+                  onChange={() => toggleAnimalSelectionOption(option)}
                 />
                 <span className="admin-preset-check">{checked ? "✓" : ""}</span>
                 <strong>{option}{option === OTHER_OPTION ? " — digitar manualmente" : ""}</strong>
@@ -2422,17 +2494,17 @@ async function resetSiteSettings() {
       </div>
 
       <footer className="admin-preset-modal-footer">
-        <button type="button" className="button secondary" onClick={clearAnimalSelection}>
-          Limpar
-        </button>
+        <div className="admin-preset-footer-left">
+          <button type="button" className="button secondary" onClick={clearAnimalSelection}>
+            Limpar
+          </button>
+          <strong>{animalSelectionDraft.length}/3 selecionadas</strong>
+        </div>
         <div>
           <button
             type="button"
             className="button secondary"
-            onClick={() => {
-              setAnimalSelectionModal(null);
-              setAnimalSelectionDraft("");
-            }}
+            onClick={closeAnimalSelection}
           >
             Cancelar
           </button>
@@ -2440,9 +2512,9 @@ async function resetSiteSettings() {
             type="button"
             className="button primary"
             onClick={applyAnimalSelection}
-            disabled={!animalSelectionDraft}
+            disabled={!animalSelectionDraft.length}
           >
-            Usar esta opção
+            {animalSelectionDraft.length === 1 ? "Usar opção" : "Usar opções"}
           </button>
         </div>
       </footer>

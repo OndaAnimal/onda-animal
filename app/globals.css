@@ -4281,3 +4281,44 @@ footer{background:var(--cms-footer-bg)}
 .admin-preset-option strong{
   line-height:1.45;
 }
+
+
+/* V26 — ATÉ 3 OPÇÕES POR MODAL */
+.admin-preset-limit{
+  display:inline-block;
+  margin-top:7px;
+  padding:5px 8px;
+  border-radius:999px;
+  color:var(--teal-deep);
+  background:#e9f6f5;
+  font-size:10px;
+  font-weight:900;
+}
+
+.admin-preset-option.disabled{
+  opacity:.42;
+  cursor:not-allowed;
+}
+
+.admin-preset-option.disabled input{
+  cursor:not-allowed;
+}
+
+.admin-preset-footer-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.admin-preset-footer-left>strong{
+  color:#637b80;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+@media(max-width:620px){
+  .admin-preset-footer-left{
+    width:100%;
+    justify-content:space-between;
+  }
+}

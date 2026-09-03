@@ -461,3 +461,12 @@ As opções são mantidas em `data/animalProfileOptions.js`, facilitando novas a
 - Todos os modais do perfil possuem a opção `Outro`.
 - Ao escolher `Outro`, abre um segundo modal para texto personalizado.
 - O texto personalizado é salvo normalmente no cadastro do animal no Neon.
+
+
+## V26 — Até 3 opções por modal
+
+Todos os modais do perfil do animal aceitam de 1 a 3 opções.
+- A quarta opção fica bloqueada até uma seleção ser removida.
+- O rodapé mostra o contador `X/3 selecionadas`.
+- `Outro` conta como uma das três opções e abre o modal de texto personalizado.
+- As seleções são preservadas em `profileSelections` e salvas no Neon junto ao animal.
