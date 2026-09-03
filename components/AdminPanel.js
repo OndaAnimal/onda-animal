@@ -18,7 +18,8 @@ import {
 import { adminAction, adminLogin, adminLogout, adminSession, loadAdminState, uploadAdminImage } from "../lib/apiClient";
 import { maskBrazilPhone, maskPin, maskYear } from "../lib/masks";
 import { veterinarians as seedVeterinarians } from "../data/veterinarians";
-import { ANIMAL_SELECTION_FIELDS, OTHER_OPTION } from "../data/animalProfileOptions";
+import { ANIMAL_SELECTION_FIELDS, DEFAULT_ANIMAL_PROFILE_OPTIONS, OTHER_OPTION } from "../data/animalProfileOptions";
+import CmsOptionEditor from "./CmsOptionEditor";
 
 const emptyAnimal = {
   slug: "",
@@ -531,12 +532,29 @@ function openAnimalSelection(field) {
   const config = ANIMAL_SELECTION_FIELDS[field];
   if (!config) return;
 
+  const configured = settings.animalProfileOptions?.[field];
+  const baseOptions = Array.isArray(configured)
+    ? configured
+    : (DEFAULT_ANIMAL_PROFILE_OPTIONS[field] || []);
+
+  const cleanOptions = [];
+  const seen = new Set();
+  baseOptions.forEach((item) => {
+    const value = String(item || "").trim();
+    if (!value || value.toLowerCase() === OTHER_OPTION.toLowerCase()) return;
+    const key = value.toLocaleLowerCase("pt-BR");
+    if (seen.has(key)) return;
+    seen.add(key);
+    cleanOptions.push(value);
+  });
+
+  const modalOptions = [...cleanOptions, OTHER_OPTION];
   const selected = getStoredAnimalSelections(field);
   const presetSelections = [];
   let customValue = "";
 
   selected.forEach((value) => {
-    if (config.options.includes(value) && value !== OTHER_OPTION) {
+    if (modalOptions.includes(value) && value !== OTHER_OPTION) {
       presetSelections.push(value);
     } else if (!customValue) {
       customValue = value;
@@ -548,7 +566,7 @@ function openAnimalSelection(field) {
 
   setAnimalCustomDraft(customValue);
   setAnimalSelectionDraft(draft.slice(0, 3));
-  setAnimalSelectionModal({ field, ...config });
+  setAnimalSelectionModal({ field, ...config, options: modalOptions });
 }
 
 function closeAnimalSelection() {
@@ -878,6 +896,46 @@ async function completeAdoption(event) {
     setSettings((current) => ({ ...current, [field]: value }));
   }
 
+  function updateAnimalProfileOptions(field, value) {
+    setSettings((current) => ({
+      ...current,
+      animalProfileOptions: {
+        ...DEFAULT_ANIMAL_PROFILE_OPTIONS,
+        ...(current.animalProfileOptions || {}),
+        [field]: Array.isArray(value) ? value : [],
+      },
+    }));
+  }
+
+  function profileOptionsForCms(field) {
+    const configured = settings.animalProfileOptions?.[field];
+    return Array.isArray(configured)
+      ? configured
+      : [...(DEFAULT_ANIMAL_PROFILE_OPTIONS[field] || [])];
+  }
+
+  function normalizedProfileOptionsSettings(source = settings.animalProfileOptions) {
+    const next = {};
+    Object.keys(DEFAULT_ANIMAL_PROFILE_OPTIONS).forEach((field) => {
+      const raw = Array.isArray(source?.[field])
+        ? source[field]
+        : DEFAULT_ANIMAL_PROFILE_OPTIONS[field];
+
+      const seen = new Set();
+      next[field] = raw
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+        .filter((item) => item.toLowerCase() !== OTHER_OPTION.toLowerCase())
+        .filter((item) => {
+          const key = item.toLocaleLowerCase("pt-BR");
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+    });
+    return next;
+  }
+
 async function readSettingImage(file, field) {
   if (!file) return;
 
@@ -1031,9 +1089,14 @@ async function resetSiteSettings() {
   async function saveAdminSettings(event) {
     event.preventDefault();
     try {
-      const saved = await adminAction("saveResource", { resource: "settings", value: settings });
-      setSettings({ ...DEFAULT_SITE_SETTINGS, ...(saved || settings) });
-      localStorage.setItem("ondaAdminSettings", JSON.stringify(saved || settings));
+      const nextSettings = {
+        ...settings,
+        animalProfileOptions: normalizedProfileOptionsSettings(),
+      };
+      const saved = await adminAction("saveResource", { resource: "settings", value: nextSettings });
+      const merged = { ...DEFAULT_SITE_SETTINGS, ...(saved || nextSettings) };
+      setSettings(merged);
+      localStorage.setItem("ondaAdminSettings", JSON.stringify(saved || nextSettings));
       notify("Configurações publicadas no Neon.");
     } catch (error) {
       notify(error.message || "Não foi possível salvar as configurações.");
@@ -1820,6 +1883,7 @@ async function resetSiteSettings() {
                     ["header", "☰", "Cabeçalho e menu"],
                     ["home", "▣", "Home e banner"],
                     ["adoption", "♡", "Adoção"],
+                    ["animal-form", "✎", "Cadastro de animais"],
                     ["contact", "☎", "Contatos"],
                     ["footer", "▤", "Rodapé"],
                     ["modules", "⚡", "Módulos"],
@@ -2201,6 +2265,87 @@ async function resetSiteSettings() {
                           Fotos, ficha completa, status, solicitações e conclusão da adoção
                           continuam sendo gerenciados nas abas Animais, Solicitações e Histórias.
                         </p>
+                      </div>
+                    </section>
+                  )}
+
+                  {settingsSection === "animal-form" && (
+                    <section className="cms-config-section">
+                      <div className="cms-config-heading">
+                        <span>CADASTRO DE ANIMAIS</span>
+                        <h3>Opções dos modais de cadastro</h3>
+                        <p>
+                          Edite aqui as alternativas que aparecem ao cadastrar um animal.
+                          As mudanças são salvas no Neon e passam a valer em qualquer dispositivo.
+                        </p>
+                      </div>
+
+                      <div className="cms-note">
+                        <strong>Como funciona</strong>
+                        <p>
+                          Você pode adicionar, editar, remover e mudar a ordem das alternativas.
+                          O cadastro permite selecionar até <b>3 opções</b>. A alternativa
+                          <b> “Outro”</b> é adicionada automaticamente em todos os modais e abre
+                          um campo para texto livre.
+                        </p>
+                      </div>
+
+                      <div className="cms-animal-options-grid">
+                        <CmsOptionEditor
+                          title="Temperamento"
+                          description="Perfil e comportamento principal do animal."
+                          options={profileOptionsForCms("temperament")}
+                          defaultOptions={DEFAULT_ANIMAL_PROFILE_OPTIONS.temperament}
+                          onChange={(value) => updateAnimalProfileOptions("temperament", value)}
+                        />
+
+                        <CmsOptionEditor
+                          title="Convive com cães"
+                          description="Alternativas de convivência com cães."
+                          options={profileOptionsForCms("compatibilityDogs")}
+                          defaultOptions={DEFAULT_ANIMAL_PROFILE_OPTIONS.compatibilityDogs}
+                          onChange={(value) => updateAnimalProfileOptions("compatibilityDogs", value)}
+                        />
+
+                        <CmsOptionEditor
+                          title="Convive com gatos"
+                          description="Alternativas de convivência com gatos."
+                          options={profileOptionsForCms("compatibilityCats")}
+                          defaultOptions={DEFAULT_ANIMAL_PROFILE_OPTIONS.compatibilityCats}
+                          onChange={(value) => updateAnimalProfileOptions("compatibilityCats", value)}
+                        />
+
+                        <CmsOptionEditor
+                          title="Convive com crianças"
+                          description="Alternativas de convivência com crianças."
+                          options={profileOptionsForCms("compatibilityChildren")}
+                          defaultOptions={DEFAULT_ANIMAL_PROFILE_OPTIONS.compatibilityChildren}
+                          onChange={(value) => updateAnimalProfileOptions("compatibilityChildren", value)}
+                        />
+
+                        <CmsOptionEditor
+                          title="Resumo do card"
+                          description="Frases curtas usadas nos cards públicos."
+                          options={profileOptionsForCms("summary")}
+                          defaultOptions={DEFAULT_ANIMAL_PROFILE_OPTIONS.summary}
+                          onChange={(value) => updateAnimalProfileOptions("summary", value)}
+                        />
+
+                        <CmsOptionEditor
+                          title="História completa"
+                          description="Histórias pré-definidas disponíveis no cadastro."
+                          options={profileOptionsForCms("story")}
+                          defaultOptions={DEFAULT_ANIMAL_PROFILE_OPTIONS.story}
+                          onChange={(value) => updateAnimalProfileOptions("story", value)}
+                        />
+
+                        <CmsOptionEditor
+                          title="Lar ideal"
+                          description="Características do lar indicado para o animal."
+                          options={profileOptionsForCms("idealHome")}
+                          defaultOptions={DEFAULT_ANIMAL_PROFILE_OPTIONS.idealHome}
+                          onChange={(value) => updateAnimalProfileOptions("idealHome", value)}
+                        />
                       </div>
                     </section>
                   )}

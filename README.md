@@ -470,3 +470,23 @@ Todos os modais do perfil do animal aceitam de 1 a 3 opções.
 - O rodapé mostra o contador `X/3 selecionadas`.
 - `Outro` conta como uma das três opções e abre o modal de texto personalizado.
 - As seleções são preservadas em `profileSelections` e salvas no Neon junto ao animal.
+
+
+## V27 — CMS do cadastro dos animais
+
+Nova área `Configurações → Cadastro de animais`.
+
+O CMS permite configurar as opções dos modais de:
+- Temperamento
+- Convive com cães
+- Convive com gatos
+- Convive com crianças
+- Resumo do card
+- História completa
+- Lar ideal
+
+Cada lista permite adicionar, editar, excluir e reorganizar alternativas.
+`Outro` é automático e não precisa ser cadastrado.
+`Não sabemos` foi incluído no padrão de cães, gatos e crianças.
+
+As configurações ficam no recurso `settings` do Neon e são compartilhadas entre dispositivos.

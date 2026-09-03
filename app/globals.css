@@ -4322,3 +4322,154 @@ footer{background:var(--cms-footer-bg)}
     justify-content:space-between;
   }
 }
+
+
+/* V27 — CMS DAS OPÇÕES DO CADASTRO */
+.cms-animal-options-grid{
+  display:grid;
+  gap:18px;
+}
+
+.cms-option-editor{
+  padding:18px;
+  border:1px solid #dbe7e8;
+  border-radius:18px;
+  background:#fbfdfd;
+}
+
+.cms-option-editor>header{
+  margin-bottom:14px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+
+.cms-option-editor>header h4{
+  margin:0;
+  color:var(--navy);
+  font-size:18px;
+}
+
+.cms-option-editor>header p{
+  margin:4px 0 0;
+  color:#71858a;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.cms-option-editor>header>span{
+  flex:0 0 auto;
+  padding:6px 8px;
+  border-radius:999px;
+  color:var(--teal-deep);
+  background:#e7f5f4;
+  font-size:10px;
+  font-weight:900;
+}
+
+.cms-option-list{
+  display:grid;
+  gap:7px;
+}
+
+.cms-option-row{
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr) 34px 34px 34px;
+  gap:6px;
+  align-items:center;
+}
+
+.cms-option-row>b{
+  color:#8a9a9e;
+  font-size:10px;
+  text-align:center;
+}
+
+.cms-option-row input{
+  width:100%;
+  min-height:42px;
+  padding:0 11px;
+  border:1px solid #d6e3e4;
+  border-radius:10px;
+  color:var(--ink);
+  background:#fff;
+  font:inherit;
+  font-size:12px;
+  outline:none;
+}
+
+.cms-option-row input:focus{
+  border-color:var(--teal-dark);
+  box-shadow:0 0 0 3px rgba(21,141,146,.07);
+}
+
+.cms-option-row button{
+  width:34px;
+  height:34px;
+  border:1px solid #d8e5e6;
+  border-radius:9px;
+  color:#49646a;
+  background:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.cms-option-row button:hover:not(:disabled){
+  border-color:#9dcfd0;
+  color:var(--teal-deep);
+  background:#effafa;
+}
+
+.cms-option-row button:disabled{
+  opacity:.3;
+  cursor:not-allowed;
+}
+
+.cms-option-row button.remove:hover{
+  border-color:#efc4cc;
+  color:#a92e4e;
+  background:#fff3f5;
+}
+
+.cms-option-editor>footer{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.cms-option-reset{
+  border:0;
+  color:#6d8085;
+  background:transparent;
+  font-size:11px;
+  font-weight:850;
+  cursor:pointer;
+}
+
+.cms-option-reset:hover{
+  color:var(--teal-deep);
+  text-decoration:underline;
+}
+
+@media(max-width:640px){
+  .cms-option-row{
+    grid-template-columns:26px minmax(0,1fr) 32px 32px 32px;
+  }
+
+  .cms-option-row button{
+    width:32px;
+    height:32px;
+  }
+
+  .cms-option-editor{
+    padding:14px 10px;
+  }
+
+  .cms-option-editor>footer{
+    align-items:stretch;
+    flex-direction:column;
+  }
+}

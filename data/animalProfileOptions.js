@@ -116,6 +116,7 @@ export const SUMMARY_OPTIONS = [
 ];
 
 export const COMPATIBILITY_OPTIONS = [
+  "Não sabemos",
   "Não avaliado",
   "Convive bem",
   "Convive com adaptação",
@@ -123,12 +124,23 @@ export const COMPATIBILITY_OPTIONS = [
 ];
 
 export const CHILDREN_COMPATIBILITY_OPTIONS = [
+  "Não sabemos",
   "Não avaliado",
   "Convive bem com crianças",
   "Convive com crianças maiores",
   "Convive com supervisão",
   "Não recomendamos crianças",
 ];
+
+export const DEFAULT_ANIMAL_PROFILE_OPTIONS = {
+  temperament: [...TEMPERAMENT_OPTIONS],
+  compatibilityDogs: [...COMPATIBILITY_OPTIONS],
+  compatibilityCats: [...COMPATIBILITY_OPTIONS],
+  compatibilityChildren: [...CHILDREN_COMPATIBILITY_OPTIONS],
+  summary: [...SUMMARY_OPTIONS],
+  story: [...STORY_OPTIONS],
+  idealHome: [...IDEAL_HOME_OPTIONS],
+};
 
 export const ANIMAL_SELECTION_FIELDS = {
   temperament: {
