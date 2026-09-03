@@ -4520,3 +4520,33 @@ footer{background:var(--cms-footer-bg)}
     margin-top:10px;
   }
 }
+
+
+/* V29 — VISUALIZAÇÕES NOS CARDS */
+.animal-card-views{
+  width:max-content;
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 10px;
+  border:1px solid #dceaea;
+  border-radius:999px;
+  color:#5f777d;
+  background:#fbfefe;
+  font-size:11px;
+}
+
+.animal-card-views>span{
+  color:var(--teal-dark);
+  font-size:13px;
+}
+
+.animal-card-views>strong{
+  color:var(--navy);
+  font-size:12px;
+}
+
+.animal-card-views>small{
+  font-size:10px;
+}

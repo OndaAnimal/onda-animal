@@ -503,3 +503,13 @@ Cada perfil público de animal possui contador persistido no Neon.
 - A Visão geral mostra o total somado dos perfis.
 - Em `Configurações → Cadastro de animais` é possível mostrar/esconder o contador no perfil público.
 - As tabelas são criadas automaticamente pelo `ensureDatabase()`.
+
+
+## V29 — Visualizações também nos cards
+
+As visualizações dos perfis agora também aparecem nos cards públicos:
+- Home
+- Página de adoção
+
+Os cards usam o mesmo contador salvo no Neon.
+A configuração `showPublicAnimalViews` agora controla a exibição nos cards e no perfil completo.

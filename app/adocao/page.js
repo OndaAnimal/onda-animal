@@ -2,7 +2,7 @@ import SiteShell from "../../components/SiteShell";
 import PageHero from "../../components/PageHero";
 import AnimalsCatalog from "../../components/AnimalsCatalog";
 import { animals as seedAnimals } from "../../data/animals";
-import { getSiteData } from "../../lib/serverStore";
+import { attachAnimalProfileViews, getSiteData } from "../../lib/serverStore";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +10,7 @@ export default async function AdoptionPage() {
   let animals = seedAnimals;
   try {
     animals = await getSiteData("animals", seedAnimals);
+    animals = await attachAnimalProfileViews(animals);
   } catch {
     // Fallback local.
   }

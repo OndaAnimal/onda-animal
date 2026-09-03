@@ -2305,7 +2305,7 @@ async function resetSiteSettings() {
                         <label className="cms-switch-row">
                           <div>
                             <strong>Mostrar visualizações no perfil público</strong>
-                            <span>Exibe o total de acessos abaixo do resumo do animal.</span>
+                            <span>Exibe o total de acessos nos cards e no perfil completo do animal.</span>
                           </div>
                           <input
                             type="checkbox"

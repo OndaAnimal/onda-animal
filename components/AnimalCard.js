@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { useSiteSettings } from "./SiteSettingsProvider";
 import { mediaUrl } from "../lib/mediaUrl";
 
 export default function AnimalCard({ animal, priority = false }) {
+  const { settings } = useSiteSettings();
+
   return (
     <article className="animal-card">
       <Link className="animal-photo-wrap" href={`/adocao/${animal.slug}`}>
@@ -33,6 +36,14 @@ export default function AnimalCard({ animal, priority = false }) {
           <span>{animal.size}</span>
           <span>{animal.city}</span>
         </div>
+
+        {settings.showPublicAnimalViews !== false && (
+          <div className="animal-card-views" title="Visualizações deste perfil">
+            <span>◉</span>
+            <strong>{Number(animal.viewCount || 0).toLocaleString("pt-BR")}</strong>
+            <small>{Number(animal.viewCount || 0) === 1 ? "visualização" : "visualizações"}</small>
+          </div>
+        )}
 
         <div className="animal-health">
           <span className={animal.vaccinated ? "ok" : ""}>{animal.vaccinated ? "✓" : "○"} Vacinado</span>
