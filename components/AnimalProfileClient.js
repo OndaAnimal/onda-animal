@@ -2,13 +2,47 @@
 
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import AnimalGallery from "./AnimalGallery";
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { adoptionWhatsAppUrl } from "../lib/whatsapp";
 
-export default function AnimalProfileClient({ slug, initialAnimals }) {
+export default function AnimalProfileClient({ slug, initialAnimals, initialViews = 0 }) {
   const { settings } = useSiteSettings();
   const animal = initialAnimals.find((a) => a.slug === slug) || null;
+  const [profileViews, setProfileViews] = useState(Number(initialViews || 0));
+
+  useEffect(() => {
+    if (!animal?.slug) return;
+
+    let cancelled = false;
+
+    function getViewerId() {
+      const key = "onda_animal_profile_viewer_v1";
+      let id = localStorage.getItem(key);
+      if (!id) {
+        id = globalThis.crypto?.randomUUID?.()
+          || `viewer_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        localStorage.setItem(key, id);
+      }
+      return id;
+    }
+
+    fetch(`/api/animals/${encodeURIComponent(animal.slug)}/view`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitorId: getViewerId() }),
+    })
+      .then((response) => response.ok ? response.json() : null)
+      .then((payload) => {
+        if (!cancelled && payload?.data) {
+          setProfileViews(Number(payload.data.total || 0));
+        }
+      })
+      .catch(() => {});
+
+    return () => { cancelled = true; };
+  }, [animal?.slug]);
 
   if (!animal) {
     return (
@@ -38,6 +72,13 @@ export default function AnimalProfileClient({ slug, initialAnimals }) {
             <span className="eyebrow">{animal.species} para adoção</span>
             <h1>{animal.name}</h1>
             <p className="animal-lead">{animal.summary}</p>
+            {settings.showPublicAnimalViews !== false && (
+              <div className="animal-public-views" title="Visualizações deste perfil">
+                <span>◉</span>
+                <strong>{profileViews.toLocaleString("pt-BR")}</strong>
+                <small>{profileViews === 1 ? "visualização" : "visualizações"}</small>
+              </div>
+            )}
             <div className="profile-facts">
               <div><small>Idade</small><strong>{animal.age}</strong></div>
               <div><small>Sexo</small><strong>{animal.sex}</strong></div>

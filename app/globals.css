@@ -4473,3 +4473,50 @@ footer{background:var(--cms-footer-bg)}
     flex-direction:column;
   }
 }
+
+
+/* V28 — CONTADOR DE VISUALIZAÇÕES DOS PERFIS */
+.animal-public-views{
+  width:max-content;
+  margin:12px 0 4px;
+  padding:7px 10px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid #d8e8e8;
+  border-radius:999px;
+  color:#5f777d;
+  background:rgba(255,255,255,.72);
+  font-size:11px;
+}
+
+.animal-public-views>span{
+  color:var(--teal-dark);
+  font-size:13px;
+}
+
+.animal-public-views>strong{
+  color:var(--navy);
+  font-size:12px;
+}
+
+.animal-public-views>small{
+  font-size:10px;
+}
+
+.admin-profile-view-count{
+  width:max-content;
+  margin-top:5px;
+  padding:4px 7px;
+  border-radius:999px;
+  color:#156e76!important;
+  background:#e9f6f5;
+  font-size:10px!important;
+  font-weight:850;
+}
+
+@media(max-width:640px){
+  .animal-public-views{
+    margin-top:10px;
+  }
+}

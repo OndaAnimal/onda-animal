@@ -108,6 +108,7 @@ export default function AdminPanel({ initialAnimals }) {
   const [loginError, setLoginError] = useState("");
   const [tab, setTab] = useState("dashboard");
   const [animals, setAnimals] = useState(initialAnimals);
+  const [profileViews, setProfileViews] = useState({});
   const [veterinarians, setVeterinarians] = useState(seedVeterinarians);
   const [applications, setApplications] = useState([]);
   const [feedback, setFeedback] = useState([]);
@@ -173,6 +174,7 @@ const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
     try {
       const state = await loadAdminState();
       setAnimals(Array.isArray(state.animals) ? state.animals : initialAnimals);
+      setProfileViews(state.profileViews && typeof state.profileViews === "object" ? state.profileViews : {});
       setVeterinarians(Array.isArray(state.veterinarians) ? state.veterinarians : seedVeterinarians);
       setApplications(Array.isArray(state.applications) ? state.applications : []);
       setFeedback(Array.isArray(state.feedback) ? state.feedback : []);
@@ -254,8 +256,10 @@ const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
     const average = feedback.length
       ? (feedback.reduce((sum, item) => sum + Number(item.rating || 0), 0) / feedback.length).toFixed(1)
       : "—";
-    return { available, adopted, pending, average };
-  }, [animals, applications, feedback]);
+    const totalViews = Object.values(profileViews || {})
+      .reduce((sum, item) => sum + Number(item?.total || 0), 0);
+    return { available, adopted, pending, average, totalViews };
+  }, [animals, applications, feedback, profileViews]);
 
   function beginNewVeterinarian() {
     const nextOrder = veterinarians.length
@@ -1180,6 +1184,7 @@ async function resetSiteSettings() {
               <Metric label="Em análise" value={metrics.pending} detail="solicitações aguardando" />
               <Metric label="Adotados" value={metrics.adopted} detail="animais com novo lar" />
               <Metric label="Nota do site" value={metrics.average} detail={`${feedback.length} avaliações`} />
+              <Metric label="Visualizações" value={metrics.totalViews.toLocaleString("pt-BR")} detail="perfis de animais" />
             </div>
 
             <div className="admin-dashboard-grid">
@@ -1198,7 +1203,7 @@ async function resetSiteSettings() {
                 <div className="admin-card-heading"><div><span>ANIMAIS</span><h2>Status</h2></div><button onClick={() => setTab("animals")}>Gerenciar →</button></div>
                 {animals.slice(0, 5).map((animal) => (
                   <div className="admin-mini-row" key={animal.slug}>
-                    <div className="admin-animal-mini"><img src={animal.photos?.[0]} alt="" /><div><strong>{animal.name}</strong><span>{animal.species} • {animal.age}</span></div></div>
+                    <div className="admin-animal-mini"><img src={animal.photos?.[0]} alt="" /><div><strong>{animal.name}</strong><span>{animal.species} • {animal.age} • ◉ {Number(profileViews[animal.slug]?.total || 0).toLocaleString("pt-BR")}</span></div></div>
                     <span className="admin-animal-status">{animal.status}</span>
                   </div>
                 ))}
@@ -1214,7 +1219,13 @@ async function resetSiteSettings() {
                 {animals.map((animal) => (
                   <article className="admin-animal-row" key={animal.slug}>
                     <img src={animal.photos?.[0]} alt={animal.name} />
-                    <div className="admin-animal-info"><strong>{animal.name}</strong><span>{animal.species} • {animal.sex} • {animal.age} • {animal.city}</span></div>
+                    <div className="admin-animal-info">
+                      <strong>{animal.name}</strong>
+                      <span>{animal.species} • {animal.sex} • {animal.age} • {animal.city}</span>
+                      <span className="admin-profile-view-count">
+                        ◉ {Number(profileViews[animal.slug]?.total || 0).toLocaleString("pt-BR")} visualizações
+                      </span>
+                    </div>
                     <select value={animal.status} onChange={(e) => quickStatus(animal.slug, e.target.value)}>
                       <option>Disponível</option><option>Em processo</option><option>Adotado</option><option>Indisponível</option>
                     </select>
@@ -2288,6 +2299,20 @@ async function resetSiteSettings() {
                           <b> “Outro”</b> é adicionada automaticamente em todos os modais e abre
                           um campo para texto livre.
                         </p>
+                      </div>
+
+                      <div className="cms-switch-list">
+                        <label className="cms-switch-row">
+                          <div>
+                            <strong>Mostrar visualizações no perfil público</strong>
+                            <span>Exibe o total de acessos abaixo do resumo do animal.</span>
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={settings.showPublicAnimalViews !== false}
+                            onChange={(e) => updateSetting("showPublicAnimalViews", e.target.checked)}
+                          />
+                        </label>
                       </div>
 
                       <div className="cms-animal-options-grid">

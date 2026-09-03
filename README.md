@@ -490,3 +490,16 @@ Cada lista permite adicionar, editar, excluir e reorganizar alternativas.
 `Não sabemos` foi incluído no padrão de cães, gatos e crianças.
 
 As configurações ficam no recurso `settings` do Neon e são compartilhadas entre dispositivos.
+
+
+## V28 — Visualizações dos perfis
+
+Cada perfil público de animal possui contador persistido no Neon.
+
+- Uma visualização é contabilizada por navegador/animal a cada 6 horas.
+- Recarregar a página várias vezes seguidas não infla o contador.
+- Nenhum IP é salvo; o navegador usa um identificador aleatório e o servidor armazena apenas um hash temporário.
+- O painel mostra o total de visualizações de cada animal.
+- A Visão geral mostra o total somado dos perfis.
+- Em `Configurações → Cadastro de animais` é possível mostrar/esconder o contador no perfil público.
+- As tabelas são criadas automaticamente pelo `ensureDatabase()`.

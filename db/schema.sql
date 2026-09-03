@@ -48,3 +48,20 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 
 CREATE INDEX IF NOT EXISTS chat_messages_conversation_idx
 ON chat_messages(conversation_id, created_at ASC);
+
+
+CREATE TABLE IF NOT EXISTS animal_profile_views (
+  animal_slug TEXT PRIMARY KEY,
+  total_views BIGINT NOT NULL DEFAULT 0,
+  first_viewed_at TIMESTAMPTZ,
+  last_viewed_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS animal_profile_view_events (
+  event_key TEXT PRIMARY KEY,
+  animal_slug TEXT NOT NULL,
+  viewed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS animal_profile_view_events_slug_idx
+ON animal_profile_view_events(animal_slug, viewed_at DESC);

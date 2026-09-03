@@ -9,6 +9,7 @@ import {
   listApplications,
   listConversations,
   listFeedback,
+  listAnimalProfileViews,
   markConversationRead,
   setConversationStatus,
   setSiteData,
@@ -25,7 +26,7 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
     }
 
-    const [animals, veterinarians, applications, feedback, settings, stories, conversations] =
+    const [animals, veterinarians, applications, feedback, settings, stories, conversations, profileViews] =
       await Promise.all([
         getSiteData("animals", seedAnimals),
         getSiteData("veterinarians", seedVeterinarians),
@@ -34,6 +35,7 @@ export async function GET() {
         getSiteData("settings", DEFAULT_SITE_SETTINGS),
         getSiteData("stories", []),
         listConversations(),
+        listAnimalProfileViews(),
       ]);
 
     return NextResponse.json({
@@ -44,6 +46,7 @@ export async function GET() {
         feedback,
         settings: { ...DEFAULT_SITE_SETTINGS, ...settings },
         stories,
+        profileViews,
         connect: { conversations, tickets: [], news: [], help: [] },
       },
     });
