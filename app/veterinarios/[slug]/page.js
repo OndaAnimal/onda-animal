@@ -1,15 +1,24 @@
 import { notFound } from "next/navigation";
 import SiteShell from "../../../components/SiteShell";
 import VeterinarianProfile from "../../../components/VeterinarianProfile";
-import { getVeterinarian, veterinarians } from "../../../data/veterinarians";
+import {
+  veterinarians as seedVeterinarians,
+  getVeterinarianFromList,
+} from "../../../data/veterinarians";
+import { getSiteData } from "../../../lib/serverStore";
 
-export function generateStaticParams() {
-  return veterinarians.map((vet) => ({ slug: vet.slug }));
+export const dynamic = "force-dynamic";
+
+async function loadVeterinarian(slug) {
+  const stored = await getSiteData("veterinarians", seedVeterinarians);
+  const list = Array.isArray(stored) ? stored : seedVeterinarians;
+  const vet = getVeterinarianFromList(list, slug);
+  return vet?.active === false ? null : vet;
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const vet = getVeterinarian(slug);
+  const vet = await loadVeterinarian(slug);
 
   if (!vet) return { title: "Veterinário | Onda Animal" };
 
@@ -21,7 +30,7 @@ export async function generateMetadata({ params }) {
 
 export default async function VeterinarianPage({ params }) {
   const { slug } = await params;
-  const vet = getVeterinarian(slug);
+  const vet = await loadVeterinarian(slug);
 
   if (!vet) notFound();
 

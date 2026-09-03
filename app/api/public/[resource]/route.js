@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { animals as seedAnimals } from "../../../../data/animals";
+import { veterinarians as seedVeterinarians } from "../../../../data/veterinarians";
 import { DEFAULT_SITE_SETTINGS } from "../../../../lib/localData";
 import { getSiteData } from "../../../../lib/serverStore";
 
 const PUBLIC_RESOURCES = {
   animals: seedAnimals,
+  veterinarians: seedVeterinarians,
   settings: DEFAULT_SITE_SETTINGS,
   stories: [],
 };

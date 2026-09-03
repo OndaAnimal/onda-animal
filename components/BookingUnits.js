@@ -30,16 +30,70 @@ function UnitBookingCard({ city, whatsapp, service, professional }) {
   );
 }
 
-export default function BookingUnits() {
+export default function BookingUnits({ veterinarians = [] }) {
   const searchParams = useSearchParams();
   const { settings } = useSiteSettings();
   const service = searchParams.get("servico") || "";
-  const professional = searchParams.get("profissional") || "";
+  const professionalRef = searchParams.get("profissional") || "";
+
+  const veterinarian = professionalRef
+    ? veterinarians.find(
+        (vet) =>
+          vet.active !== false &&
+          (vet.slug === professionalRef || vet.name === professionalRef)
+      )
+    : null;
+
+  if (veterinarian && veterinarian.scheduleEnabled === false) {
+    return (
+      <div className="booking-professional-unavailable">
+        <span>PROFISSIONAL</span>
+        <h2>{veterinarian.name}</h2>
+        <p>O agendamento online está desativado para este profissional.</p>
+      </div>
+    );
+  }
+
+  const allowedUnits = veterinarian
+    ? new Set(veterinarian.units || [])
+    : new Set(["Gravataí", "Cachoeirinha"]);
+
+  const units = [
+    { city: "Gravataí", whatsapp: settings.gravataiWhatsApp },
+    { city: "Cachoeirinha", whatsapp: settings.cachoeirinhaWhatsApp },
+  ].filter((unit) => allowedUnits.has(unit.city));
+
+  if (veterinarian && !units.length) {
+    return (
+      <div className="booking-professional-unavailable">
+        <span>PROFISSIONAL</span>
+        <h2>{veterinarian.name}</h2>
+        <p>Nenhuma unidade foi habilitada para agendamento deste profissional no CMS.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="booking-grid">
-      <UnitBookingCard city="Gravataí" whatsapp={settings.gravataiWhatsApp} service={service} professional={professional} />
-      <UnitBookingCard city="Cachoeirinha" whatsapp={settings.cachoeirinhaWhatsApp} service={service} professional={professional} />
-    </div>
+    <>
+      {veterinarian && (
+        <div className="booking-professional-context">
+          <span>Agendamento com</span>
+          <strong>{veterinarian.name}</strong>
+          <small>Mostrando somente as unidades em que este profissional atende.</small>
+        </div>
+      )}
+
+      <div className="booking-grid">
+        {units.map((unit) => (
+          <UnitBookingCard
+            key={unit.city}
+            city={unit.city}
+            whatsapp={unit.whatsapp}
+            service={service}
+            professional={veterinarian?.name || ""}
+          />
+        ))}
+      </div>
+    </>
   );
 }

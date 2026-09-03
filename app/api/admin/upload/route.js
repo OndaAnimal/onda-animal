@@ -33,6 +33,13 @@ function destination(scope, key) {
     return `onda-animal/stories/${safeKey}`;
   }
 
+  if (scope === "veterinarian") {
+    if (!/^[a-z0-9-]+\/presentation$/.test(safeKey)) {
+      throw new Error("Destino da apresentação do veterinário inválido.");
+    }
+    return `onda-animal/veterinarians/${safeKey}`;
+  }
+
   throw new Error("Tipo de imagem inválido.");
 }
 

@@ -17,6 +17,7 @@ import {
 } from "../lib/localData";
 import { adminAction, adminLogin, adminLogout, adminSession, loadAdminState, uploadAdminImage, analyzeAnimalWithAi, composeAnimalTextsWithAi, rewriteAnimalTextWithAi } from "../lib/apiClient";
 import { maskBrazilPhone, maskPin, maskYear } from "../lib/masks";
+import { veterinarians as seedVeterinarians } from "../data/veterinarians";
 
 const emptyAnimal = {
   slug: "",
@@ -45,6 +46,23 @@ const emptyAnimal = {
   story: "",
   observations: "",
   photos: [""],
+};
+
+
+const emptyVeterinarian = {
+  slug: "",
+  name: "",
+  image: "",
+  role: "",
+  categories: [],
+  units: [],
+  graduation: "",
+  crmv: "",
+  highlight: "",
+  summary: "",
+  active: true,
+  scheduleEnabled: true,
+  order: 1,
 };
 
 const applicationStatusLabels = {
@@ -87,10 +105,16 @@ export default function AdminPanel({ initialAnimals }) {
   const [loginError, setLoginError] = useState("");
   const [tab, setTab] = useState("dashboard");
   const [animals, setAnimals] = useState(initialAnimals);
+  const [veterinarians, setVeterinarians] = useState(seedVeterinarians);
   const [applications, setApplications] = useState([]);
   const [feedback, setFeedback] = useState([]);
   const [settings, setSettings] = useState(DEFAULT_SITE_SETTINGS);
   const [editing, setEditing] = useState(null);
+  const [editingVet, setEditingVet] = useState(null);
+  const [vetForm, setVetForm] = useState(emptyVeterinarian);
+  const [vetCategoriesText, setVetCategoriesText] = useState("");
+  const [savingVetImage, setSavingVetImage] = useState(false);
+  const [deleteVetSlug, setDeleteVetSlug] = useState(null);
   const [animalForm, setAnimalForm] = useState(emptyAnimal);
   const [temperamentText, setTemperamentText] = useState("");
   const [savingPhoto, setSavingPhoto] = useState(false);
@@ -146,6 +170,7 @@ const [aiRewriteField, setAiRewriteField] = useState("");
     try {
       const state = await loadAdminState();
       setAnimals(Array.isArray(state.animals) ? state.animals : initialAnimals);
+      setVeterinarians(Array.isArray(state.veterinarians) ? state.veterinarians : seedVeterinarians);
       setApplications(Array.isArray(state.applications) ? state.applications : []);
       setFeedback(Array.isArray(state.feedback) ? state.feedback : []);
       setSettings({ ...DEFAULT_SITE_SETTINGS, ...(state.settings || {}) });
@@ -161,6 +186,7 @@ const [aiRewriteField, setAiRewriteField] = useState("");
 
       // cache local apenas para manter a UI rápida durante a sessão.
       localStorage.setItem("ondaAnimals", JSON.stringify(state.animals || []));
+      localStorage.setItem("ondaVeterinarians", JSON.stringify(state.veterinarians || []));
       localStorage.setItem("onda_adoption_applications", JSON.stringify(state.applications || []));
       localStorage.setItem("ondaSiteFeedback", JSON.stringify(state.feedback || []));
       localStorage.setItem("ondaAdminSettings", JSON.stringify(state.settings || {}));
@@ -227,6 +253,149 @@ const [aiRewriteField, setAiRewriteField] = useState("");
       : "—";
     return { available, adopted, pending, average };
   }, [animals, applications, feedback]);
+
+  function beginNewVeterinarian() {
+    const nextOrder = veterinarians.length
+      ? Math.max(...veterinarians.map((item) => Number(item.order || 0))) + 1
+      : 1;
+
+    setEditingVet("new");
+    setVetForm({ ...emptyVeterinarian, units: [], categories: [], order: nextOrder });
+    setVetCategoriesText("");
+    setDeleteVetSlug(null);
+    setTab("veterinarians");
+  }
+
+  function beginEditVeterinarian(vet) {
+    setEditingVet(vet.slug);
+    setVetForm({
+      ...emptyVeterinarian,
+      ...vet,
+      units: Array.isArray(vet.units) ? [...vet.units] : [],
+      categories: Array.isArray(vet.categories) ? [...vet.categories] : [],
+      active: vet.active !== false,
+      scheduleEnabled: vet.scheduleEnabled !== false,
+      order: Number(vet.order || 1),
+    });
+    setVetCategoriesText((vet.categories || []).join(", "));
+    setDeleteVetSlug(null);
+    setTab("veterinarians");
+  }
+
+  function updateVet(field, value) {
+    setVetForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function toggleVetUnit(unit) {
+    setVetForm((current) => {
+      const units = new Set(current.units || []);
+      if (units.has(unit)) units.delete(unit);
+      else units.add(unit);
+      return { ...current, units: Array.from(units) };
+    });
+  }
+
+  async function uploadVeterinarianImage(file) {
+    if (!file) return;
+    const slug = vetForm.slug || slugify(vetForm.name) || `vet-${Date.now()}`;
+    setSavingVetImage(true);
+    try {
+      const uploaded = await uploadAdminImage(file, {
+        scope: "veterinarian",
+        key: `${slug}/presentation`,
+      });
+      updateVet("image", uploaded.url);
+      notify("Apresentação enviada ao Cloudinary.");
+    } catch (error) {
+      notify(error.detail || error.message || "Não foi possível enviar a apresentação.");
+    } finally {
+      setSavingVetImage(false);
+    }
+  }
+
+  async function saveVeterinarian(event) {
+    event.preventDefault();
+
+    const name = vetForm.name.trim();
+    const slug = vetForm.slug || slugify(name);
+    if (!name || !slug) {
+      notify("Informe o nome do veterinário.");
+      return;
+    }
+    if (!vetForm.image) {
+      notify("Adicione a imagem/apresentação do veterinário.");
+      return;
+    }
+
+    const record = {
+      ...vetForm,
+      slug,
+      name,
+      role: vetForm.role.trim(),
+      graduation: String(vetForm.graduation || "").trim(),
+      crmv: String(vetForm.crmv || "").trim(),
+      highlight: vetForm.highlight.trim(),
+      summary: vetForm.summary.trim(),
+      categories: vetCategoriesText
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      units: Array.isArray(vetForm.units) ? vetForm.units : [],
+      active: Boolean(vetForm.active),
+      scheduleEnabled: Boolean(vetForm.scheduleEnabled),
+      order: Math.max(1, Number(vetForm.order || 1)),
+    };
+
+    let next;
+    if (editingVet === "new") {
+      if (veterinarians.some((item) => item.slug === slug)) {
+        notify("Já existe um veterinário com este nome/slug.");
+        return;
+      }
+      next = [...veterinarians, record];
+    } else {
+      next = veterinarians.map((item) => item.slug === editingVet ? record : item);
+    }
+
+    next.sort((a, b) => Number(a.order || 999) - Number(b.order || 999));
+
+    try {
+      await adminAction("saveResource", { resource: "veterinarians", value: next });
+      setVeterinarians(next);
+      localStorage.setItem("ondaVeterinarians", JSON.stringify(next));
+      setEditingVet(null);
+      setVetForm(emptyVeterinarian);
+      setVetCategoriesText("");
+      notify(editingVet === "new" ? "Veterinário cadastrado." : "Veterinário atualizado.");
+    } catch (error) {
+      notify(error.detail || error.message || "Não foi possível salvar o veterinário.");
+    }
+  }
+
+  async function removeVeterinarian(slug) {
+    const next = veterinarians.filter((item) => item.slug !== slug);
+    try {
+      await adminAction("saveResource", { resource: "veterinarians", value: next });
+      setVeterinarians(next);
+      localStorage.setItem("ondaVeterinarians", JSON.stringify(next));
+      setDeleteVetSlug(null);
+      notify("Veterinário removido.");
+    } catch (error) {
+      notify(error.detail || error.message || "Não foi possível remover o veterinário.");
+    }
+  }
+
+  async function saveVeterinarianPageSettings() {
+    try {
+      const saved = await adminAction("saveResource", { resource: "settings", value: settings });
+      const merged = { ...DEFAULT_SITE_SETTINGS, ...(saved || settings) };
+      setSettings(merged);
+      localStorage.setItem("ondaAdminSettings", JSON.stringify(merged));
+      notify("Textos da página de veterinários salvos.");
+    } catch (error) {
+      notify(error.detail || error.message || "Não foi possível salvar as configurações da página.");
+    }
+  }
 
   function beginNewAnimal() {
     setEditing("new");
@@ -923,6 +1092,7 @@ async function resetSiteSettings() {
         <nav>
           <button className={tab === "dashboard" ? "active" : ""} onClick={() => setTab("dashboard")}>⌂ <span>Visão geral</span></button>
           <button className={tab === "animals" ? "active" : ""} onClick={() => { setTab("animals"); setEditing(null); }}>♡ <span>Animais</span><b>{animals.length}</b></button>
+          <button className={tab === "veterinarians" ? "active" : ""} onClick={() => { setTab("veterinarians"); setEditingVet(null); }}>✚ <span>Veterinários</span><b>{veterinarians.length}</b></button>
           <button className={tab === "stories" ? "active" : ""} onClick={() => setTab("stories")}>♥ <span>Histórias</span><b>{stories.length}</b></button>
           <button className={tab === "applications" ? "active" : ""} onClick={() => setTab("applications")}>▤ <span>Solicitações</span><b>{applications.length}</b></button>
           <button className={tab === "feedback" ? "active" : ""} onClick={() => setTab("feedback")}>★ <span>Avaliações</span><b>{feedback.length}</b></button>
@@ -940,9 +1110,10 @@ async function resetSiteSettings() {
         <header className="admin-topbar">
           <div>
             <small>PAINEL ADMINISTRATIVO</small>
-            <h1>{tab === "dashboard" ? "Visão geral" : tab === "animals" ? "Animais" : tab === "stories" ? "Histórias de adoção" : tab === "applications" ? "Solicitações de adoção" : tab === "feedback" ? "Avaliações do site" : tab === "connect" ? "Forge Connect" : "Configurações"}</h1>
+            <h1>{tab === "dashboard" ? "Visão geral" : tab === "animals" ? "Animais" : tab === "veterinarians" ? "Veterinários" : tab === "stories" ? "Histórias de adoção" : tab === "applications" ? "Solicitações de adoção" : tab === "feedback" ? "Avaliações do site" : tab === "connect" ? "Forge Connect" : "Configurações"}</h1>
           </div>
           {tab === "animals" && !editing && <button className="button primary" onClick={beginNewAnimal}>+ Cadastrar animal</button>}
+          {tab === "veterinarians" && !editingVet && <button className="button primary" onClick={beginNewVeterinarian}>+ Cadastrar veterinário</button>}
         </header>
 
         {tab === "dashboard" && (
@@ -1117,6 +1288,217 @@ async function resetSiteSettings() {
           </div>
         )}
 
+
+
+        {tab === "veterinarians" && (
+          <div className="admin-content">
+            {editingVet ? (
+              <form className="admin-vet-editor" onSubmit={saveVeterinarian}>
+                <div className="admin-editor-head">
+                  <div>
+                    <span>EQUIPE VETERINÁRIA</span>
+                    <h2>{editingVet === "new" ? "Cadastrar veterinário" : `Editar ${vetForm.name}`}</h2>
+                    <p>Defina apresentação, especialidades, visibilidade e exatamente em quais unidades este profissional atende.</p>
+                  </div>
+                  <button type="button" className="button secondary" onClick={() => setEditingVet(null)}>
+                    Voltar
+                  </button>
+                </div>
+
+                <div className="admin-vet-form-grid">
+                  <section className="admin-vet-image-panel">
+                    <span>APRESENTAÇÃO</span>
+                    <label className="admin-vet-image-upload">
+                      {vetForm.image ? (
+                        <img src={vetForm.image} alt={vetForm.name || "Apresentação"} />
+                      ) : (
+                        <div>
+                          <b>＋</b>
+                          <strong>Adicionar imagem</strong>
+                          <small>Arte de apresentação do profissional</small>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => uploadVeterinarianImage(e.target.files?.[0])}
+                      />
+                    </label>
+                    <small>{savingVetImage ? "Enviando para o Cloudinary..." : "Clique na imagem para trocar."}</small>
+                  </section>
+
+                  <section className="admin-vet-fields">
+                    <div className="cms-field-grid">
+                      <label className="span-2">
+                        <span>Nome *</span>
+                        <input value={vetForm.name} onChange={(e) => updateVet("name", e.target.value)} placeholder="Ex.: Dra. Bruna" />
+                      </label>
+                      <label>
+                        <span>Função / título</span>
+                        <input value={vetForm.role} onChange={(e) => updateVet("role", e.target.value)} placeholder="Clínica Geral e Medicina Felina" />
+                      </label>
+                      <label>
+                        <span>CRMV</span>
+                        <input value={vetForm.crmv || ""} onChange={(e) => updateVet("crmv", e.target.value)} placeholder="CRMV-RS 00000" />
+                      </label>
+                      <label>
+                        <span>Ano de formação</span>
+                        <input inputMode="numeric" maxLength={4} value={vetForm.graduation || ""} onChange={(e) => updateVet("graduation", maskYear(e.target.value))} placeholder="2021" />
+                      </label>
+                      <label>
+                        <span>Ordem de exibição</span>
+                        <input type="number" min="1" value={vetForm.order || 1} onChange={(e) => updateVet("order", e.target.value)} />
+                      </label>
+                      <label className="span-2">
+                        <span>Especialidades / categorias</span>
+                        <input value={vetCategoriesText} onChange={(e) => setVetCategoriesText(e.target.value)} placeholder="Clínica Geral, Cirurgia, Felinos" />
+                        <small>Separe por vírgulas. Estes itens também viram filtros na página pública.</small>
+                      </label>
+                      <label className="span-2">
+                        <span>Destaque profissional</span>
+                        <input value={vetForm.highlight} onChange={(e) => updateVet("highlight", e.target.value)} placeholder="Ex.: Especialista em felinos" />
+                      </label>
+                      <label className="span-2">
+                        <span>Resumo</span>
+                        <textarea value={vetForm.summary} onChange={(e) => updateVet("summary", e.target.value)} placeholder="Texto curto apresentado no perfil do profissional." />
+                      </label>
+                    </div>
+
+                    <div className="admin-vet-units">
+                      <div className="admin-vet-units-head">
+                        <div>
+                          <span>UNIDADES DE ATENDIMENTO</span>
+                          <h3>Onde este veterinário atende?</h3>
+                          <p>O cliente verá no agendamento somente as unidades marcadas aqui.</p>
+                        </div>
+                      </div>
+
+                      <div className="admin-vet-unit-options">
+                        {["Gravataí", "Cachoeirinha"].map((unit) => (
+                          <label className={(vetForm.units || []).includes(unit) ? "selected" : ""} key={unit}>
+                            <input
+                              type="checkbox"
+                              checked={(vetForm.units || []).includes(unit)}
+                              onChange={() => toggleVetUnit(unit)}
+                            />
+                            <div>
+                              <strong>{unit}</strong>
+                              <span>
+                                {(vetForm.units || []).includes(unit)
+                                  ? "Esta unidade aparecerá para o cliente."
+                                  : "Esta unidade ficará escondida no agendamento."}
+                              </span>
+                            </div>
+                            <b>{(vetForm.units || []).includes(unit) ? "✓" : "＋"}</b>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="cms-switch-list large admin-vet-switches">
+                      <label className="cms-switch-row">
+                        <div><strong>Profissional ativo no site</strong><span>Quando desligado, some da página pública sem apagar o cadastro.</span></div>
+                        <input type="checkbox" checked={vetForm.active !== false} onChange={(e) => updateVet("active", e.target.checked)} />
+                      </label>
+                      <label className="cms-switch-row">
+                        <div><strong>Permitir agendamento pelo site</strong><span>Quando desligado, o perfil continua visível, mas sem botão de agendar.</span></div>
+                        <input type="checkbox" checked={vetForm.scheduleEnabled !== false} onChange={(e) => updateVet("scheduleEnabled", e.target.checked)} />
+                      </label>
+                    </div>
+
+                    {vetForm.scheduleEnabled !== false && !(vetForm.units || []).length && (
+                      <div className="cms-note warning">
+                        <strong>Atenção</strong>
+                        <p>O agendamento está ligado, mas nenhuma unidade foi marcada. O botão de agendar ficará oculto até escolher pelo menos uma unidade.</p>
+                      </div>
+                    )}
+
+                    <div className="admin-editor-actions">
+                      <button type="button" className="button secondary" onClick={() => setEditingVet(null)}>Cancelar</button>
+                      <button className="button primary" type="submit" disabled={savingVetImage}>
+                        {editingVet === "new" ? "Cadastrar veterinário" : "Salvar alterações"}
+                      </button>
+                    </div>
+                  </section>
+                </div>
+              </form>
+            ) : (
+              <>
+                <section className="admin-vets-page-settings">
+                  <div className="admin-vets-page-settings-head">
+                    <div>
+                      <span>PÁGINA PÚBLICA</span>
+                      <h2>Textos da página Veterinários</h2>
+                      <p>Controle também os textos do banner e da apresentação da equipe sem editar código.</p>
+                    </div>
+                    <a className="button secondary" href="/veterinarios" target="_blank" rel="noreferrer">↗ Ver página</a>
+                  </div>
+
+                  <div className="cms-field-grid">
+                    <label><span>Texto pequeno do banner</span><input value={settings.vetsPageEyebrow || ""} onChange={(e) => updateSetting("vetsPageEyebrow", e.target.value)} /></label>
+                    <label className="span-2"><span>Título do banner</span><input value={settings.vetsPageTitle || ""} onChange={(e) => updateSetting("vetsPageTitle", e.target.value)} /></label>
+                    <label className="span-2"><span>Descrição do banner</span><textarea value={settings.vetsPageText || ""} onChange={(e) => updateSetting("vetsPageText", e.target.value)} /></label>
+                    <label><span>Texto pequeno da seção</span><input value={settings.vetsIntroEyebrow || ""} onChange={(e) => updateSetting("vetsIntroEyebrow", e.target.value)} /></label>
+                    <label className="span-2"><span>Título da seção</span><input value={settings.vetsIntroTitle || ""} onChange={(e) => updateSetting("vetsIntroTitle", e.target.value)} /></label>
+                    <label className="span-2"><span>Texto da seção</span><textarea value={settings.vetsIntroText || ""} onChange={(e) => updateSetting("vetsIntroText", e.target.value)} /></label>
+                  </div>
+
+                  <div className="admin-vets-page-save">
+                    <button type="button" className="button primary" onClick={saveVeterinarianPageSettings}>
+                      Salvar textos da página
+                    </button>
+                  </div>
+                </section>
+
+                <section className="admin-vets-manager">
+                  <div className="admin-card-heading">
+                    <div><span>EQUIPE</span><h2>Profissionais cadastrados</h2></div>
+                    <small>{veterinarians.filter((item) => item.active !== false).length} ativos</small>
+                  </div>
+
+                  <div className="admin-vets-list">
+                    {[...veterinarians]
+                      .sort((a, b) => Number(a.order || 999) - Number(b.order || 999))
+                      .map((vet) => (
+                        <article className={vet.active === false ? "admin-vet-row inactive" : "admin-vet-row"} key={vet.slug}>
+                          <img src={vet.image} alt={vet.name} />
+                          <div className="admin-vet-row-main">
+                            <div>
+                              <span>#{Number(vet.order || 1)}</span>
+                              <h3>{vet.name}</h3>
+                              <small>{vet.role || "Sem função informada"}{vet.crmv ? ` • ${vet.crmv}` : ""}</small>
+                            </div>
+                            <div className="admin-vet-row-tags">
+                              {(vet.units || []).map((unit) => <span key={unit}>{unit}</span>)}
+                              {vet.active === false && <span className="off">Oculto</span>}
+                              {vet.scheduleEnabled === false && <span className="off">Sem agendamento</span>}
+                              {vet.scheduleEnabled !== false && !(vet.units || []).length && <span className="warning">Sem unidade</span>}
+                            </div>
+                          </div>
+
+                          <div className="admin-vet-row-actions">
+                            <button type="button" onClick={() => beginEditVeterinarian(vet)}>Editar</button>
+                            {deleteVetSlug === vet.slug ? (
+                              <>
+                                <button type="button" className="danger" onClick={() => removeVeterinarian(vet.slug)}>Confirmar</button>
+                                <button type="button" onClick={() => setDeleteVetSlug(null)}>Cancelar</button>
+                              </>
+                            ) : (
+                              <button type="button" className="danger-text" onClick={() => setDeleteVetSlug(vet.slug)}>Excluir</button>
+                            )}
+                          </div>
+                        </article>
+                      ))}
+                  </div>
+
+                  {!veterinarians.length && (
+                    <div className="admin-empty big">Nenhum veterinário cadastrado.</div>
+                  )}
+                </section>
+              </>
+            )}
+          </div>
+        )}
 
         {tab === "stories" && (
           <div className="admin-content">

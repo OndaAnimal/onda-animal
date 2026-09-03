@@ -443,3 +443,29 @@ O endpoint `/api/health` informa `ai: openai-configured` quando a chave está di
 - A rota `/api/admin/ai` exige sessão administrativa válida.
 - A IA é instruída a não inventar vacinação, castração, vermifugação, doenças, temperamento, energia ou compatibilidade.
 - Sexo não é inferido por aparência geral: quando a anatomia não permite identificação, o modal exige confirmação humana.
+
+
+## CMS da equipe veterinária (V23)
+
+A área `Painel → Veterinários` agora controla a equipe pública pelo Neon.
+
+Cada profissional pode ter:
+- nome, arte/apresentação, função, CRMV e ano de formação;
+- especialidades/categorias;
+- destaque e resumo;
+- ordem de exibição;
+- ativo/inativo sem excluir;
+- agendamento ligado/desligado;
+- unidades de atendimento independentes: Gravataí e/ou Cachoeirinha.
+
+O agendamento respeita essas unidades:
+- se o profissional atende somente em Gravataí, Cachoeirinha não aparece;
+- se atende somente em Cachoeirinha, Gravataí não aparece;
+- se atende nas duas, o cliente escolhe;
+- se o agendamento estiver desativado ou sem unidades, o botão de agendar fica indisponível.
+
+As artes novas dos veterinários são enviadas ao Cloudinary.
+Os cadastros e configurações ficam no Neon em `site_store`, portanto aparecem em qualquer dispositivo.
+
+Também é possível editar pelo painel os textos da página pública `/veterinarios`.
+Não é necessário criar nova tabela nem executar SQL manual.

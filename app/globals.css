@@ -3667,3 +3667,550 @@ footer{background:var(--cms-footer-bg)}
 .admin-ai-safety-note{margin-top:16px;padding:13px 14px;border:1px solid #cfe4de;border-radius:12px;color:#42665c;background:#f2f9f6}.admin-ai-safety-note strong{font-size:9px;text-transform:uppercase;letter-spacing:.07em}.admin-ai-safety-note p{margin-top:3px;font-size:9px;line-height:1.55}
 .admin-ai-modal-footer{padding:14px 25px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #ece8f2;background:#fff}.admin-ai-apply{background:linear-gradient(135deg,#6d28d9,#4f46e5)!important}
 @media(max-width:760px){.admin-ai-entry{grid-template-columns:42px 1fr}.admin-ai-primary{grid-column:1/-1;width:100%}.admin-ai-confidence{grid-template-columns:1fr}.admin-ai-health-checks{grid-template-columns:1fr 1fr}.admin-ai-review-grid,.admin-ai-review-grid.behavior{grid-template-columns:1fr}.admin-ai-review-grid .span-2{grid-column:auto}.admin-ai-modal-backdrop{padding:7px}.admin-ai-modal{max-height:calc(100vh - 14px);border-radius:17px}.admin-ai-modal-head,.admin-ai-modal-body,.admin-ai-modal-footer{padding-left:16px;padding-right:16px}.admin-ai-modal-footer{flex-direction:column-reverse}.admin-ai-modal-footer .button{width:100%}}
+
+
+/* V23 — CMS VETERINÁRIOS */
+
+.vet-crmv{
+  display:block;
+  margin-top:4px;
+  color:#829397;
+  font-size:10px;
+  font-weight:750;
+}
+
+.vet-profile-crmv{
+  display:block;
+  margin-top:5px;
+  color:#7b8f93;
+  font-size:11px;
+  font-weight:800;
+}
+
+.vet-schedule-disabled{
+  min-height:43px;
+  padding:0 10px;
+  display:grid;
+  place-items:center;
+  border:1px solid #e2e8e8;
+  border-radius:11px;
+  color:#8b989b;
+  background:#f7f9f9;
+  font-size:9px;
+  font-weight:800;
+  text-align:center;
+}
+
+.vet-profile-schedule-disabled,
+.booking-professional-unavailable{
+  margin-top:16px;
+  padding:16px 17px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  border:1px solid #e2e9e9;
+  border-radius:14px;
+  color:#61777c;
+  background:#f8fbfb;
+}
+
+.vet-profile-schedule-disabled strong,
+.booking-professional-unavailable h2{
+  color:var(--navy);
+}
+
+.vet-profile-schedule-disabled span,
+.booking-professional-unavailable p{
+  font-size:11px;
+  line-height:1.55;
+}
+
+.booking-professional-unavailable{
+  max-width:620px;
+  margin:0 auto;
+  padding:26px;
+  text-align:center;
+}
+
+.booking-professional-unavailable>span{
+  color:var(--teal-dark);
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+
+.booking-professional-unavailable h2{
+  margin-top:4px;
+  font-size:30px;
+}
+
+.booking-professional-context{
+  margin-bottom:16px;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  border:1px solid #cfe7e4;
+  border-radius:14px;
+  color:#567178;
+  background:#f0f9f7;
+}
+
+.booking-professional-context>span{
+  font-size:10px;
+}
+
+.booking-professional-context>strong{
+  color:var(--teal-deep);
+  font-size:13px;
+}
+
+.booking-professional-context>small{
+  margin-left:auto;
+  color:#7d9195;
+  font-size:9px;
+}
+
+.vet-public-empty{
+  margin-top:18px;
+}
+
+/* Editor de veterinários */
+.admin-vet-editor,
+.admin-vets-page-settings,
+.admin-vets-manager{
+  border:1px solid #dfe8e8;
+  border-radius:20px;
+  background:#fff;
+  box-shadow:0 14px 36px rgba(13,68,74,.05);
+}
+
+.admin-vet-editor{
+  overflow:hidden;
+}
+
+.admin-vet-editor .admin-editor-head{
+  padding:23px 25px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border-bottom:1px solid #e7eeee;
+  background:linear-gradient(135deg,#f4fbfa,#fff);
+}
+
+.admin-vet-editor .admin-editor-head>div>span,
+.admin-vets-page-settings-head>div>span{
+  color:var(--teal-dark);
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+
+.admin-vet-editor .admin-editor-head h2,
+.admin-vets-page-settings-head h2{
+  margin-top:4px;
+  color:var(--navy);
+  font-size:29px;
+  letter-spacing:-.04em;
+}
+
+.admin-vet-editor .admin-editor-head p,
+.admin-vets-page-settings-head p{
+  max-width:680px;
+  margin-top:5px;
+  color:#7b8e92;
+  font-size:12px;
+  line-height:1.55;
+}
+
+.admin-vet-form-grid{
+  padding:24px;
+  display:grid;
+  grid-template-columns:310px minmax(0,1fr);
+  gap:24px;
+  align-items:start;
+}
+
+.admin-vet-image-panel{
+  position:sticky;
+  top:90px;
+}
+
+.admin-vet-image-panel>span{
+  display:block;
+  margin-bottom:8px;
+  color:#698087;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+
+.admin-vet-image-panel>small{
+  display:block;
+  margin-top:8px;
+  color:#87979a;
+  font-size:10px;
+  text-align:center;
+}
+
+.admin-vet-image-upload{
+  position:relative;
+  min-height:350px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border:1px dashed #cbdedf;
+  border-radius:18px;
+  background:#f4fafa;
+  cursor:pointer;
+}
+
+.admin-vet-image-upload img{
+  width:100%;
+  height:auto;
+  max-height:560px;
+  object-fit:contain;
+  background:#edf6f6;
+}
+
+.admin-vet-image-upload>div{
+  display:flex;
+  align-items:center;
+  flex-direction:column;
+  color:#71878c;
+}
+
+.admin-vet-image-upload>div>b{
+  width:52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  color:var(--teal-dark);
+  background:#e7f5f4;
+  font-size:24px;
+}
+
+.admin-vet-image-upload>div>strong{
+  margin-top:10px;
+  color:#506a70;
+  font-size:13px;
+}
+
+.admin-vet-image-upload>div>small{
+  margin-top:4px;
+  font-size:10px;
+}
+
+.admin-vet-image-upload input{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+}
+
+.admin-vet-fields{
+  min-width:0;
+}
+
+.admin-vet-fields .cms-field-grid label>small{
+  color:#8a999c;
+  font-size:9px;
+  line-height:1.45;
+}
+
+.admin-vet-units{
+  margin-top:22px;
+  padding-top:20px;
+  border-top:1px solid #e8eeee;
+}
+
+.admin-vet-units-head span{
+  color:var(--teal-dark);
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.11em;
+}
+
+.admin-vet-units-head h3{
+  margin-top:4px;
+  color:var(--navy);
+  font-size:20px;
+}
+
+.admin-vet-units-head p{
+  margin-top:4px;
+  color:#829397;
+  font-size:10px;
+}
+
+.admin-vet-unit-options{
+  margin-top:13px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.admin-vet-unit-options label{
+  min-height:88px;
+  padding:15px;
+  display:grid;
+  grid-template-columns:1fr 30px;
+  gap:12px;
+  align-items:center;
+  border:1px solid #dfe8e8;
+  border-radius:14px;
+  background:#fafcfc;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.admin-vet-unit-options label.selected{
+  border-color:#9fd2ce;
+  background:#eef9f7;
+  box-shadow:0 0 0 2px rgba(21,141,146,.05);
+}
+
+.admin-vet-unit-options input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.admin-vet-unit-options label>div{
+  display:flex;
+  flex-direction:column;
+}
+
+.admin-vet-unit-options strong{
+  color:#425e65;
+  font-size:13px;
+}
+
+.admin-vet-unit-options span{
+  margin-top:4px;
+  color:#819297;
+  font-size:9px;
+  line-height:1.45;
+}
+
+.admin-vet-unit-options label>b{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  color:#71878c;
+  background:#edf3f3;
+}
+
+.admin-vet-unit-options label.selected>b{
+  color:#fff;
+  background:var(--teal-dark);
+}
+
+.admin-vet-switches{
+  margin-top:14px;
+}
+
+.admin-editor-actions{
+  margin-top:18px;
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+.admin-vets-page-settings{
+  padding:22px 24px;
+}
+
+.admin-vets-page-settings-head{
+  margin-bottom:18px;
+  padding-bottom:16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  border-bottom:1px solid #e7eeee;
+}
+
+.admin-vets-page-save{
+  margin-top:15px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.admin-vets-manager{
+  margin-top:16px;
+  padding:20px;
+}
+
+.admin-vets-manager .admin-card-heading>small{
+  color:#7c9094;
+  font-size:11px;
+  font-weight:800;
+}
+
+.admin-vets-list{
+  margin-top:14px;
+  display:grid;
+  gap:9px;
+}
+
+.admin-vet-row{
+  padding:11px;
+  display:grid;
+  grid-template-columns:78px minmax(0,1fr) auto;
+  gap:14px;
+  align-items:center;
+  border:1px solid #e2e9e9;
+  border-radius:14px;
+  background:#fff;
+}
+
+.admin-vet-row.inactive{
+  opacity:.62;
+  background:#f8f9f9;
+}
+
+.admin-vet-row>img{
+  width:78px;
+  height:78px;
+  object-fit:cover;
+  border-radius:11px;
+  background:#eaf4f4;
+}
+
+.admin-vet-row-main{
+  min-width:0;
+}
+
+.admin-vet-row-main>div:first-child{
+  min-width:0;
+}
+
+.admin-vet-row-main>div:first-child>span{
+  color:#9aa6a8;
+  font-size:9px;
+  font-weight:900;
+}
+
+.admin-vet-row-main h3{
+  margin-top:1px;
+  color:var(--navy);
+  font-size:17px;
+}
+
+.admin-vet-row-main small{
+  display:block;
+  margin-top:3px;
+  overflow:hidden;
+  color:#7e9094;
+  font-size:10px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.admin-vet-row-tags{
+  margin-top:8px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+
+.admin-vet-row-tags span{
+  padding:5px 7px;
+  border-radius:999px;
+  color:#46706c;
+  background:#eaf6f3;
+  font-size:8px;
+  font-weight:850;
+}
+
+.admin-vet-row-tags span.off{
+  color:#777f82;
+  background:#eceeee;
+}
+
+.admin-vet-row-tags span.warning{
+  color:#956321;
+  background:#fff1d8;
+}
+
+.admin-vet-row-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:5px;
+}
+
+.admin-vet-row-actions button{
+  min-height:34px;
+  padding:0 10px;
+  border:1px solid #dfe7e8;
+  border-radius:9px;
+  color:#5b7177;
+  background:#fff;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.admin-vet-row-actions button.danger,
+.admin-vet-row-actions button.danger-text{
+  color:#a24056;
+}
+
+.admin-vet-row-actions button.danger{
+  border-color:#efc8d1;
+  background:#fff3f6;
+}
+
+@media(max-width:1000px){
+  .admin-vet-form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .admin-vet-image-panel{
+    position:static;
+  }
+
+  .admin-vet-image-upload{
+    min-height:250px;
+  }
+}
+
+@media(max-width:760px){
+  .admin-vet-unit-options{
+    grid-template-columns:1fr;
+  }
+
+  .admin-vet-row{
+    grid-template-columns:60px 1fr;
+  }
+
+  .admin-vet-row>img{
+    width:60px;
+    height:60px;
+  }
+
+  .admin-vet-row-actions{
+    grid-column:1/-1;
+    justify-content:flex-start;
+  }
+
+  .admin-vets-page-settings-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .booking-professional-context{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .booking-professional-context>small{
+    margin-left:0;
+  }
+}

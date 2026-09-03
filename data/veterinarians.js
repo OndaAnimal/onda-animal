@@ -7,8 +7,12 @@ export const veterinarians = [
     categories: ["Clínica Geral", "Cirurgia"],
     units: ["Cachoeirinha"],
     graduation: "2019",
+    crmv: "",
     highlight: "Pós-graduação em cirurgia de tecidos moles",
     summary: "Atendimento clínico e cirúrgico com atuação na unidade de Cachoeirinha.",
+    active: true,
+    scheduleEnabled: true,
+    order: 1,
   },
   {
     slug: "gustavo",
@@ -18,8 +22,12 @@ export const veterinarians = [
     categories: ["Cirurgia", "Ortopedia", "Oncologia"],
     units: ["Gravataí", "Cachoeirinha"],
     graduation: "2008",
+    crmv: "",
     highlight: "Experiência internacional em procedimentos cirúrgicos",
     summary: "Cirurgião ortopedista e oncologista da equipe Onda Animal.",
+    active: true,
+    scheduleEnabled: true,
+    order: 2,
   },
   {
     slug: "lays",
@@ -29,8 +37,12 @@ export const veterinarians = [
     categories: ["Cardiologia"],
     units: ["Gravataí"],
     graduation: "2022",
+    crmv: "",
     highlight: "Especialista em cardiologia",
     summary: "Atuação em cardiologia veterinária e avaliação cardiológica.",
+    active: true,
+    scheduleEnabled: true,
+    order: 3,
   },
   {
     slug: "bruna",
@@ -40,8 +52,12 @@ export const veterinarians = [
     categories: ["Clínica Geral", "Felinos"],
     units: ["Gravataí"],
     graduation: "2021",
+    crmv: "",
     highlight: "Especialista em felinos",
     summary: "Clínica geral com atenção especial à medicina felina na unidade de Gravataí.",
+    active: true,
+    scheduleEnabled: true,
+    order: 4,
   },
   {
     slug: "matheus",
@@ -51,8 +67,12 @@ export const veterinarians = [
     categories: ["Cirurgia", "Castração"],
     units: ["Gravataí", "Cachoeirinha"],
     graduation: "",
+    crmv: "",
     highlight: "Cirurgião de tecidos moles",
     summary: "Atuação cirúrgica e participação frequente nas castrações da Onda Animal.",
+    active: true,
+    scheduleEnabled: true,
+    order: 5,
   },
   {
     slug: "rafael",
@@ -62,11 +82,19 @@ export const veterinarians = [
     categories: ["Clínica Geral"],
     units: ["Gravataí", "Cachoeirinha"],
     graduation: "2025",
+    crmv: "",
     highlight: "Clínico geral",
     summary: "Atendimento clínico geral nas unidades da Onda Animal.",
+    active: true,
+    scheduleEnabled: true,
+    order: 6,
   },
 ];
 
-export function getVeterinarian(slug) {
-  return veterinarians.find((item) => item.slug === slug);
+export function sortVeterinarians(items = []) {
+  return [...items].sort((a, b) => Number(a.order || 999) - Number(b.order || 999));
+}
+
+export function getVeterinarianFromList(items = [], slug) {
+  return items.find((item) => item.slug === slug);
 }

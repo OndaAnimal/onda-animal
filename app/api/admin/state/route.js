@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { animals as seedAnimals } from "../../../../data/animals";
+import { veterinarians as seedVeterinarians } from "../../../../data/veterinarians";
 import { DEFAULT_SITE_SETTINGS } from "../../../../lib/localData";
 import { isAdminAuthenticated } from "../../../../lib/adminAuth";
 import {
@@ -24,9 +25,10 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
     }
 
-    const [animals, applications, feedback, settings, stories, conversations] =
+    const [animals, veterinarians, applications, feedback, settings, stories, conversations] =
       await Promise.all([
         getSiteData("animals", seedAnimals),
+        getSiteData("veterinarians", seedVeterinarians),
         listApplications(),
         listFeedback(),
         getSiteData("settings", DEFAULT_SITE_SETTINGS),
@@ -37,6 +39,7 @@ export async function GET() {
     return NextResponse.json({
       data: {
         animals,
+        veterinarians,
         applications,
         feedback,
         settings: { ...DEFAULT_SITE_SETTINGS, ...settings },
@@ -63,7 +66,7 @@ export async function POST(request) {
     const { action } = body;
 
     if (action === "saveResource") {
-      const allowed = new Set(["animals", "settings", "stories"]);
+      const allowed = new Set(["animals", "veterinarians", "settings", "stories"]);
       if (!allowed.has(body.resource)) {
         return NextResponse.json({ error: "Recurso inválido." }, { status: 400 });
       }
