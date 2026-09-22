@@ -2040,6 +2040,7 @@ async function resetSiteSettings() {
                           ["showMenuStories", "Mostrar Histórias"],
                           ["showMenuClinic", "Mostrar Clínica"],
                           ["showMenuVeterinarians", "Mostrar Veterinários"],
+                          ["showMenuNfg", "Mostrar NF Gaúcha"],
                           ["showMenuContact", "Mostrar Contato"],
                           ["showMenuFeedback", "Mostrar Avalie"],
                           ["showAdoptButton", "Mostrar botão Quero adotar"],

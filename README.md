@@ -633,3 +633,9 @@ Asset incluído em `public/nfg-logo.png`.
 - novo campo `nfgHomeShortcutEnabled` controla somente o quadrado pequeno da Home.
 - o CSS bloqueia explicitamente qualquer `.nfg-home-banner` antigo, inclusive se uma configuração antiga ainda estiver salva no Neon.
 - a página `/nota-fiscal-gaucha` continua sendo o local do conteúdo completo.
+
+
+## V39 — Link da NF Gaúcha no menu
+- Adicionado `NF Gaúcha` no menu principal.
+- Rota: `/nota-fiscal-gaucha`.
+- Controle no CMS para mostrar/esconder o item.

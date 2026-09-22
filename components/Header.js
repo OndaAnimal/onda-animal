@@ -19,6 +19,7 @@ export default function Header() {
     settings.showMenuStories && settings.storiesEnabled && ["Histórias", "/historias"],
     settings.showMenuClinic && ["Clínica", "/servicos"],
     settings.showMenuVeterinarians && ["Veterinários", "/veterinarios"],
+    settings.showMenuNfg !== false && ["NF Gaúcha", "/nota-fiscal-gaucha"],
     settings.showMenuContact && ["Contato", "/contato"],
     settings.showMenuFeedback && settings.feedbackEnabled && ["Avalie", "/avaliacao"],
   ].filter(Boolean);
