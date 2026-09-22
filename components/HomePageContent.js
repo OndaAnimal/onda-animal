@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import HomeAnimals from "./HomeAnimals";
 import HomeAnimalCollage from "./HomeAnimalCollage";
 import { useSiteSettings } from "./SiteSettingsProvider";
@@ -9,21 +8,6 @@ import { mediaUrl } from "../lib/mediaUrl";
 
 export default function HomePageContent({ initialAnimals }) {
   const { settings } = useSiteSettings();
-  const [nfgOpen, setNfgOpen] = useState(false);
-
-  useEffect(() => {
-    if (!nfgOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") setNfgOpen(false);
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [nfgOpen]);
 
   const heroStyle = settings.heroBannerImage
     ? {
@@ -121,120 +105,6 @@ export default function HomePageContent({ initialAnimals }) {
         </section>
       )}
 
-      {settings.nfgBannerEnabled && (
-        <section
-          className="nfg-home-banner"
-          style={{
-            "--nfg-bg": settings.nfgBackground || "#eef7ff",
-            "--nfg-accent": settings.nfgAccent || "#1c6fa8",
-            "--nfg-text": settings.nfgTextColor || "#173f4b",
-          }}
-        >
-          <div className="container nfg-home-banner-inner">
-            <div className="nfg-home-visual" aria-hidden="true">
-              <div className="nfg-home-visual-glow nfg-home-visual-glow-left" />
-              <div className="nfg-home-visual-glow nfg-home-visual-glow-right" />
-              <img
-                className="nfg-home-logo-image"
-                src={settings.nfgLogoPath || "/nfg-logo.png"}
-                alt=""
-              />
-              <div className="nfg-home-visual-tag">CPF NA NOTA • APOIE A ONDA</div>
-            </div>
-
-            <div className="nfg-home-copy">
-              <span>{settings.nfgEyebrow}</span>
-              <h2>{settings.nfgTitle}</h2>
-              <p>{settings.nfgText}</p>
-
-              <div className="nfg-entity-mini">
-                <b>{settings.nfgEntityName}</b>
-                <span>{settings.nfgEntityCity} • {settings.nfgEntityArea}</span>
-                {settings.nfgEntityCode && <small>Cód. {settings.nfgEntityCode}</small>}
-              </div>
-
-              <div className="nfg-quick-flow">
-                <div><strong>1</strong><span>Cadastre-se</span></div>
-                <div><strong>2</strong><span>Escolha a ONDA</span></div>
-                <div><strong>3</strong><span>Informe seu CPF</span></div>
-              </div>
-            </div>
-
-            <div className="nfg-home-actions">
-              <div className="nfg-side-card">
-                <span>ENTIDADE PARA ESCOLHER</span>
-                <strong>{settings.nfgEntityName}</strong>
-                <p>{settings.nfgEntityArea}</p>
-                <small>{settings.nfgEntityCity}</small>
-                {settings.nfgEntityCode && <b>Código {settings.nfgEntityCode}</b>}
-              </div>
-
-              <button type="button" className="nfg-how-button" onClick={() => setNfgOpen(true)}>
-                {settings.nfgButtonText || "Como ajudar"} <span>?</span>
-              </button>
-              {settings.nfgOfficialUrl && (
-                <a className="nfg-official-link" href={settings.nfgOfficialUrl} target="_blank" rel="noreferrer">
-                  {settings.nfgOfficialButtonText || "Entrar na Nota Fiscal Gaúcha"} ↗
-                </a>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {nfgOpen && (
-        <div className="nfg-modal-backdrop" onMouseDown={(event) => {
-          if (event.currentTarget === event.target) setNfgOpen(false);
-        }}>
-          <article className="nfg-modal" role="dialog" aria-modal="true" aria-labelledby="nfg-modal-title">
-            <button type="button" className="nfg-modal-close" onClick={() => setNfgOpen(false)} aria-label="Fechar">×</button>
-
-            <header className="nfg-modal-head">
-              <div className="nfg-modal-logo-card" aria-hidden="true">
-                <img
-                  className="nfg-modal-logo-image"
-                  src={settings.nfgLogoPath || "/nfg-logo.png"}
-                  alt=""
-                />
-              </div>
-              <div>
-                <span>{settings.nfgEyebrow}</span>
-                <h2 id="nfg-modal-title">{settings.nfgModalTitle}</h2>
-                <p>{settings.nfgModalIntro}</p>
-              </div>
-            </header>
-
-            <div className="nfg-modal-entity">
-              <span>ENTIDADE PARA SELECIONAR</span>
-              <strong>{settings.nfgEntityName}</strong>
-              <p>{settings.nfgEntityArea} • {settings.nfgEntityCity}</p>
-              {settings.nfgEntityCode && <b>Código de habilitação: {settings.nfgEntityCode}</b>}
-            </div>
-
-            <div className="nfg-modal-steps">
-              {[settings.nfgStep1,settings.nfgStep2,settings.nfgStep3,settings.nfgStep4,settings.nfgStep5]
-                .filter(Boolean).map((step,index) => (
-                  <div key={index}><span>{String(index+1).padStart(2,"0")}</span><p>{step}</p></div>
-                ))}
-            </div>
-
-            <div className="nfg-modal-note">
-              <strong>Importante</strong>
-              <p>A escolha da entidade é feita no cadastro da Nota Fiscal Gaúcha. Depois disso, continue informando seu CPF nas compras participantes.</p>
-            </div>
-
-            <footer className="nfg-modal-footer">
-              <button type="button" className="button secondary" onClick={() => setNfgOpen(false)}>Fechar</button>
-              {settings.nfgOfficialUrl && (
-                <a className="button primary" href={settings.nfgOfficialUrl} target="_blank" rel="noreferrer">
-                  Ir para Nota Fiscal Gaúcha ↗
-                </a>
-              )}
-            </footer>
-          </article>
-        </div>
-      )}
-
       {settings.stepsStripEnabled && (
         <section className="adoption-number-strip">
           <div className="container adoption-number-grid">
@@ -303,6 +173,19 @@ export default function HomePageContent({ initialAnimals }) {
             </Link>
           </div>
         </section>
+      )}
+
+      {settings.nfgBannerEnabled && (
+        <Link
+          className="nfg-floating-shortcut"
+          href="/nota-fiscal-gaucha"
+          aria-label="Saiba como ajudar a Onda pela Nota Fiscal Gaúcha"
+        >
+          <img src={settings.nfgLogoPath || "/nfg-logo.png"} alt="" aria-hidden="true" />
+          <span>Ajude a Onda</span>
+          <strong>Nota Fiscal Gaúcha</strong>
+          <i aria-hidden="true">→</i>
+        </Link>
       )}
     </>
   );

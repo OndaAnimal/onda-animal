@@ -609,3 +609,11 @@ Asset incluído em `public/nfg-logo.png`.
 - mini fluxo de 3 passos
 - card lateral com dados da entidade
 - link oficial ajustado para https://nfg.sefaz.rs.gov.br/Cadastro/CadastroNfg_1.aspx
+
+
+## V37 — Nota Fiscal Gaúcha em página própria
+- removido o banner grande da Home;
+- criado atalho quadrado flutuante no canto inferior esquerdo;
+- nova rota `/nota-fiscal-gaucha`;
+- página completa com logo, dados da ONDA, passos e CTA oficial;
+- Configurações da NFG continuam editáveis pelo CMS.

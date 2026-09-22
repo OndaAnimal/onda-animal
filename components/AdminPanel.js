@@ -2204,7 +2204,7 @@ async function resetSiteSettings() {
                               checked={settings.shelterAlertEnabled}
                               onChange={(e) => updateSetting("shelterAlertEnabled", e.target.checked)}
                             />
-                            <span>Mostrar</span>
+                            <span>Mostrar atalho</span>
                           </label>
                         </div>
 
@@ -2272,11 +2272,11 @@ async function resetSiteSettings() {
                         <div className="cms-subsection-title">
                           <div>
                             <h4>Nota Fiscal Gaúcha</h4>
-                            <p>Banner visível na Home com modal explicando como apoiar a entidade.</p>
+                            <p>Configura a página da NFG e o pequeno atalho exibido na Home.</p>
                           </div>
                           <label className="cms-inline-toggle">
                             <input type="checkbox" checked={settings.nfgBannerEnabled} onChange={(e) => updateSetting("nfgBannerEnabled", e.target.checked)} />
-                            <span>Mostrar</span>
+                            <span>Mostrar atalho</span>
                           </label>
                         </div>
 
