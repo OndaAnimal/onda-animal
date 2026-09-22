@@ -2268,6 +2268,49 @@ async function resetSiteSettings() {
                         </div>
                       </div>
 
+                      <div className="cms-subsection cms-nfg-settings">
+                        <div className="cms-subsection-title">
+                          <div>
+                            <h4>Nota Fiscal Gaúcha</h4>
+                            <p>Banner visível na Home com modal explicando como apoiar a entidade.</p>
+                          </div>
+                          <label className="cms-inline-toggle">
+                            <input type="checkbox" checked={settings.nfgBannerEnabled} onChange={(e) => updateSetting("nfgBannerEnabled", e.target.checked)} />
+                            <span>Mostrar</span>
+                          </label>
+                        </div>
+
+                        <div className="cms-field-grid">
+                          <label><span>Chamada</span><input value={settings.nfgEyebrow || ""} onChange={(e) => updateSetting("nfgEyebrow", e.target.value)} /></label>
+                          <label><span>Nome da entidade</span><input value={settings.nfgEntityName || ""} onChange={(e) => updateSetting("nfgEntityName", e.target.value)} /></label>
+                          <label className="span-2"><span>Título do banner</span><textarea rows={2} value={settings.nfgTitle || ""} onChange={(e) => updateSetting("nfgTitle", e.target.value)} /></label>
+                          <label className="span-2"><span>Texto do banner</span><textarea rows={3} value={settings.nfgText || ""} onChange={(e) => updateSetting("nfgText", e.target.value)} /></label>
+                          <label><span>Município</span><input value={settings.nfgEntityCity || ""} onChange={(e) => updateSetting("nfgEntityCity", e.target.value)} /></label>
+                          <label><span>Código de habilitação</span><input value={settings.nfgEntityCode || ""} onChange={(e) => updateSetting("nfgEntityCode", e.target.value)} /></label>
+                          <label className="span-2"><span>Área</span><input value={settings.nfgEntityArea || ""} onChange={(e) => updateSetting("nfgEntityArea", e.target.value)} /></label>
+                          <label><span>Botão “Como ajudar”</span><input value={settings.nfgButtonText || ""} onChange={(e) => updateSetting("nfgButtonText", e.target.value)} /></label>
+                          <label><span>Botão site oficial</span><input value={settings.nfgOfficialButtonText || ""} onChange={(e) => updateSetting("nfgOfficialButtonText", e.target.value)} /></label>
+                          <label className="span-2"><span>Link oficial da NFG</span><input value={settings.nfgOfficialUrl || ""} onChange={(e) => updateSetting("nfgOfficialUrl", e.target.value)} /></label>
+                          <label><span>Fundo</span><input type="color" value={settings.nfgBackground || "#eef7ff"} onChange={(e) => updateSetting("nfgBackground", e.target.value)} /></label>
+                          <label><span>Cor de destaque</span><input type="color" value={settings.nfgAccent || "#1c6fa8"} onChange={(e) => updateSetting("nfgAccent", e.target.value)} /></label>
+                          <label><span>Cor do texto</span><input type="color" value={settings.nfgTextColor || "#173f4b"} onChange={(e) => updateSetting("nfgTextColor", e.target.value)} /></label>
+                        </div>
+
+                        <div className="cms-config-heading compact">
+                          <span>MODAL</span><h3>Explicação passo a passo</h3>
+                        </div>
+                        <div className="cms-field-grid">
+                          <label className="span-2"><span>Título do modal</span><input value={settings.nfgModalTitle || ""} onChange={(e) => updateSetting("nfgModalTitle", e.target.value)} /></label>
+                          <label className="span-2"><span>Introdução</span><textarea rows={3} value={settings.nfgModalIntro || ""} onChange={(e) => updateSetting("nfgModalIntro", e.target.value)} /></label>
+                          {[1,2,3,4,5].map((number) => (
+                            <label className="span-2" key={number}>
+                              <span>Passo {number}</span>
+                              <textarea rows={2} value={settings[`nfgStep${number}`] || ""} onChange={(e) => updateSetting(`nfgStep${number}`, e.target.value)} />
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
                       <div className="cms-subsection">
                         <div className="cms-subsection-title">
                           <h4>Banner principal</h4>

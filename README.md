@@ -584,3 +584,9 @@ Configuração no CMS (`Configurações → Home e banner → Faixa especial: ad
 
 A animação usa pulso, brilho e ponto de atenção.
 Também respeita `prefers-reduced-motion`.
+
+
+## V34 — Nota Fiscal Gaúcha
+Nova faixa visível na Home com modal passo a passo.
+Padrão: ONDA, Gravataí, área Defesa e Proteção dos Animais, cód. SLD0187676.
+Tudo editável em `Configurações → Home e banner → Nota Fiscal Gaúcha`.

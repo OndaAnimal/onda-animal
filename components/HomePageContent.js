@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import HomeAnimals from "./HomeAnimals";
 import HomeAnimalCollage from "./HomeAnimalCollage";
 import { useSiteSettings } from "./SiteSettingsProvider";
@@ -8,6 +9,21 @@ import { mediaUrl } from "../lib/mediaUrl";
 
 export default function HomePageContent({ initialAnimals }) {
   const { settings } = useSiteSettings();
+  const [nfgOpen, setNfgOpen] = useState(false);
+
+  useEffect(() => {
+    if (!nfgOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setNfgOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [nfgOpen]);
 
   const heroStyle = settings.heroBannerImage
     ? {
@@ -103,6 +119,90 @@ export default function HomePageContent({ initialAnimals }) {
             </div>
           </div>
         </section>
+      )}
+
+      {settings.nfgBannerEnabled && (
+        <section
+          className="nfg-home-banner"
+          style={{
+            "--nfg-bg": settings.nfgBackground || "#eef7ff",
+            "--nfg-accent": settings.nfgAccent || "#1c6fa8",
+            "--nfg-text": settings.nfgTextColor || "#173f4b",
+          }}
+        >
+          <div className="container nfg-home-banner-inner">
+            <div className="nfg-home-badge" aria-hidden="true"><strong>NFG</strong><small>RS</small></div>
+
+            <div className="nfg-home-copy">
+              <span>{settings.nfgEyebrow}</span>
+              <h2>{settings.nfgTitle}</h2>
+              <p>{settings.nfgText}</p>
+              <div className="nfg-entity-mini">
+                <b>{settings.nfgEntityName}</b>
+                <span>{settings.nfgEntityCity} • {settings.nfgEntityArea}</span>
+                {settings.nfgEntityCode && <small>Cód. {settings.nfgEntityCode}</small>}
+              </div>
+            </div>
+
+            <div className="nfg-home-actions">
+              <button type="button" className="nfg-how-button" onClick={() => setNfgOpen(true)}>
+                {settings.nfgButtonText || "Como ajudar"} <span>?</span>
+              </button>
+              {settings.nfgOfficialUrl && (
+                <a className="nfg-official-link" href={settings.nfgOfficialUrl} target="_blank" rel="noreferrer">
+                  {settings.nfgOfficialButtonText || "Abrir Nota Fiscal Gaúcha"} ↗
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {nfgOpen && (
+        <div className="nfg-modal-backdrop" onMouseDown={(event) => {
+          if (event.currentTarget === event.target) setNfgOpen(false);
+        }}>
+          <article className="nfg-modal" role="dialog" aria-modal="true" aria-labelledby="nfg-modal-title">
+            <button type="button" className="nfg-modal-close" onClick={() => setNfgOpen(false)} aria-label="Fechar">×</button>
+
+            <header className="nfg-modal-head">
+              <div className="nfg-modal-logo" aria-hidden="true"><strong>NFG</strong><small>RS</small></div>
+              <div>
+                <span>{settings.nfgEyebrow}</span>
+                <h2 id="nfg-modal-title">{settings.nfgModalTitle}</h2>
+                <p>{settings.nfgModalIntro}</p>
+              </div>
+            </header>
+
+            <div className="nfg-modal-entity">
+              <span>ENTIDADE PARA SELECIONAR</span>
+              <strong>{settings.nfgEntityName}</strong>
+              <p>{settings.nfgEntityArea} • {settings.nfgEntityCity}</p>
+              {settings.nfgEntityCode && <b>Código de habilitação: {settings.nfgEntityCode}</b>}
+            </div>
+
+            <div className="nfg-modal-steps">
+              {[settings.nfgStep1,settings.nfgStep2,settings.nfgStep3,settings.nfgStep4,settings.nfgStep5]
+                .filter(Boolean).map((step,index) => (
+                  <div key={index}><span>{String(index+1).padStart(2,"0")}</span><p>{step}</p></div>
+                ))}
+            </div>
+
+            <div className="nfg-modal-note">
+              <strong>Importante</strong>
+              <p>A escolha da entidade é feita no cadastro da Nota Fiscal Gaúcha. Depois disso, continue informando seu CPF nas compras participantes.</p>
+            </div>
+
+            <footer className="nfg-modal-footer">
+              <button type="button" className="button secondary" onClick={() => setNfgOpen(false)}>Fechar</button>
+              {settings.nfgOfficialUrl && (
+                <a className="button primary" href={settings.nfgOfficialUrl} target="_blank" rel="noreferrer">
+                  Ir para Nota Fiscal Gaúcha ↗
+                </a>
+              )}
+            </footer>
+          </article>
+        </div>
       )}
 
       {settings.stepsStripEnabled && (
