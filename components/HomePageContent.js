@@ -57,6 +57,54 @@ export default function HomePageContent({ initialAnimals }) {
         </section>
       )}
 
+      {settings.shelterAlertEnabled && (
+        <section
+          className="shelter-home-alert"
+          style={{
+            "--shelter-alert-bg": settings.shelterAlertBackground || "#fff4f7",
+            "--shelter-alert-accent": settings.shelterAlertAccent || "#b63a5e",
+            "--shelter-alert-text": settings.shelterAlertTextColor || "#173f4b",
+          }}
+        >
+          <div className="container shelter-home-alert-inner">
+            <div className="shelter-alert-icon" aria-hidden="true">
+              <span>♡</span>
+              <small>ABRIGO</small>
+            </div>
+
+            <div className="shelter-alert-copy">
+              <span className="shelter-alert-eyebrow">
+                <i />
+                {settings.shelterAlertEyebrow}
+                <i />
+              </span>
+              <h2>{settings.shelterAlertTitle}</h2>
+              {settings.shelterAlertWarningEnabled !== false && settings.shelterAlertWarningText && (
+                <div className="shelter-alert-warning" role="note" aria-label={settings.shelterAlertWarningText}>
+                  <span className="shelter-alert-warning-dot" aria-hidden="true" />
+                  <strong>{settings.shelterAlertWarningText}</strong>
+                </div>
+              )}
+              <p>{settings.shelterAlertText}</p>
+            </div>
+
+            <div className="shelter-alert-actions">
+              {settings.shelterAlertButtonText && settings.shelterAlertButtonLink && (
+                <Link className="shelter-alert-primary" href={settings.shelterAlertButtonLink}>
+                  {settings.shelterAlertButtonText}
+                  <span>→</span>
+                </Link>
+              )}
+              {settings.shelterAlertSecondaryText && settings.shelterAlertSecondaryLink && (
+                <Link className="shelter-alert-secondary" href={settings.shelterAlertSecondaryLink}>
+                  {settings.shelterAlertSecondaryText}
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {settings.stepsStripEnabled && (
         <section className="adoption-number-strip">
           <div className="container adoption-number-grid">

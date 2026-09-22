@@ -2114,6 +2114,160 @@ async function resetSiteSettings() {
                         <p>Controle o banner principal e todas as seções da Home.</p>
                       </div>
 
+                      <div className="cms-subsection cms-notice-settings">
+                        <div className="cms-subsection-title">
+                          <div>
+                            <h4>Modal de novidades e avisos</h4>
+                            <p>Abre automaticamente quando o visitante entra no site.</p>
+                          </div>
+                          <label className="cms-inline-toggle">
+                            <input
+                              type="checkbox"
+                              checked={settings.noticeModalEnabled}
+                              onChange={(e) => updateSetting("noticeModalEnabled", e.target.checked)}
+                            />
+                            <span>Ativar</span>
+                          </label>
+                        </div>
+
+                        <label className="cms-wide-image-setting">
+                          <span>Imagem do aviso <small>(opcional)</small></span>
+                          <div className={settings.noticeModalImage ? "cms-banner-preview has-image" : "cms-banner-preview"}>
+                            {settings.noticeModalImage
+                              ? <img src={settings.noticeModalImage} alt="Imagem do aviso" />
+                              : <div><b>＋</b><strong>Adicionar imagem</strong><small>Pode ser campanha, evento ou novidade.</small></div>}
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            onChange={(e) => readSettingImage(e.target.files?.[0], "noticeModalImage")}
+                          />
+                        </label>
+
+                        {settings.noticeModalImage && (
+                          <button type="button" className="cms-remove-image" onClick={() => updateSetting("noticeModalImage", "")}>
+                            Remover imagem do aviso
+                          </button>
+                        )}
+
+                        <div className="cms-field-grid">
+                          <label>
+                            <span>Texto pequeno</span>
+                            <input value={settings.noticeModalEyebrow} onChange={(e) => updateSetting("noticeModalEyebrow", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Frequência</span>
+                            <select value={settings.noticeModalFrequency || "session"} onChange={(e) => updateSetting("noticeModalFrequency", e.target.value)}>
+                              <option value="always">Sempre que abrir/recarregar</option>
+                              <option value="session">Uma vez por sessão</option>
+                              <option value="daily">Uma vez por dia</option>
+                              <option value="campaign">Uma vez por campanha</option>
+                            </select>
+                          </label>
+                          <label className="span-2">
+                            <span>Título</span>
+                            <input value={settings.noticeModalTitle} onChange={(e) => updateSetting("noticeModalTitle", e.target.value)} />
+                          </label>
+                          <label className="span-2">
+                            <span>Mensagem</span>
+                            <textarea rows={4} value={settings.noticeModalText} onChange={(e) => updateSetting("noticeModalText", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Texto do botão</span>
+                            <input value={settings.noticeModalButtonText} onChange={(e) => updateSetting("noticeModalButtonText", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Link do botão</span>
+                            <input value={settings.noticeModalButtonLink} onChange={(e) => updateSetting("noticeModalButtonLink", e.target.value)} />
+                          </label>
+                          <label className="span-2">
+                            <span>Código da campanha</span>
+                            <input
+                              value={settings.noticeModalCampaignId || ""}
+                              onChange={(e) => updateSetting("noticeModalCampaignId", e.target.value)}
+                              placeholder="Ex.: campanha-castracao-setembro"
+                            />
+                            <small>Se usar “uma vez por campanha”, troque este código quando publicar um novo aviso.</small>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="cms-subsection cms-shelter-alert-settings">
+                        <div className="cms-subsection-title">
+                          <div>
+                            <h4>Faixa especial: adoções do abrigo</h4>
+                            <p>Banner de alto destaque exibido logo abaixo do banner principal.</p>
+                          </div>
+                          <label className="cms-inline-toggle">
+                            <input
+                              type="checkbox"
+                              checked={settings.shelterAlertEnabled}
+                              onChange={(e) => updateSetting("shelterAlertEnabled", e.target.checked)}
+                            />
+                            <span>Mostrar</span>
+                          </label>
+                        </div>
+
+                        <div className="cms-field-grid">
+                          <label>
+                            <span>Chamada</span>
+                            <input value={settings.shelterAlertEyebrow} onChange={(e) => updateSetting("shelterAlertEyebrow", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Cor de destaque</span>
+                            <input type="color" value={settings.shelterAlertAccent} onChange={(e) => updateSetting("shelterAlertAccent", e.target.value)} />
+                          </label>
+                          <label className="span-2">
+                            <span>Título</span>
+                            <textarea rows={2} value={settings.shelterAlertTitle} onChange={(e) => updateSetting("shelterAlertTitle", e.target.value)} />
+                          </label>
+                          <label className="cms-inline-check span-2">
+                            <input
+                              type="checkbox"
+                              checked={settings.shelterAlertWarningEnabled !== false}
+                              onChange={(e) => updateSetting("shelterAlertWarningEnabled", e.target.checked)}
+                            />
+                            <div>
+                              <strong>Mostrar alerta em destaque</strong>
+                              <small>Exibe uma chamada animada tipo “NÃO ANUNCIAMOS OUTROS ANIMAIS!”.</small>
+                            </div>
+                          </label>
+                          <label className="span-2">
+                            <span>Texto do alerta em destaque</span>
+                            <input value={settings.shelterAlertWarningText || ""} onChange={(e) => updateSetting("shelterAlertWarningText", e.target.value.toUpperCase())} />
+                            <small>O texto é salvo em maiúsculas para ter mais impacto visual.</small>
+                          </label>
+                          <label className="span-2">
+                            <span>Explicação</span>
+                            <textarea rows={4} value={settings.shelterAlertText} onChange={(e) => updateSetting("shelterAlertText", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Botão principal</span>
+                            <input value={settings.shelterAlertButtonText} onChange={(e) => updateSetting("shelterAlertButtonText", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Link principal</span>
+                            <input value={settings.shelterAlertButtonLink} onChange={(e) => updateSetting("shelterAlertButtonLink", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Botão secundário</span>
+                            <input value={settings.shelterAlertSecondaryText} onChange={(e) => updateSetting("shelterAlertSecondaryText", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Link secundário</span>
+                            <input value={settings.shelterAlertSecondaryLink} onChange={(e) => updateSetting("shelterAlertSecondaryLink", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Fundo</span>
+                            <input type="color" value={settings.shelterAlertBackground} onChange={(e) => updateSetting("shelterAlertBackground", e.target.value)} />
+                          </label>
+                          <label>
+                            <span>Cor do texto</span>
+                            <input type="color" value={settings.shelterAlertTextColor} onChange={(e) => updateSetting("shelterAlertTextColor", e.target.value)} />
+                          </label>
+                        </div>
+                      </div>
+
                       <div className="cms-subsection">
                         <div className="cms-subsection-title">
                           <h4>Banner principal</h4>

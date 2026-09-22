@@ -548,3 +548,39 @@ Placeholders disponíveis nas respostas:
 - `{{cachoeirinhaWhatsApp}}`
 - `{{gravataiAddress}}`
 - `{{cachoeirinhaAddress}}`
+
+
+## V32 — Modal de avisos + faixa especial do abrigo
+
+### Modal
+Em `Configurações → Home e banner`:
+- ligar/desligar;
+- imagem opcional;
+- chamada, título e mensagem;
+- botão e link;
+- frequência: sempre, por sessão, por dia ou uma vez por campanha;
+- código de campanha para republicar um novo aviso.
+
+### Faixa de adoções do abrigo
+Também em `Home e banner`:
+- ligar/desligar;
+- chamada, título e explicação;
+- botão principal e secundário;
+- cores;
+- animação de pulso para alto destaque.
+
+O padrão informa claramente que o portal é dedicado às adoções dos animais do abrigo Onda Animal.
+A animação é automaticamente desativada para visitantes com `prefers-reduced-motion`.
+
+
+## V33 — Alerta em destaque “NÃO ANUNCIAMOS OUTROS ANIMAIS!”
+
+Na faixa especial do abrigo foi adicionado um alerta extra, em caixa alta e com animação de destaque.
+
+Configuração no CMS (`Configurações → Home e banner → Faixa especial: adoções do abrigo`):
+- ligar/desligar o alerta;
+- editar o texto do alerta;
+- o texto é salvo em maiúsculas automaticamente para manter o impacto visual.
+
+A animação usa pulso, brilho e ponto de atenção.
+Também respeita `prefers-reduced-motion`.
