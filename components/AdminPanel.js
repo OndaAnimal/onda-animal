@@ -2290,6 +2290,7 @@ async function resetSiteSettings() {
                           <label className="span-2"><span>Área</span><input value={settings.nfgEntityArea || ""} onChange={(e) => updateSetting("nfgEntityArea", e.target.value)} /></label>
                           <label><span>Botão “Como ajudar”</span><input value={settings.nfgButtonText || ""} onChange={(e) => updateSetting("nfgButtonText", e.target.value)} /></label>
                           <label><span>Botão site oficial</span><input value={settings.nfgOfficialButtonText || ""} onChange={(e) => updateSetting("nfgOfficialButtonText", e.target.value)} /></label>
+                          <label><span>Logo da NFG</span><input value={settings.nfgLogoPath || ""} onChange={(e) => updateSetting("nfgLogoPath", e.target.value)} /></label>
                           <label className="span-2"><span>Link oficial da NFG</span><input value={settings.nfgOfficialUrl || ""} onChange={(e) => updateSetting("nfgOfficialUrl", e.target.value)} /></label>
                           <label><span>Fundo</span><input type="color" value={settings.nfgBackground || "#eef7ff"} onChange={(e) => updateSetting("nfgBackground", e.target.value)} /></label>
                           <label><span>Cor de destaque</span><input type="color" value={settings.nfgAccent || "#1c6fa8"} onChange={(e) => updateSetting("nfgAccent", e.target.value)} /></label>

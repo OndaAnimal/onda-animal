@@ -590,3 +590,14 @@ Também respeita `prefers-reduced-motion`.
 Nova faixa visível na Home com modal passo a passo.
 Padrão: ONDA, Gravataí, área Defesa e Proteção dos Animais, cód. SLD0187676.
 Tudo editável em `Configurações → Home e banner → Nota Fiscal Gaúcha`.
+
+
+## V35 — Nota Fiscal Gaúcha com logo oficial
+
+Melhoria visual da área da Nota Fiscal Gaúcha:
+- uso do logo oficial da NFG;
+- paleta mais próxima da identidade azul/laranja;
+- card do logo na Home e no modal;
+- campo `Logo da NFG` no CMS, caso queira trocar o caminho depois.
+
+Asset incluído em `public/nfg-logo.png`.

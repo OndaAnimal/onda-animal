@@ -131,7 +131,13 @@ export default function HomePageContent({ initialAnimals }) {
           }}
         >
           <div className="container nfg-home-banner-inner">
-            <div className="nfg-home-badge" aria-hidden="true"><strong>NFG</strong><small>RS</small></div>
+            <div className="nfg-home-logo-card" aria-hidden="true">
+              <img
+                className="nfg-home-logo-image"
+                src={settings.nfgLogoPath || "/nfg-logo.png"}
+                alt=""
+              />
+            </div>
 
             <div className="nfg-home-copy">
               <span>{settings.nfgEyebrow}</span>
@@ -166,7 +172,13 @@ export default function HomePageContent({ initialAnimals }) {
             <button type="button" className="nfg-modal-close" onClick={() => setNfgOpen(false)} aria-label="Fechar">×</button>
 
             <header className="nfg-modal-head">
-              <div className="nfg-modal-logo" aria-hidden="true"><strong>NFG</strong><small>RS</small></div>
+              <div className="nfg-modal-logo-card" aria-hidden="true">
+                <img
+                  className="nfg-modal-logo-image"
+                  src={settings.nfgLogoPath || "/nfg-logo.png"}
+                  alt=""
+                />
+              </div>
               <div>
                 <span>{settings.nfgEyebrow}</span>
                 <h2 id="nfg-modal-title">{settings.nfgModalTitle}</h2>
