@@ -617,3 +617,19 @@ Asset incluído em `public/nfg-logo.png`.
 - nova rota `/nota-fiscal-gaucha`;
 - página completa com logo, dados da ONDA, passos e CTA oficial;
 - Configurações da NFG continuam editáveis pelo CMS.
+
+
+## V37 — NFG em página própria
+- o banner grande saiu da Home;
+- a Home mantém apenas um pequeno card quadrado com o logo NFG;
+- o card leva para `/nota-fiscal-gaucha`;
+- a rota própria mostra logo, dados da ONDA, código, passo a passo e CTA oficial;
+- o link oficial utilizado é `https://nfg.sefaz.rs.gov.br/Cadastro/CadastroNfg_1.aspx`;
+- textos do atalho e da página continuam configuráveis pelo CMS.
+
+
+## V38 — correção definitiva NFG na Home
+- `nfgBannerEnabled` agora é legado e fica desativado por padrão.
+- novo campo `nfgHomeShortcutEnabled` controla somente o quadrado pequeno da Home.
+- o CSS bloqueia explicitamente qualquer `.nfg-home-banner` antigo, inclusive se uma configuração antiga ainda estiver salva no Neon.
+- a página `/nota-fiscal-gaucha` continua sendo o local do conteúdo completo.

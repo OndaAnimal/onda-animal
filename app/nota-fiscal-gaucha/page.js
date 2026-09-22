@@ -1,4 +1,3 @@
-\
 import SiteShell from "../../components/SiteShell";
 import NfgPageContent from "../../components/NfgPageContent";
 

@@ -175,15 +175,17 @@ export default function HomePageContent({ initialAnimals }) {
         </section>
       )}
 
-      {settings.nfgBannerEnabled && (
+      {settings.nfgHomeShortcutEnabled !== false && (
         <Link
           className="nfg-floating-shortcut"
           href="/nota-fiscal-gaucha"
           aria-label="Saiba como ajudar a Onda pela Nota Fiscal Gaúcha"
         >
           <img src={settings.nfgLogoPath || "/nfg-logo.png"} alt="" aria-hidden="true" />
-          <span>Ajude a Onda</span>
-          <strong>Nota Fiscal Gaúcha</strong>
+          <span>{settings.nfgHomeCardEyebrow || "Ajude a Onda"}</span>
+          <strong>{settings.nfgHomeCardTitle || "Nota Fiscal Gaúcha"}</strong>
+          <small>{settings.nfgHomeCardText || "Saiba como apoiar nossos animais com seu CPF na nota."}</small>
+          <b>{settings.nfgHomeCardButtonText || "Ver como ajudar"}</b>
           <i aria-hidden="true">→</i>
         </Link>
       )}

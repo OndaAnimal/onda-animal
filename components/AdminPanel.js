@@ -1511,7 +1511,7 @@ async function resetSiteSettings() {
 
                   <div className="cms-field-grid">
                     <label><span>Texto pequeno do banner</span><input value={settings.vetsPageEyebrow || ""} onChange={(e) => updateSetting("vetsPageEyebrow", e.target.value)} /></label>
-                    <label className="span-2"><span>Título do banner</span><input value={settings.vetsPageTitle || ""} onChange={(e) => updateSetting("vetsPageTitle", e.target.value)} /></label>
+                    <label className="span-2"><span>Título principal da página</span><input value={settings.vetsPageTitle || ""} onChange={(e) => updateSetting("vetsPageTitle", e.target.value)} /></label>
                     <label className="span-2"><span>Descrição do banner</span><textarea value={settings.vetsPageText || ""} onChange={(e) => updateSetting("vetsPageText", e.target.value)} /></label>
                     <label><span>Texto pequeno da seção</span><input value={settings.vetsIntroEyebrow || ""} onChange={(e) => updateSetting("vetsIntroEyebrow", e.target.value)} /></label>
                     <label className="span-2"><span>Título da seção</span><input value={settings.vetsIntroTitle || ""} onChange={(e) => updateSetting("vetsIntroTitle", e.target.value)} /></label>
@@ -2204,7 +2204,7 @@ async function resetSiteSettings() {
                               checked={settings.shelterAlertEnabled}
                               onChange={(e) => updateSetting("shelterAlertEnabled", e.target.checked)}
                             />
-                            <span>Mostrar atalho</span>
+                            <span>Mostrar atalho pequeno na Home</span>
                           </label>
                         </div>
 
@@ -2272,19 +2272,32 @@ async function resetSiteSettings() {
                         <div className="cms-subsection-title">
                           <div>
                             <h4>Nota Fiscal Gaúcha</h4>
-                            <p>Configura a página da NFG e o pequeno atalho exibido na Home.</p>
+                            <p>Configura a página completa da NFG e somente o pequeno atalho quadrado exibido na Home. O banner grande antigo foi desativado.</p>
                           </div>
                           <label className="cms-inline-toggle">
-                            <input type="checkbox" checked={settings.nfgBannerEnabled} onChange={(e) => updateSetting("nfgBannerEnabled", e.target.checked)} />
+                            <input type="checkbox" checked={settings.nfgHomeShortcutEnabled !== false} onChange={(e) => updateSetting("nfgHomeShortcutEnabled", e.target.checked)} />
                             <span>Mostrar atalho</span>
                           </label>
                         </div>
 
+                        <div className="cms-config-heading compact">
+                          <span>ATALHO DA HOME</span><h3>Card pequeno que direciona para /nota-fiscal-gaucha</h3>
+                        </div>
+                        <div className="cms-field-grid">
+                          <label><span>Chamada do card</span><input value={settings.nfgHomeCardEyebrow || ""} onChange={(e) => updateSetting("nfgHomeCardEyebrow", e.target.value)} /></label>
+                          <label><span>Título do card</span><input value={settings.nfgHomeCardTitle || ""} onChange={(e) => updateSetting("nfgHomeCardTitle", e.target.value)} /></label>
+                          <label className="span-2"><span>Texto do card</span><input value={settings.nfgHomeCardText || ""} onChange={(e) => updateSetting("nfgHomeCardText", e.target.value)} /></label>
+                          <label><span>Chamada final</span><input value={settings.nfgHomeCardButtonText || ""} onChange={(e) => updateSetting("nfgHomeCardButtonText", e.target.value)} /></label>
+                        </div>
+
+                        <div className="cms-config-heading compact">
+                          <span>PÁGINA NFG</span><h3>Conteúdo principal da rota</h3>
+                        </div>
                         <div className="cms-field-grid">
                           <label><span>Chamada</span><input value={settings.nfgEyebrow || ""} onChange={(e) => updateSetting("nfgEyebrow", e.target.value)} /></label>
                           <label><span>Nome da entidade</span><input value={settings.nfgEntityName || ""} onChange={(e) => updateSetting("nfgEntityName", e.target.value)} /></label>
                           <label className="span-2"><span>Título do banner</span><textarea rows={2} value={settings.nfgTitle || ""} onChange={(e) => updateSetting("nfgTitle", e.target.value)} /></label>
-                          <label className="span-2"><span>Texto do banner</span><textarea rows={3} value={settings.nfgText || ""} onChange={(e) => updateSetting("nfgText", e.target.value)} /></label>
+                          <label className="span-2"><span>Texto principal da página</span><textarea rows={3} value={settings.nfgText || ""} onChange={(e) => updateSetting("nfgText", e.target.value)} /></label>
                           <label><span>Município</span><input value={settings.nfgEntityCity || ""} onChange={(e) => updateSetting("nfgEntityCity", e.target.value)} /></label>
                           <label><span>Código de habilitação</span><input value={settings.nfgEntityCode || ""} onChange={(e) => updateSetting("nfgEntityCode", e.target.value)} /></label>
                           <label className="span-2"><span>Área</span><input value={settings.nfgEntityArea || ""} onChange={(e) => updateSetting("nfgEntityArea", e.target.value)} /></label>
@@ -2298,7 +2311,7 @@ async function resetSiteSettings() {
                         </div>
 
                         <div className="cms-config-heading compact">
-                          <span>MODAL</span><h3>Explicação passo a passo</h3>
+                          <span>PASSO A PASSO</span><h3>Etapas exibidas na página da NFG</h3>
                         </div>
                         <div className="cms-field-grid">
                           <label className="span-2"><span>Título do modal</span><input value={settings.nfgModalTitle || ""} onChange={(e) => updateSetting("nfgModalTitle", e.target.value)} /></label>
