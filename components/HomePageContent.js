@@ -131,32 +131,50 @@ export default function HomePageContent({ initialAnimals }) {
           }}
         >
           <div className="container nfg-home-banner-inner">
-            <div className="nfg-home-logo-card" aria-hidden="true">
+            <div className="nfg-home-visual" aria-hidden="true">
+              <div className="nfg-home-visual-glow nfg-home-visual-glow-left" />
+              <div className="nfg-home-visual-glow nfg-home-visual-glow-right" />
               <img
                 className="nfg-home-logo-image"
                 src={settings.nfgLogoPath || "/nfg-logo.png"}
                 alt=""
               />
+              <div className="nfg-home-visual-tag">CPF NA NOTA • APOIE A ONDA</div>
             </div>
 
             <div className="nfg-home-copy">
               <span>{settings.nfgEyebrow}</span>
               <h2>{settings.nfgTitle}</h2>
               <p>{settings.nfgText}</p>
+
               <div className="nfg-entity-mini">
                 <b>{settings.nfgEntityName}</b>
                 <span>{settings.nfgEntityCity} • {settings.nfgEntityArea}</span>
                 {settings.nfgEntityCode && <small>Cód. {settings.nfgEntityCode}</small>}
               </div>
+
+              <div className="nfg-quick-flow">
+                <div><strong>1</strong><span>Cadastre-se</span></div>
+                <div><strong>2</strong><span>Escolha a ONDA</span></div>
+                <div><strong>3</strong><span>Informe seu CPF</span></div>
+              </div>
             </div>
 
             <div className="nfg-home-actions">
+              <div className="nfg-side-card">
+                <span>ENTIDADE PARA ESCOLHER</span>
+                <strong>{settings.nfgEntityName}</strong>
+                <p>{settings.nfgEntityArea}</p>
+                <small>{settings.nfgEntityCity}</small>
+                {settings.nfgEntityCode && <b>Código {settings.nfgEntityCode}</b>}
+              </div>
+
               <button type="button" className="nfg-how-button" onClick={() => setNfgOpen(true)}>
                 {settings.nfgButtonText || "Como ajudar"} <span>?</span>
               </button>
               {settings.nfgOfficialUrl && (
                 <a className="nfg-official-link" href={settings.nfgOfficialUrl} target="_blank" rel="noreferrer">
-                  {settings.nfgOfficialButtonText || "Abrir Nota Fiscal Gaúcha"} ↗
+                  {settings.nfgOfficialButtonText || "Entrar na Nota Fiscal Gaúcha"} ↗
                 </a>
               )}
             </div>

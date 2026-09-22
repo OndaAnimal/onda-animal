@@ -601,3 +601,11 @@ Melhoria visual da área da Nota Fiscal Gaúcha:
 - campo `Logo da NFG` no CMS, caso queira trocar o caminho depois.
 
 Asset incluído em `public/nfg-logo.png`.
+
+
+## V36 — redesign premium do banner NFG
+- logo transparente maior e sem fundo branco
+- layout mais premium com destaque visual
+- mini fluxo de 3 passos
+- card lateral com dados da entidade
+- link oficial ajustado para https://nfg.sefaz.rs.gov.br/Cadastro/CadastroNfg_1.aspx
