@@ -21,6 +21,7 @@ import { veterinarians as seedVeterinarians } from "../data/veterinarians";
 import { ANIMAL_SELECTION_FIELDS, DEFAULT_ANIMAL_PROFILE_OPTIONS, OTHER_OPTION } from "../data/animalProfileOptions";
 import CmsOptionEditor from "./CmsOptionEditor";
 import CmsForgeAssistantEditor from "./CmsForgeAssistantEditor";
+import CmsForgeMenuEditor from "./CmsForgeMenuEditor";
 
 const emptyAnimal = {
   slug: "",
@@ -2795,6 +2796,45 @@ async function resetSiteSettings() {
                           atuais configurados no CMS.
                         </p>
                       </div>
+
+                      <div className="cms-config-heading compact">
+                        <span>MENU INICIAL</span>
+                        <h3>Atendimento automático antes da equipe</h3>
+                        <p>
+                          Essas opções aparecem assim que o visitante abre o Forge Connect.
+                          Enquanto ele estiver aqui, nada é enviado para a equipe nem para o WhatsApp.
+                        </p>
+                      </div>
+
+                      <div className="cms-switch-list large">
+                        <label className="cms-switch-row">
+                          <div>
+                            <strong>Mostrar menu automático</strong>
+                            <span>Permite resolver dúvidas frequentes sem criar uma conversa humana.</span>
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={settings.forgeAssistantMenuEnabled !== false}
+                            onChange={(e) => updateSetting("forgeAssistantMenuEnabled", e.target.checked)}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="cms-field-grid">
+                        <label>
+                          <span>Título do menu</span>
+                          <input value={settings.forgeAssistantMenuTitle || ""} onChange={(e) => updateSetting("forgeAssistantMenuTitle", e.target.value)} />
+                        </label>
+                        <label>
+                          <span>Texto auxiliar</span>
+                          <input value={settings.forgeAssistantMenuSubtitle || ""} onChange={(e) => updateSetting("forgeAssistantMenuSubtitle", e.target.value)} />
+                        </label>
+                      </div>
+
+                      <CmsForgeMenuEditor
+                        items={settings.forgeAssistantMenu || []}
+                        onChange={(value) => updateSetting("forgeAssistantMenu", value)}
+                      />
 
                       <div className="cms-config-heading compact">
                         <span>BASE DE CONHECIMENTO</span>

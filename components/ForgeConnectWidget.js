@@ -8,7 +8,7 @@ import {
 } from "../lib/apiClient";
 import { maskBrazilPhone } from "../lib/masks";
 import { useSiteSettings } from "./SiteSettingsProvider";
-import { forgeAssistantReply } from "../lib/forgeAssistant";
+import { forgeAssistantReply, getForgeAssistantMenu } from "../lib/forgeAssistant";
 
 const VISITOR_KEY = "forge_connect_onda_visitor_v1";
 
@@ -44,6 +44,9 @@ export default function ForgeConnectWidget() {
     topic: "Adoção de animal",
   });
   const [message, setMessage] = useState("");
+  const [assistantInput, setAssistantInput] = useState("");
+  const [assistantMessages, setAssistantMessages] = useState([]);
+  const [showHumanForm, setShowHumanForm] = useState(false);
   const [sending, setSending] = useState(false);
   const [statusText, setStatusText] = useState("");
   const threadRef = useRef(null);
@@ -82,6 +85,41 @@ export default function ForgeConnectWidget() {
       (item) => item.from === "support" && !item.readByClient
     ).length;
   }, [conversation]);
+
+  const assistantMenu = useMemo(
+    () => getForgeAssistantMenu(settings),
+    [settings.forgeAssistantMenu, settings.forgeAssistantMenuEnabled]
+  );
+
+  function addAssistantMessage(from, text) {
+    setAssistantMessages((current) => [
+      ...current,
+      { id: makeId("quick"), from, text, date: new Date().toISOString() },
+    ]);
+  }
+
+  function runAssistant(text, displayText = text) {
+    const clean = String(text || "").trim();
+    if (!clean) return;
+
+    addAssistantMessage("client", displayText);
+    const reply = forgeAssistantReply(clean, settings);
+
+    if (reply?.answer) addAssistantMessage("support", reply.answer);
+    if (reply?.handoff) setShowHumanForm(true);
+  }
+
+  function submitAssistant(event) {
+    event.preventDefault();
+    const text = assistantInput.trim();
+    if (!text) return;
+    setAssistantInput("");
+    runAssistant(text);
+  }
+
+  function chooseAssistantItem(item) {
+    runAssistant(item.number, `${item.number}. ${item.label}`);
+  }
 
   useEffect(() => {
     if (!open || !conversation || unread === 0) return;
@@ -135,9 +173,7 @@ export default function ForgeConnectWidget() {
           initialMessage: {
             id: makeId("msg"),
             from: "support",
-            text: settings.forgeAssistantEnabled !== false
-              ? `🤖 ${settings.forgeAssistantName || "Assistente Onda"}\n\n${settings.forgeAssistantWelcome || `Olá, ${visitorData.name}! Como posso ajudar?`}`
-              : `Olá, ${visitorData.name}! Você está falando com a Onda Animal pelo Forge Connect. Como podemos ajudar?`,
+            text: `Olá, ${visitorData.name}! Sua conversa foi encaminhada para a equipe da Onda Animal. Assim que possível, alguém continuará o atendimento por aqui.`,
             date: now,
             readByClient: true,
             readBySupport: true,
@@ -178,21 +214,6 @@ export default function ForgeConnectWidget() {
       setConversation(updated);
       setMessage("");
 
-      const assistant = forgeAssistantReply(text, settings);
-      if (assistant?.answer) {
-        const answered = await connectAction("message", {
-          conversationId: conversation.id,
-          message: {
-            id: makeId("assistant"),
-            from: "support",
-            text: `🤖 ${settings.forgeAssistantName || "Assistente Onda"}\n\n${assistant.answer}`,
-            date: new Date().toISOString(),
-            readByClient: false,
-            readBySupport: true,
-          },
-        });
-        setConversation(answered);
-      }
     } catch (error) {
       setStatusText(error.message || "Não foi possível enviar sua mensagem.");
     } finally {
@@ -210,6 +231,9 @@ export default function ForgeConnectWidget() {
       topic: "Adoção de animal",
     });
     setStatusText("");
+    setShowHumanForm(false);
+    setAssistantMessages([]);
+    setAssistantInput("");
   }
 
   return (
@@ -226,63 +250,122 @@ export default function ForgeConnectWidget() {
           </header>
 
           {!visitor || !conversation ? (
-            <form className="forge-connect-identify" onSubmit={startConversation}>
-              <div className="forge-connect-welcome-icon">💬</div>
-              <h3>Olá! Como podemos ajudar?</h3>
-              <p>
-                Antes de iniciar, informe seus dados para que a equipe consiga
-                continuar o atendimento caso você saia do site.
-              </p>
+            showHumanForm ? (
+              <form className="forge-connect-identify" onSubmit={startConversation}>
+                <button type="button" className="forge-connect-back-auto" onClick={() => setShowHumanForm(false)}>
+                  ← Voltar para respostas rápidas
+                </button>
+                <div className="forge-connect-welcome-icon">👤</div>
+                <h3>Falar com a equipe</h3>
+                <p>
+                  Agora sim sua mensagem será encaminhada para o atendimento humano.
+                  Informe seus dados para a equipe conseguir continuar o contato.
+                </p>
 
-              <label>
-                <span>Seu nome</span>
-                <input
-                  value={profileForm.name}
-                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                  placeholder="Como podemos chamar você?"
-                  required
-                />
-              </label>
+                <label>
+                  <span>Seu nome</span>
+                  <input
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                    placeholder="Como podemos chamar você?"
+                    required
+                  />
+                </label>
 
-              <label>
-                <span>WhatsApp</span>
-                <input
-                  type="tel"
-                  inputMode="tel"
-                  value={profileForm.whatsapp}
-                  onChange={(e) => setProfileForm({ ...profileForm, whatsapp: maskBrazilPhone(e.target.value) })}
-                  placeholder="(51) 99999-9999"
-                  maxLength={15}
-                  required
-                />
-              </label>
+                <label>
+                  <span>WhatsApp</span>
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    value={profileForm.whatsapp}
+                    onChange={(e) => setProfileForm({ ...profileForm, whatsapp: maskBrazilPhone(e.target.value) })}
+                    placeholder="(51) 99999-9999"
+                    maxLength={15}
+                    required
+                  />
+                </label>
 
-              <label>
-                <span>Assunto</span>
-                <select
-                  value={profileForm.topic}
-                  onChange={(e) => setProfileForm({ ...profileForm, topic: e.target.value })}
-                >
-                  {TOPICS.map((topic) => <option key={topic}>{topic}</option>)}
-                </select>
-              </label>
+                <label>
+                  <span>Assunto</span>
+                  <select value={profileForm.topic} onChange={(e) => setProfileForm({ ...profileForm, topic: e.target.value })}>
+                    {TOPICS.map((topic) => <option key={topic}>{topic}</option>)}
+                  </select>
+                </label>
 
-              {statusText && <div className="forge-connect-status-error">{statusText}</div>}
+                {statusText && <div className="forge-connect-status-error">{statusText}</div>}
 
-              <button className="forge-connect-start" type="submit" disabled={sending}>
-                {sending ? "Conectando..." : "Iniciar conversa"}
-              </button>
-              <small>Atendimento realizado pela equipe Onda Animal.</small>
-            </form>
+                <button className="forge-connect-start" type="submit" disabled={sending}>
+                  {sending ? "Conectando..." : "Encaminhar para a equipe"}
+                </button>
+                <small>Somente a partir daqui uma conversa é criada para a equipe.</small>
+              </form>
+            ) : (
+              <div className="forge-connect-self-service">
+                <div className="forge-connect-auto-intro">
+                  <div className="forge-connect-welcome-icon">✦</div>
+                  <div>
+                    <span>ATENDIMENTO AUTOMÁTICO</span>
+                    <h3>{settings.forgeAssistantMenuTitle || "Como posso ajudar?"}</h3>
+                    <p>{settings.forgeAssistantMenuSubtitle || settings.forgeAssistantWelcome}</p>
+                  </div>
+                </div>
+
+                <div className="forge-connect-private-note">
+                  <span>✓</span>
+                  <p>Nesta etapa, suas dúvidas são respondidas automaticamente e <strong>não são enviadas para a equipe nem para o WhatsApp.</strong></p>
+                </div>
+
+                {settings.forgeAssistantMenuEnabled !== false && (
+                  <div className="forge-connect-menu-options">
+                    {assistantMenu.map((item) => (
+                      <button
+                        type="button"
+                        className={item.id === "entregar-animal" ? "important" : item.handoff ? "human" : ""}
+                        key={item.id || item.number}
+                        onClick={() => chooseAssistantItem(item)}
+                      >
+                        <span className="forge-connect-menu-number">{item.number}</span>
+                        <span className="forge-connect-menu-icon">{item.icon || "•"}</span>
+                        <strong>{item.label}</strong>
+                        <i>›</i>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {assistantMessages.length > 0 && (
+                  <div className="forge-connect-quick-thread" ref={threadRef}>
+                    {assistantMessages.map((item) => (
+                      <div className={`forge-connect-message ${item.from === "client" ? "client" : "support"}`} key={item.id}>
+                        <p>{item.text}</p>
+                        <small>{item.from === "client" ? "Você" : settings.forgeAssistantName || "Assistente Onda"}</small>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <form className="forge-connect-quick-compose" onSubmit={submitAssistant}>
+                  <input
+                    value={assistantInput}
+                    onChange={(e) => setAssistantInput(e.target.value)}
+                    placeholder="Digite 1, 2, 3... ou sua dúvida"
+                    autoComplete="off"
+                  />
+                  <button type="submit" aria-label="Consultar assistente">➤</button>
+                </form>
+
+                <footer className="forge-connect-footer">
+                  <span>Respostas automáticas • Powered by</span> <strong>Forge Connect</strong>
+                </footer>
+              </div>
+            )
           ) : (
             <>
               <div className="forge-connect-context">
                 <div>
                   <small>ASSUNTO</small>
                   <strong>{conversation.topic}</strong>
-                  {settings.forgeAssistantEnabled !== false && (
-                    <span className="forge-assistant-online">● Assistente virtual ativo</span>
-                  )}
+                  <span className="forge-assistant-online">● Atendimento encaminhado para a equipe</span>
                 </div>
                 <button type="button" onClick={resetConversation}>Nova conversa</button>
               </div>

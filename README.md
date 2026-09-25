@@ -639,3 +639,22 @@ Asset incluído em `public/nfg-logo.png`.
 - Adicionado `NF Gaúcha` no menu principal.
 - Rota: `/nota-fiscal-gaucha`.
 - Controle no CMS para mostrar/esconder o item.
+
+
+## V40 — Forge Connect com autoatendimento
+
+O Forge Connect agora abre primeiro em modo de autoatendimento, sem pedir nome ou WhatsApp.
+Enquanto o visitante usa as opções automáticas, nenhuma conversa é criada no Neon e nada é enviado para a equipe.
+
+Menu padrão:
+1. Quero adotar um animal
+2. Quero doar/entregar um animal para a Onda
+3. Encontrei um animal na rua
+4. Clínica, consultas e serviços
+5. Nota Fiscal Gaúcha
+6. Falar com a equipe
+
+A opção 2 explica claramente que a Onda não recebe animais de tutores/terceiros e que o site anuncia somente os animais já acolhidos pelo abrigo.
+A opção 6 abre o formulário de identificação e, somente então, cria o atendimento humano.
+
+Todo o menu é configurável em `Configurações → Assistente Forge`.
