@@ -6268,3 +6268,101 @@ section.nfg-home-banner,
 .forge-connect-self-service-recover strong{color:#3d205b;font-size:14px}
 .forge-connect-self-service-recover p{margin:7px 0 16px;color:#7e7189;font-size:11px;line-height:1.5}
 @media(max-width:480px){.forge-connect-previous-support{align-items:stretch;flex-direction:column}.forge-connect-previous-support button{width:100%}.forge-connect-context-actions{flex-direction:column;align-items:stretch}}
+
+
+/* V42 — pesquisa de animais no CMS */
+.admin-animal-search-wrap{
+  margin-bottom:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  border:1px solid #dce8e9;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(13,67,73,.05);
+}
+
+.admin-animal-search{
+  min-width:0;
+  flex:1;
+  height:46px;
+  padding:0 10px 0 14px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  border:1px solid #d8e5e6;
+  border-radius:12px;
+  background:#f9fcfc;
+}
+
+.admin-animal-search>span{
+  color:var(--teal-dark);
+  font-size:20px;
+  font-weight:900;
+}
+
+.admin-animal-search input{
+  min-width:0;
+  flex:1;
+  height:100%;
+  border:0;
+  outline:0;
+  color:var(--ink);
+  background:transparent;
+  font:inherit;
+  font-size:13px;
+}
+
+.admin-animal-search input::-webkit-search-cancel-button{display:none}
+
+.admin-animal-search button{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:8px;
+  color:#657b80;
+  background:#edf5f5;
+  font-size:17px;
+  cursor:pointer;
+}
+
+.admin-animal-search-wrap>small{
+  flex:0 0 auto;
+  color:#74888d;
+  font-size:10px;
+  font-weight:800;
+}
+
+.admin-search-empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+
+.admin-search-empty strong{color:var(--navy)}
+.admin-search-empty span{color:#768a8f;font-size:11px}
+.admin-search-empty button{
+  margin-top:4px;
+  padding:8px 11px;
+  border:1px solid #cfe1e2;
+  border-radius:9px;
+  color:var(--teal-deep);
+  background:#fff;
+  font-size:10px;
+  font-weight:850;
+  cursor:pointer;
+}
+
+@media(max-width:700px){
+  .admin-animal-search-wrap{
+    align-items:stretch;
+    flex-direction:column;
+    gap:7px;
+  }
+  .admin-animal-search-wrap>small{text-align:right}
+}

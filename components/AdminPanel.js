@@ -88,6 +88,14 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
+function normalizeAnimalSearch(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 function dataUrlToFile(dataUrl, filename) {
   return fetch(dataUrl)
     .then((response) => response.blob())
@@ -110,6 +118,7 @@ export default function AdminPanel({ initialAnimals }) {
   const [loginError, setLoginError] = useState("");
   const [tab, setTab] = useState("dashboard");
   const [animals, setAnimals] = useState(initialAnimals);
+  const [animalSearch, setAnimalSearch] = useState("");
   const [profileViews, setProfileViews] = useState({});
   const [veterinarians, setVeterinarians] = useState(seedVeterinarians);
   const [applications, setApplications] = useState([]);
@@ -250,6 +259,28 @@ const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
     const interval = setInterval(refreshConnect, 5000);
     return () => clearInterval(interval);
   }, [logged]);
+
+  const filteredAnimals = useMemo(() => {
+    const term = normalizeAnimalSearch(animalSearch);
+    if (!term) return animals;
+
+    return animals.filter((animal) => {
+      const searchable = [
+        animal.name,
+        animal.species,
+        animal.sex,
+        animal.age,
+        animal.city,
+        animal.status,
+        animal.breed,
+        animal.color,
+      ]
+        .map(normalizeAnimalSearch)
+        .join(" ");
+
+      return searchable.includes(term);
+    });
+  }, [animals, animalSearch]);
 
   const metrics = useMemo(() => {
     const available = animals.filter((a) => a.status === "Disponível").length;
@@ -1154,7 +1185,7 @@ async function resetSiteSettings() {
 
         <nav>
           <button className={tab === "dashboard" ? "active" : ""} onClick={() => setTab("dashboard")}>⌂ <span>Visão geral</span></button>
-          <button className={tab === "animals" ? "active" : ""} onClick={() => { setTab("animals"); setEditing(null); }}>♡ <span>Animais</span><b>{animals.length}</b></button>
+          <button className={tab === "animals" ? "active" : ""} onClick={() => { setTab("animals"); setEditing(null); setAnimalSearch(""); }}>♡ <span>Animais</span><b>{animals.length}</b></button>
           <button className={tab === "veterinarians" ? "active" : ""} onClick={() => { setTab("veterinarians"); setEditingVet(null); }}>✚ <span>Veterinários</span><b>{veterinarians.length}</b></button>
           <button className={tab === "stories" ? "active" : ""} onClick={() => setTab("stories")}>♥ <span>Histórias</span><b>{stories.length}</b></button>
           <button className={tab === "applications" ? "active" : ""} onClick={() => setTab("applications")}>▤ <span>Solicitações</span><b>{applications.length}</b></button>
@@ -1218,7 +1249,28 @@ async function resetSiteSettings() {
           <div className="admin-content">
             {!editing ? (
               <div className="admin-animal-list">
-                {animals.map((animal) => (
+                <div className="admin-animal-search-wrap">
+                  <div className="admin-animal-search">
+                    <span aria-hidden="true">⌕</span>
+                    <input
+                      type="search"
+                      value={animalSearch}
+                      onChange={(e) => setAnimalSearch(e.target.value)}
+                      placeholder="Pesquisar animal por nome, espécie, cidade..."
+                      aria-label="Pesquisar animais"
+                    />
+                    {animalSearch && (
+                      <button type="button" onClick={() => setAnimalSearch("")} aria-label="Limpar pesquisa">×</button>
+                    )}
+                  </div>
+                  <small>
+                    {animalSearch
+                      ? `${filteredAnimals.length} de ${animals.length} animais encontrados`
+                      : `${animals.length} animais cadastrados`}
+                  </small>
+                </div>
+
+                {filteredAnimals.map((animal) => (
                   <article className="admin-animal-row" key={animal.slug}>
                     <img src={animal.photos?.[0]} alt={animal.name} />
                     <div className="admin-animal-info">
@@ -1253,6 +1305,13 @@ async function resetSiteSettings() {
                   </article>
                 ))}
                 {!animals.length && <div className="admin-empty big">Nenhum animal cadastrado. Clique em “Cadastrar animal”.</div>}
+                {animals.length > 0 && !filteredAnimals.length && (
+                  <div className="admin-empty big admin-search-empty">
+                    <strong>Nenhum animal encontrado.</strong>
+                    <span>Tente outro nome, espécie, cidade ou limpe a pesquisa.</span>
+                    <button type="button" onClick={() => setAnimalSearch("")}>Limpar pesquisa</button>
+                  </div>
+                )}
               </div>
             ) : (
               <form className="admin-animal-form" onSubmit={saveAnimal}>

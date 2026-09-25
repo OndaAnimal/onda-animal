@@ -666,3 +666,10 @@ Todo o menu é configurável em `Configurações → Assistente Forge`.
 - Dentro do atendimento humano existe `Respostas rápidas` para voltar ao menu automático.
 - A opção 6 abre o atendimento humano; as opções 1–5 continuam sem criar/enviar mensagens para a equipe.
 - Foi adicionado menu embutido de fallback para instalações com configuração antiga/ausente no Neon.
+
+
+## V42 — Pesquisa de animais no CMS
+- Caixa de pesquisa em `Painel → Animais`.
+- Busca instantânea por nome, espécie, sexo, idade, cidade, status, raça e cor.
+- Busca ignora acentos e maiúsculas/minúsculas.
+- Exibe quantidade de resultados e botão para limpar.
