@@ -6244,3 +6244,27 @@ section.nfg-home-banner,
     padding:15px 14px 10px;
   }
 }
+
+
+/* V41 — Forge Connect sempre inicia no autoatendimento */
+.forge-connect-previous-support{
+  margin:10px 12px 0;
+  padding:11px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid #e6dcf5;
+  border-radius:13px;
+  background:linear-gradient(135deg,#fbf8ff,#f7fbff);
+}
+.forge-connect-previous-support>div{min-width:0;display:flex;flex-direction:column}
+.forge-connect-previous-support span{color:#8d7ba5;font-size:8px;font-weight:900;letter-spacing:.10em}
+.forge-connect-previous-support strong{margin-top:2px;overflow:hidden;color:#4a2c68;font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+.forge-connect-previous-support button{flex:0 0 auto;min-height:33px;padding:0 10px;border:1px solid #dac9ee;border-radius:9px;color:#6122a8;background:#fff;font-size:9px;font-weight:900;cursor:pointer}
+.forge-connect-context-actions{display:flex;align-items:center;gap:6px}
+.forge-connect-context-actions button:first-child{color:#fff!important;background:#6d27bd!important;border-color:#6d27bd!important}
+.forge-connect-self-service-recover{padding:28px 18px;text-align:center}
+.forge-connect-self-service-recover strong{color:#3d205b;font-size:14px}
+.forge-connect-self-service-recover p{margin:7px 0 16px;color:#7e7189;font-size:11px;line-height:1.5}
+@media(max-width:480px){.forge-connect-previous-support{align-items:stretch;flex-direction:column}.forge-connect-previous-support button{width:100%}.forge-connect-context-actions{flex-direction:column;align-items:stretch}}

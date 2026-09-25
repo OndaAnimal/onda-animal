@@ -658,3 +658,11 @@ A opção 2 explica claramente que a Onda não recebe animais de tutores/terceir
 A opção 6 abre o formulário de identificação e, somente então, cria o atendimento humano.
 
 Todo o menu é configurável em `Configurações → Assistente Forge`.
+
+
+## V41 — correção do autoatendimento Forge Connect
+- O Forge Connect sempre abre no autoatendimento, mesmo quando existe conversa humana anterior salva no navegador.
+- Conversas anteriores ficam disponíveis pelo botão `Abrir conversa`.
+- Dentro do atendimento humano existe `Respostas rápidas` para voltar ao menu automático.
+- A opção 6 abre o atendimento humano; as opções 1–5 continuam sem criar/enviar mensagens para a equipe.
+- Foi adicionado menu embutido de fallback para instalações com configuração antiga/ausente no Neon.

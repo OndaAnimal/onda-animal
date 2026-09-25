@@ -47,6 +47,7 @@ export default function ForgeConnectWidget() {
   const [assistantInput, setAssistantInput] = useState("");
   const [assistantMessages, setAssistantMessages] = useState([]);
   const [showHumanForm, setShowHumanForm] = useState(false);
+  const [viewMode, setViewMode] = useState("assistant");
   const [sending, setSending] = useState(false);
   const [statusText, setStatusText] = useState("");
   const threadRef = useRef(null);
@@ -57,7 +58,13 @@ export default function ForgeConnectWidget() {
 
     if (saved?.conversationId) {
       getConnectConversation(saved.conversationId)
-        .then(setConversation)
+        .then((savedConversation) => {
+          setConversation(savedConversation);
+          // Mesmo com atendimento anterior, o Forge Connect sempre abre
+          // primeiro no autoatendimento. O histórico humano fica disponível
+          // apenas quando o visitante pedir.
+          setViewMode("assistant");
+        })
         .catch(() => setConversation(null));
     }
   }, []);
@@ -98,6 +105,17 @@ export default function ForgeConnectWidget() {
     ]);
   }
 
+  function openHumanSupport() {
+    if (visitor?.conversationId && conversation) {
+      setShowHumanForm(false);
+      setViewMode("human");
+      return;
+    }
+
+    setShowHumanForm(true);
+    setViewMode("assistant");
+  }
+
   function runAssistant(text, displayText = text) {
     const clean = String(text || "").trim();
     if (!clean) return;
@@ -106,7 +124,11 @@ export default function ForgeConnectWidget() {
     const reply = forgeAssistantReply(clean, settings);
 
     if (reply?.answer) addAssistantMessage("support", reply.answer);
-    if (reply?.handoff) setShowHumanForm(true);
+    if (reply?.handoff) {
+      // Dá tempo para a pessoa ler a resposta automática antes de
+      // abrir um atendimento existente ou o formulário humano.
+      setTimeout(openHumanSupport, 450);
+    }
   }
 
   function submitAssistant(event) {
@@ -184,6 +206,8 @@ export default function ForgeConnectWidget() {
       localStorage.setItem(VISITOR_KEY, JSON.stringify(visitorData));
       setVisitor(visitorData);
       setConversation(created);
+      setShowHumanForm(false);
+      setViewMode("human");
     } catch (error) {
       setStatusText(error.message || "Não foi possível iniciar o atendimento.");
     } finally {
@@ -232,6 +256,7 @@ export default function ForgeConnectWidget() {
     });
     setStatusText("");
     setShowHumanForm(false);
+    setViewMode("assistant");
     setAssistantMessages([]);
     setAssistantInput("");
   }
@@ -249,10 +274,10 @@ export default function ForgeConnectWidget() {
             <button type="button" onClick={() => setOpen(false)} aria-label="Fechar chat">×</button>
           </header>
 
-          {!visitor || !conversation ? (
+          {viewMode !== "human" ? (
             showHumanForm ? (
               <form className="forge-connect-identify" onSubmit={startConversation}>
-                <button type="button" className="forge-connect-back-auto" onClick={() => setShowHumanForm(false)}>
+                <button type="button" className="forge-connect-back-auto" onClick={() => { setShowHumanForm(false); setViewMode("assistant"); }}>
                   ← Voltar para respostas rápidas
                 </button>
                 <div className="forge-connect-welcome-icon">👤</div>
@@ -315,6 +340,18 @@ export default function ForgeConnectWidget() {
                   <p>Nesta etapa, suas dúvidas são respondidas automaticamente e <strong>não são enviadas para a equipe nem para o WhatsApp.</strong></p>
                 </div>
 
+                {visitor?.conversationId && conversation && (
+                  <div className="forge-connect-previous-support">
+                    <div>
+                      <span>ATENDIMENTO ANTERIOR</span>
+                      <strong>{conversation.topic || visitor.topic || "Conversa com a equipe"}</strong>
+                    </div>
+                    <button type="button" onClick={() => setViewMode("human")}>
+                      Abrir conversa
+                    </button>
+                  </div>
+                )}
+
                 {settings.forgeAssistantMenuEnabled !== false && (
                   <div className="forge-connect-menu-options">
                     {assistantMenu.map((item) => (
@@ -359,7 +396,7 @@ export default function ForgeConnectWidget() {
                 </footer>
               </div>
             )
-          ) : (
+          ) : conversation ? (
             <>
               <div className="forge-connect-context">
                 <div>
@@ -367,7 +404,10 @@ export default function ForgeConnectWidget() {
                   <strong>{conversation.topic}</strong>
                   <span className="forge-assistant-online">● Atendimento encaminhado para a equipe</span>
                 </div>
-                <button type="button" onClick={resetConversation}>Nova conversa</button>
+                <div className="forge-connect-context-actions">
+                  <button type="button" onClick={() => setViewMode("assistant")}>Respostas rápidas</button>
+                  <button type="button" onClick={resetConversation}>Nova conversa</button>
+                </div>
               </div>
 
               <div className="forge-connect-thread" ref={threadRef}>
@@ -404,6 +444,14 @@ export default function ForgeConnectWidget() {
                 <span>Powered by</span> <strong>Forge Connect</strong>
               </footer>
             </>
+          ) : (
+            <div className="forge-connect-self-service-recover">
+              <strong>Atendimento anterior não encontrado.</strong>
+              <p>Você pode continuar usando as respostas rápidas normalmente.</p>
+              <button type="button" className="button primary" onClick={() => setViewMode("assistant")}>
+                Voltar ao autoatendimento
+              </button>
+            </div>
           )}
         </section>
       )}
