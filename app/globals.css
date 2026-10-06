@@ -6366,3 +6366,90 @@ section.nfg-home-banner,
   }
   .admin-animal-search-wrap>small{text-align:right}
 }
+
+
+/* V44 — FILTROS COMBINÁVEIS DE ESPÉCIE + SEXO */
+.adoption-toolbar-combined{
+  align-items:flex-end;
+}
+
+.catalog-filter-groups{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-end;
+  justify-content:flex-end;
+  gap:14px;
+}
+
+.catalog-filter-group{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.catalog-filter-label{
+  padding-left:4px;
+  color:#7a8e92;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.catalog-clear-filters{
+  min-height:34px;
+  padding:0 10px;
+  border:0;
+  color:#6d8186;
+  background:transparent;
+  font-size:10px;
+  font-weight:850;
+  cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+
+.catalog-clear-filters:hover{
+  color:var(--teal-dark);
+}
+
+.catalog-empty .button{
+  margin-top:6px;
+  border:1px solid var(--line);
+}
+
+@media(max-width:850px){
+  .adoption-toolbar-combined{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .catalog-filter-groups{
+    width:100%;
+    justify-content:flex-start;
+  }
+}
+
+@media(max-width:560px){
+  .catalog-filter-groups{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+
+  .catalog-filter-group{
+    width:100%;
+  }
+
+  .catalog-filter-group .filter-chips{
+    flex-wrap:nowrap;
+  }
+
+  .catalog-filter-group .filter-chips button{
+    flex:1;
+  }
+
+  .catalog-clear-filters{
+    width:max-content;
+    padding-left:4px;
+  }
+}

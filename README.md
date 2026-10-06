@@ -673,3 +673,24 @@ Todo o menu é configurável em `Configurações → Assistente Forge`.
 - Busca instantânea por nome, espécie, sexo, idade, cidade, status, raça e cor.
 - Busca ignora acentos e maiúsculas/minúsculas.
 - Exibe quantidade de resultados e botão para limpar.
+
+
+## V43 — Filtros por sexo no catálogo
+- Substituídos os filtros `Gravataí` e `Cachoeirinha` por `Macho` e `Fêmea`.
+- Filtros finais: Todos, Cães, Gatos, Macho, Fêmea.
+
+
+## V44 — filtros combináveis
+
+A página de adoção agora possui dois grupos independentes:
+
+- Espécie: Todos / Cães / Gatos
+- Sexo: Todos / Macho / Fêmea
+
+Isso permite combinações como:
+- Cães + Fêmea
+- Cães + Macho
+- Gatos + Fêmea
+- Gatos + Macho
+
+Também foi adicionado botão para limpar os filtros.

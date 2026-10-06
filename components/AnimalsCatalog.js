@@ -4,32 +4,86 @@ import { useMemo, useState } from "react";
 import AnimalCard from "./AnimalCard";
 
 export default function AnimalsCatalog({ initialAnimals }) {
-  const [filter, setFilter] = useState("Todos");
+  const [speciesFilter, setSpeciesFilter] = useState("Todos");
+  const [sexFilter, setSexFilter] = useState("Todos");
 
   const visible = useMemo(() => {
-    const active = initialAnimals.filter(
+    let active = initialAnimals.filter(
       (animal) => animal.status !== "Adotado" && animal.status !== "Indisponível"
     );
 
-    if (filter === "Todos") return active;
-    if (filter === "Cães") return active.filter((a) => a.species === "Cão");
-    if (filter === "Gatos") return active.filter((a) => a.species === "Gato");
-    return active.filter((a) => a.city === filter);
-  }, [initialAnimals, filter]);
+    if (speciesFilter === "Cães") {
+      active = active.filter((animal) => animal.species === "Cão");
+    }
+
+    if (speciesFilter === "Gatos") {
+      active = active.filter((animal) => animal.species === "Gato");
+    }
+
+    if (sexFilter === "Macho") {
+      active = active.filter((animal) => animal.sex === "Macho");
+    }
+
+    if (sexFilter === "Fêmea") {
+      active = active.filter((animal) => animal.sex === "Fêmea");
+    }
+
+    return active;
+  }, [initialAnimals, speciesFilter, sexFilter]);
+
+  function clearFilters() {
+    setSpeciesFilter("Todos");
+    setSexFilter("Todos");
+  }
+
+  const hasActiveFilters = speciesFilter !== "Todos" || sexFilter !== "Todos";
 
   return (
     <>
-      <div className="adoption-toolbar">
-        <div>
+      <div className="adoption-toolbar adoption-toolbar-combined">
+        <div className="adoption-result-count">
           <strong>{visible.length}</strong>
           <span>{visible.length === 1 ? "animal encontrado" : "animais encontrados"}</span>
         </div>
-        <div className="filter-chips interactive-filters">
-          {["Todos", "Cães", "Gatos", "Gravataí", "Cachoeirinha"].map((item) => (
-            <button key={item} type="button" className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>
-              {item}
+
+        <div className="catalog-filter-groups">
+          <div className="catalog-filter-group">
+            <span className="catalog-filter-label">Espécie</span>
+            <div className="filter-chips interactive-filters">
+              {["Todos", "Cães", "Gatos"].map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={speciesFilter === item ? "active" : ""}
+                  onClick={() => setSpeciesFilter(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="catalog-filter-group">
+            <span className="catalog-filter-label">Sexo</span>
+            <div className="filter-chips interactive-filters">
+              {["Todos", "Macho", "Fêmea"].map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={sexFilter === item ? "active" : ""}
+                  onClick={() => setSexFilter(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {hasActiveFilters && (
+            <button type="button" className="catalog-clear-filters" onClick={clearFilters}>
+              Limpar filtros
             </button>
-          ))}
+          )}
         </div>
       </div>
 
@@ -41,8 +95,11 @@ export default function AnimalsCatalog({ initialAnimals }) {
 
       {visible.length === 0 && (
         <div className="catalog-empty">
-          <strong>Nenhum animal nesse filtro.</strong>
-          <span>Tente outra categoria.</span>
+          <strong>Nenhum animal com essa combinação.</strong>
+          <span>Tente trocar a espécie ou o sexo selecionado.</span>
+          <button type="button" className="button secondary" onClick={clearFilters}>
+            Mostrar todos
+          </button>
         </div>
       )}
     </>
