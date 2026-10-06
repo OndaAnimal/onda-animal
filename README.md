@@ -706,3 +706,14 @@ vira:
 `https://www.forgelabss.com.br`
 
 Isso evita que o navegador transforme o endereço em uma rota interna da Onda Animal.
+
+
+## V46 — pesquisa pública de animais por nome
+
+Na página de adoção foi adicionada uma barra de pesquisa por nome.
+
+A pesquisa funciona junto com os filtros existentes:
+- Espécie
+- Sexo
+
+O botão `Limpar filtros` também limpa a pesquisa.

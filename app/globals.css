@@ -6453,3 +6453,70 @@ section.nfg-home-banner,
     padding-left:4px;
   }
 }
+
+
+/* V46 — PESQUISA DE ANIMAIS POR NOME */
+.catalog-search-wrap{
+  flex:1 1 280px;
+  min-width:240px;
+  max-width:430px;
+}
+
+.catalog-name-search{
+  min-height:46px;
+  padding:0 12px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:8px;
+  align-items:center;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 7px 20px rgba(14,69,75,.04);
+}
+
+.catalog-name-search>span{
+  color:var(--teal-dark);
+  font-size:18px;
+  line-height:1;
+}
+
+.catalog-name-search input{
+  width:100%;
+  min-width:0;
+  border:0;
+  outline:0;
+  color:var(--navy);
+  background:transparent;
+  font:inherit;
+  font-size:12px;
+}
+
+.catalog-name-search input::placeholder{
+  color:#8ca0a4;
+}
+
+.catalog-name-search button{
+  width:26px;
+  height:26px;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:50%;
+  color:#6b8085;
+  background:#eef6f6;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.catalog-name-search button:hover{
+  color:#fff;
+  background:var(--teal-dark);
+}
+
+@media(max-width:850px){
+  .catalog-search-wrap{
+    width:100%;
+    max-width:none;
+  }
+}

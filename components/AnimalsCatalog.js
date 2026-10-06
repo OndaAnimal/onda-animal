@@ -6,6 +6,7 @@ import AnimalCard from "./AnimalCard";
 export default function AnimalsCatalog({ initialAnimals }) {
   const [speciesFilter, setSpeciesFilter] = useState("Todos");
   const [sexFilter, setSexFilter] = useState("Todos");
+  const [nameSearch, setNameSearch] = useState("");
 
   const visible = useMemo(() => {
     let active = initialAnimals.filter(
@@ -28,15 +29,26 @@ export default function AnimalsCatalog({ initialAnimals }) {
       active = active.filter((animal) => animal.sex === "Fêmea");
     }
 
+    const normalizedSearch = nameSearch.trim().toLocaleLowerCase("pt-BR");
+    if (normalizedSearch) {
+      active = active.filter((animal) =>
+        String(animal.name || "").toLocaleLowerCase("pt-BR").includes(normalizedSearch)
+      );
+    }
+
     return active;
-  }, [initialAnimals, speciesFilter, sexFilter]);
+  }, [initialAnimals, speciesFilter, sexFilter, nameSearch]);
 
   function clearFilters() {
     setSpeciesFilter("Todos");
     setSexFilter("Todos");
+    setNameSearch("");
   }
 
-  const hasActiveFilters = speciesFilter !== "Todos" || sexFilter !== "Todos";
+  const hasActiveFilters =
+    speciesFilter !== "Todos" ||
+    sexFilter !== "Todos" ||
+    Boolean(nameSearch.trim());
 
   return (
     <>
@@ -44,6 +56,28 @@ export default function AnimalsCatalog({ initialAnimals }) {
         <div className="adoption-result-count">
           <strong>{visible.length}</strong>
           <span>{visible.length === 1 ? "animal encontrado" : "animais encontrados"}</span>
+        </div>
+
+        <div className="catalog-search-wrap">
+          <label className="catalog-name-search">
+            <span aria-hidden="true">⌕</span>
+            <input
+              type="search"
+              value={nameSearch}
+              onChange={(event) => setNameSearch(event.target.value)}
+              placeholder="Pesquisar animal pelo nome..."
+              aria-label="Pesquisar animal pelo nome"
+            />
+            {nameSearch && (
+              <button
+                type="button"
+                onClick={() => setNameSearch("")}
+                aria-label="Limpar pesquisa"
+              >
+                ×
+              </button>
+            )}
+          </label>
         </div>
 
         <div className="catalog-filter-groups">
