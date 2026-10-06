@@ -1,5 +1,12 @@
 "use client";
 
+function normalizeExternalUrl(value) {
+  const url = String(value || "").trim();
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url.replace(/^\/+/, "")}`;
+}
+
 import Link from "next/link";
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { mediaUrl } from "../lib/mediaUrl";
@@ -16,7 +23,7 @@ export default function Footer() {
   ].filter(Boolean);
 
   const developerName = settings.footerDeveloperName || "Forge Labs";
-  const developerUrl = String(settings.footerDeveloperUrl || "").trim();
+  const developerUrl = normalizeExternalUrl(settings.footerDeveloperUrl);
 
   return (
     <footer className="site-footer" style={{ background: settings.footerBackground }}>

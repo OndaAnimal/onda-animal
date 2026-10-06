@@ -2735,8 +2735,9 @@ async function resetSiteSettings() {
                             <input
                               value={settings.footerDeveloperUrl || ""}
                               onChange={(e) => updateSetting("footerDeveloperUrl", e.target.value)}
-                              placeholder="https://..."
+                              placeholder="www.forgelabss.com.br ou https://www.forgelabss.com.br"
                             />
+                            <small>O sistema adiciona https:// automaticamente se você não informar.</small>
                           </label>
                         </div>
                       </div>

@@ -694,3 +694,15 @@ Isso permite combinações como:
 - Gatos + Macho
 
 Também foi adicionado botão para limpar os filtros.
+
+
+## V45 — Correção do link externo Forge Labs
+
+Links externos do rodapé agora são normalizados automaticamente.
+
+Exemplo:
+`www.forgelabss.com.br`
+vira:
+`https://www.forgelabss.com.br`
+
+Isso evita que o navegador transforme o endereço em uma rota interna da Onda Animal.
