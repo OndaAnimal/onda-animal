@@ -717,3 +717,19 @@ A pesquisa funciona junto com os filtros existentes:
 - Sexo
 
 O botão `Limpar filtros` também limpa a pesquisa.
+
+
+## V47 — correção da conclusão de adoção
+
+O fluxo de `Concluir adoção e publicar` foi refeito para usar uma ação dedicada no servidor.
+
+Ao concluir:
+- o animal recebe status `Adotado`;
+- deixa de aparecer entre os disponíveis;
+- a nova foto e história são salvas em `Histórias`;
+- a candidatura aprovada vinculada é marcada como `ADOTADO` quando existir;
+- candidaturas antigas/inconsistentes não bloqueiam mais a conclusão;
+- o botão mostra `Salvando adoção...` durante o processo;
+- após sucesso, o painel abre a aba `Histórias`.
+
+O problema anterior podia ocorrer porque o navegador tentava atualizar em lote todas as candidaturas ao mesmo tempo que salvava animal e história. Uma candidatura inconsistente podia fazer a operação inteira falhar.

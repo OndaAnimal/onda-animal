@@ -81,6 +81,99 @@ export async function POST(request) {
       return NextResponse.json({ data: value });
     }
 
+    if (action === "completeAdoption") {
+      const animalSlug = String(body.animalSlug || "").trim();
+      const storyInput = body.story || {};
+
+      if (!animalSlug) {
+        return NextResponse.json({ error: "Animal inválido." }, { status: 400 });
+      }
+
+      if (!storyInput.photo || !String(storyInput.title || "").trim() || !String(storyInput.story || "").trim()) {
+        return NextResponse.json(
+          { error: "Foto, título e história são obrigatórios." },
+          { status: 400 }
+        );
+      }
+
+      const [animals, stories, currentApplications] = await Promise.all([
+        getSiteData("animals", seedAnimals),
+        getSiteData("stories", []),
+        listApplications(),
+      ]);
+
+      const animal = (animals || []).find((item) => item.slug === animalSlug);
+      if (!animal) {
+        return NextResponse.json({ error: "Animal não encontrado." }, { status: 404 });
+      }
+
+      const storyId = animal.adoptionStoryId || `historia_${Date.now()}`;
+      const adoptionDate =
+        storyInput.adoptionDate || new Date().toISOString().slice(0, 10);
+
+      const storyRecord = {
+        id: storyId,
+        animalSlug,
+        animalName: animal.name,
+        originalPhoto: animal.photos?.[0] || "",
+        photo: storyInput.photo,
+        title: String(storyInput.title || "").trim(),
+        story: String(storyInput.story || "").trim(),
+        adoptionDate,
+        familyName: String(storyInput.familyName || "").trim(),
+        familyCity: String(storyInput.familyCity || "").trim(),
+        createdAt: new Date().toISOString(),
+      };
+
+      const nextStories = [
+        storyRecord,
+        ...(stories || []).filter((item) => item.animalSlug !== animalSlug),
+      ];
+
+      const nextAnimals = (animals || []).map((item) =>
+        item.slug === animalSlug
+          ? {
+              ...item,
+              status: "Adotado",
+              featured: false,
+              adoptedAt: adoptionDate,
+              adoptionStoryId: storyId,
+            }
+          : item
+      );
+
+      // A conclusão principal não depende da atualização das candidaturas.
+      // Assim, uma candidatura antiga/inconsistente não bloqueia a adoção.
+      await setSiteData("stories", nextStories);
+      await setSiteData("animals", nextAnimals);
+
+      const approvedForAnimal = (currentApplications || []).filter(
+        (item) => item?.id && item.animalSlug === animalSlug && item.status === "APROVADO"
+      );
+
+      if (approvedForAnimal.length) {
+        await Promise.allSettled(
+          approvedForAnimal.map((item) =>
+            updateApplication(item.id, {
+              status: "ADOTADO",
+              internalNotes: item.internalNotes || "",
+            })
+          )
+        );
+      }
+
+      const applications = await listApplications();
+
+      return NextResponse.json({
+        data: {
+          animals: nextAnimals,
+          stories: nextStories,
+          applications,
+          story: storyRecord,
+        },
+      });
+    }
+
     if (action === "updateApplication") {
       const data = await updateApplication(body.id, body.patch || {});
       return NextResponse.json({ data });

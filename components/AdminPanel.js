@@ -143,6 +143,7 @@ export default function AdminPanel({ initialAnimals }) {
   const [adoptionAnimal, setAdoptionAnimal] = useState(null);
   const [adoptionStoryForm, setAdoptionStoryForm] = useState({ photo: "", title: "", story: "", adoptionDate: "", familyName: "", familyCity: "" });
   const [savingAdoptionPhoto, setSavingAdoptionPhoto] = useState(false);
+  const [savingAdoptionComplete, setSavingAdoptionComplete] = useState(false);
   const [settingsSection, setSettingsSection] = useState("visual");
   const [savingSettingImage, setSavingSettingImage] = useState("");
   const [panelLoading, setPanelLoading] = useState(true);
@@ -763,7 +764,7 @@ async function uploadAdoptionPhoto(file) {
 
 async function completeAdoption(event) {
     event.preventDefault();
-    if (!adoptionAnimal) return;
+    if (!adoptionAnimal || savingAdoptionComplete) return;
 
     if (!adoptionStoryForm.photo) {
       notify("Adicione a nova foto da adoção.");
@@ -775,57 +776,51 @@ async function completeAdoption(event) {
       return;
     }
 
-    const storyId = `historia_${Date.now()}`;
-    const storyRecord = {
-      id: storyId,
-      animalSlug: adoptionAnimal.slug,
-      animalName: adoptionAnimal.name,
-      originalPhoto: adoptionAnimal.photos?.[0] || "",
-      photo: adoptionStoryForm.photo,
-      title: adoptionStoryForm.title.trim(),
-      story: adoptionStoryForm.story.trim(),
-      adoptionDate: adoptionStoryForm.adoptionDate || new Date().toISOString().slice(0, 10),
-      familyName: adoptionStoryForm.familyName.trim(),
-      familyCity: adoptionStoryForm.familyCity.trim(),
-      createdAt: new Date().toISOString(),
-    };
-
-    const nextStories = [storyRecord, ...stories.filter((item) => item.animalSlug !== adoptionAnimal.slug)];
-    const nextAnimals = animals.map((animal) =>
-      animal.slug === adoptionAnimal.slug
-        ? {
-            ...animal,
-            status: "Adotado",
-            featured: false,
-            adoptedAt: storyRecord.adoptionDate,
-            adoptionStoryId: storyId,
-          }
-        : animal
-    );
-    const nextApplications = applications.map((item) =>
-      item.animalSlug === adoptionAnimal.slug && item.status === "APROVADO"
-        ? { ...item, status: "ADOTADO" }
-        : item
-    );
+    setSavingAdoptionComplete(true);
 
     try {
-      await Promise.all([
-        adminAction("saveResource", { resource: "stories", value: nextStories }),
-        adminAction("saveResource", { resource: "animals", value: nextAnimals }),
-        adminAction("bulkApplications", { items: nextApplications }),
-      ]);
+      const result = await adminAction("completeAdoption", {
+        animalSlug: adoptionAnimal.slug,
+        story: {
+          photo: adoptionStoryForm.photo,
+          title: adoptionStoryForm.title.trim(),
+          story: adoptionStoryForm.story.trim(),
+          adoptionDate: adoptionStoryForm.adoptionDate || new Date().toISOString().slice(0, 10),
+          familyName: adoptionStoryForm.familyName.trim(),
+          familyCity: adoptionStoryForm.familyCity.trim(),
+        },
+      });
 
-      setStories(nextStories);
+      const nextAnimals = Array.isArray(result?.animals) ? result.animals : animals;
+      const nextStories = Array.isArray(result?.stories) ? result.stories : stories;
+      const nextApplications = Array.isArray(result?.applications) ? result.applications : applications;
+
       setAnimals(nextAnimals);
+      setStories(nextStories);
       setApplications(nextApplications);
-      localStorage.setItem("ondaAdoptionStories", JSON.stringify(nextStories));
+
       localStorage.setItem("ondaAnimals", JSON.stringify(nextAnimals));
+      localStorage.setItem("ondaAdoptionStories", JSON.stringify(nextStories));
       localStorage.setItem("onda_adoption_applications", JSON.stringify(nextApplications));
+
+      const adoptedName = adoptionAnimal.name;
       setAdoptionAnimal(null);
-      setAdoptionStoryForm({ photo: "", title: "", story: "", adoptionDate: "", familyName: "", familyCity: "" });
-      notify(`${adoptionAnimal.name} foi publicado em Histórias.`);
+      setAdoptionStoryForm({
+        photo: "",
+        title: "",
+        story: "",
+        adoptionDate: "",
+        familyName: "",
+        familyCity: "",
+      });
+
+      notify(`${adoptedName} foi marcado como adotado e publicado em Histórias.`);
+      setTab("stories");
     } catch (error) {
-      notify(error.message || "Não foi possível concluir a adoção.");
+      console.error("complete adoption error", error);
+      notify(error.detail || error.message || "Não foi possível concluir a adoção.");
+    } finally {
+      setSavingAdoptionComplete(false);
     }
   }
 
@@ -3298,8 +3293,12 @@ async function resetSiteSettings() {
               <button type="button" className="button secondary" onClick={() => setAdoptionAnimal(null)}>
                 Cancelar
               </button>
-              <button className="button primary adoption-final-save" type="submit" disabled={savingAdoptionPhoto}>
-                ♥ Concluir adoção e publicar
+              <button
+                className="button primary adoption-final-save"
+                type="submit"
+                disabled={savingAdoptionPhoto || savingAdoptionComplete}
+              >
+                {savingAdoptionComplete ? "Salvando adoção..." : "♥ Concluir adoção e publicar"}
               </button>
             </div>
           </form>
