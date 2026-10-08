@@ -89,9 +89,9 @@ export async function POST(request) {
         return NextResponse.json({ error: "Animal inválido." }, { status: 400 });
       }
 
-      if (!storyInput.photo || !String(storyInput.title || "").trim() || !String(storyInput.story || "").trim()) {
+      if (!storyInput.photo || !String(storyInput.title || "").trim()) {
         return NextResponse.json(
-          { error: "Foto, título e história são obrigatórios." },
+          { error: "Foto e título são obrigatórios." },
           { status: 400 }
         );
       }

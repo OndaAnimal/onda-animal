@@ -784,13 +784,6 @@ async function completeAdoption(event) {
       return;
     }
 
-    if (!adoptionStoryForm.story.trim()) {
-      const message = "Conte a história da adoção antes de concluir.";
-      setAdoptionCompleteError(message);
-      notify(message);
-      return;
-    }
-
     setSavingAdoptionComplete(true);
 
     try {
@@ -3292,11 +3285,11 @@ async function resetSiteSettings() {
                 </label>
 
                 <label className="span-2">
-                  <span>Conte a história dessa adoção *</span>
+                  <span>Conte a história dessa adoção <small>(opcional)</small></span>
                   <textarea
                     value={adoptionStoryForm.story}
                     onChange={(e) => setAdoptionStoryForm({ ...adoptionStoryForm, story: e.target.value })}
-                    placeholder={`Conte como ${adoptionAnimal.name} encontrou sua nova família, como foi o encontro e qualquer detalhe especial dessa história.`}
+                    placeholder={`Opcional: conte como ${adoptionAnimal.name} encontrou sua nova família, como foi o encontro e qualquer detalhe especial.`}
                   />
                 </label>
               </div>

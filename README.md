@@ -744,3 +744,13 @@ O problema anterior podia ocorrer porque o navegador tentava atualizar em lote t
   - título obrigatório;
   - história obrigatória.
 - Erros vindos do servidor também aparecem dentro do modal, facilitando identificar o bloqueio.
+
+
+## V49 — história da adoção opcional
+
+No fluxo de `Concluir adoção e publicar`:
+- nova foto continua obrigatória;
+- título continua obrigatório;
+- história da adoção agora é opcional.
+
+O backend também foi ajustado para não bloquear a conclusão quando o campo `story` estiver vazio.
