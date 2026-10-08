@@ -144,6 +144,7 @@ export default function AdminPanel({ initialAnimals }) {
   const [adoptionStoryForm, setAdoptionStoryForm] = useState({ photo: "", title: "", story: "", adoptionDate: "", familyName: "", familyCity: "" });
   const [savingAdoptionPhoto, setSavingAdoptionPhoto] = useState(false);
   const [savingAdoptionComplete, setSavingAdoptionComplete] = useState(false);
+  const [adoptionCompleteError, setAdoptionCompleteError] = useState("");
   const [settingsSection, setSettingsSection] = useState("visual");
   const [savingSettingImage, setSavingSettingImage] = useState("");
   const [panelLoading, setPanelLoading] = useState(true);
@@ -735,6 +736,7 @@ async function saveAnimal(event) {
 
   function beginCompleteAdoption(animal) {
     setAdoptionAnimal(animal);
+    setAdoptionCompleteError("");
     setAdoptionStoryForm({
       photo: "",
       title: `${animal.name} encontrou uma família`,
@@ -766,13 +768,26 @@ async function completeAdoption(event) {
     event.preventDefault();
     if (!adoptionAnimal || savingAdoptionComplete) return;
 
+    setAdoptionCompleteError("");
+
     if (!adoptionStoryForm.photo) {
-      notify("Adicione a nova foto da adoção.");
+      const message = "Adicione a nova foto da adoção antes de concluir.";
+      setAdoptionCompleteError(message);
+      notify(message);
       return;
     }
 
-    if (!adoptionStoryForm.title.trim() || !adoptionStoryForm.story.trim()) {
-      notify("Preencha o título e a história da adoção.");
+    if (!adoptionStoryForm.title.trim()) {
+      const message = "Preencha o título da história.";
+      setAdoptionCompleteError(message);
+      notify(message);
+      return;
+    }
+
+    if (!adoptionStoryForm.story.trim()) {
+      const message = "Conte a história da adoção antes de concluir.";
+      setAdoptionCompleteError(message);
+      notify(message);
       return;
     }
 
@@ -804,6 +819,7 @@ async function completeAdoption(event) {
       localStorage.setItem("onda_adoption_applications", JSON.stringify(nextApplications));
 
       const adoptedName = adoptionAnimal.name;
+      setAdoptionCompleteError("");
       setAdoptionAnimal(null);
       setAdoptionStoryForm({
         photo: "",
@@ -818,7 +834,12 @@ async function completeAdoption(event) {
       setTab("stories");
     } catch (error) {
       console.error("complete adoption error", error);
-      notify(error.detail || error.message || "Não foi possível concluir a adoção.");
+      const message =
+        error?.detail ||
+        error?.message ||
+        "Não foi possível concluir a adoção. Tente novamente.";
+      setAdoptionCompleteError(message);
+      notify(message);
     } finally {
       setSavingAdoptionComplete(false);
     }
@@ -3184,7 +3205,7 @@ async function resetSiteSettings() {
         <div
           className="admin-adoption-modal-backdrop"
           onMouseDown={(event) => {
-            if (event.currentTarget === event.target) setAdoptionAnimal(null);
+            if (event.currentTarget === event.target) { setAdoptionAnimal(null); setAdoptionCompleteError(""); }
           }}
         >
           <form className="admin-adoption-modal" onSubmit={completeAdoption}>
@@ -3197,7 +3218,7 @@ async function resetSiteSettings() {
                   e esta história será publicada imediatamente.
                 </p>
               </div>
-              <button type="button" onClick={() => setAdoptionAnimal(null)}>×</button>
+              <button type="button" onClick={() => { setAdoptionAnimal(null); setAdoptionCompleteError(""); }}>×</button>
             </div>
 
             <div className="admin-adoption-modal-body">
@@ -3289,8 +3310,18 @@ async function resetSiteSettings() {
               </div>
             </div>
 
+            {adoptionCompleteError && (
+              <div className="admin-adoption-inline-error" role="alert">
+                <div>
+                  <strong>Não foi possível concluir a adoção</strong>
+                  <span>{adoptionCompleteError}</span>
+                </div>
+                <button type="button" onClick={() => setAdoptionCompleteError("")} aria-label="Fechar aviso">×</button>
+              </div>
+            )}
+
             <div className="admin-adoption-modal-footer">
-              <button type="button" className="button secondary" onClick={() => setAdoptionAnimal(null)}>
+              <button type="button" className="button secondary" onClick={() => { setAdoptionAnimal(null); setAdoptionCompleteError(""); }}>
                 Cancelar
               </button>
               <button

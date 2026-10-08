@@ -733,3 +733,14 @@ Ao concluir:
 - após sucesso, o painel abre a aba `Histórias`.
 
 O problema anterior podia ocorrer porque o navegador tentava atualizar em lote todas as candidaturas ao mesmo tempo que salvava animal e história. Uma candidatura inconsistente podia fazer a operação inteira falhar.
+
+
+## V48 — erros visíveis no modal de conclusão
+
+- O toast do painel agora fica acima de qualquer modal (`z-index: 50000`).
+- O fluxo de concluir adoção também mostra o erro dentro do próprio modal.
+- Validações específicas:
+  - nova foto obrigatória;
+  - título obrigatório;
+  - história obrigatória.
+- Erros vindos do servidor também aparecem dentro do modal, facilitando identificar o bloqueio.

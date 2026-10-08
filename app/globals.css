@@ -6520,3 +6520,63 @@ section.nfg-home-banner,
     max-width:none;
   }
 }
+
+
+/* V48 — avisos sempre visíveis acima dos modais */
+.admin-toast{
+  z-index:50000!important;
+  max-width:min(430px,calc(100vw - 32px));
+}
+
+/* Erro da conclusão de adoção dentro do próprio modal */
+.admin-adoption-inline-error{
+  margin:0 28px 18px;
+  padding:13px 14px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  border:1px solid #efbdc9;
+  border-radius:13px;
+  color:#8f2948;
+  background:#fff1f4;
+  box-shadow:0 8px 22px rgba(145,36,69,.08);
+}
+
+.admin-adoption-inline-error>div{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.admin-adoption-inline-error strong{
+  font-size:11px;
+  font-weight:950;
+}
+
+.admin-adoption-inline-error span{
+  font-size:11px;
+  line-height:1.45;
+}
+
+.admin-adoption-inline-error>button{
+  flex:0 0 27px;
+  width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:8px;
+  color:#9a3653;
+  background:#ffe1e8;
+  font-size:17px;
+  cursor:pointer;
+}
+
+@media(max-width:600px){
+  .admin-adoption-inline-error{
+    margin-left:16px;
+    margin-right:16px;
+  }
+}
