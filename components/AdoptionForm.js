@@ -6,6 +6,7 @@ import { submitAdoptionApplication, uploadAdoptionImage } from "../lib/apiClient
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { adoptionWhatsAppUrl } from "../lib/whatsapp";
 import { maskBrazilPhone, maskInteger } from "../lib/masks";
+import { getAnimalDisplayAge } from "../lib/animalAge";
 
 const initialForm = {
   fullName: "",
@@ -317,7 +318,7 @@ export default function AdoptionForm({ animal }) {
           <div>
             <small>VOCÊ ESCOLHEU</small>
             <strong>{animal.name}</strong>
-            <span>{animal.age} • {animal.size} • {animal.city}</span>
+            <span>{getAnimalDisplayAge(animal)} • {animal.size} • {animal.city}</span>
           </div>
         </aside>
       </section>

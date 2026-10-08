@@ -2,6 +2,7 @@
 
 
 import Link from "next/link";
+import { getAnimalDisplayAge } from "../lib/animalAge";
 import { useEffect, useState } from "react";
 import AnimalGallery from "./AnimalGallery";
 import { useSiteSettings } from "./SiteSettingsProvider";
@@ -80,7 +81,7 @@ export default function AnimalProfileClient({ slug, initialAnimals, initialViews
               </div>
             )}
             <div className="profile-facts">
-              <div><small>Idade</small><strong>{animal.age}</strong></div>
+              <div><small>Idade</small><strong>{getAnimalDisplayAge(animal)}</strong></div>
               <div><small>Sexo</small><strong>{animal.sex}</strong></div>
               <div><small>Porte</small><strong>{animal.size}</strong></div>
               <div><small>Peso</small><strong>{animal.weight || "Não informado"}</strong></div>

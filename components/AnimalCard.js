@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useSiteSettings } from "./SiteSettingsProvider";
 import { mediaUrl } from "../lib/mediaUrl";
+import { getAnimalDisplayAge } from "../lib/animalAge";
 
 export default function AnimalCard({ animal, priority = false }) {
   const { settings } = useSiteSettings();
@@ -32,7 +33,7 @@ export default function AnimalCard({ animal, priority = false }) {
         <p>{animal.summary}</p>
 
         <div className="animal-meta">
-          <span>{animal.age}</span>
+          <span>{getAnimalDisplayAge(animal)}</span>
           <span>{animal.size}</span>
           <span>{animal.city}</span>
         </div>

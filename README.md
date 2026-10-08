@@ -754,3 +754,24 @@ No fluxo de `Concluir adoção e publicar`:
 - história da adoção agora é opcional.
 
 O backend também foi ajustado para não bloquear a conclusão quando o campo `story` estiver vazio.
+
+
+## V50 — idade automática dos animais
+
+A idade exibida nos perfis agora é calculada automaticamente a partir da idade informada no cadastro e da data de referência.
+
+### Regras
+- `7 anos` passa para `8 anos` após 12 meses da data de cadastro/referência.
+- `6 meses` passa para `7 meses` após um mês.
+- Ao ultrapassar 12 meses, o sistema exibe `1 ano`, `1 ano e 1 mês`, etc.
+- Textos com `Aprox.` preservam a indicação de idade aproximada.
+- Novos animais salvam automaticamente `createdAt`, `registeredAt` e `ageReferenceDate`.
+- Ao editar um animal, o formulário mostra a idade calculada atual; ao salvar uma nova idade manual, aquela data vira a nova referência.
+- Animais antigos usam `createdAt/registeredAt` quando disponível. Quando não existe data histórica, começam a contar a partir de 08/10/2026.
+
+A idade automática é usada em:
+- cards de adoção;
+- perfil completo;
+- formulário de adoção;
+- destaques da Home;
+- painel administrativo e pesquisa do CMS.

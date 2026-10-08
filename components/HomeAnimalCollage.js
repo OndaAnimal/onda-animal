@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { mediaUrl } from "../lib/mediaUrl";
+import { getAnimalDisplayAge } from "../lib/animalAge";
 
 export default function HomeAnimalCollage({ initialAnimals }) {
   const featured = useMemo(() => {
@@ -24,7 +25,7 @@ export default function HomeAnimalCollage({ initialAnimals }) {
           />
           <div>
             <strong>{animal.name}</strong>
-            <span>{animal.age} • {animal.city}</span>
+            <span>{getAnimalDisplayAge(animal)} • {animal.city}</span>
           </div>
         </Link>
       ))}

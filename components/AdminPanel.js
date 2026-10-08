@@ -22,6 +22,7 @@ import { ANIMAL_SELECTION_FIELDS, DEFAULT_ANIMAL_PROFILE_OPTIONS, OTHER_OPTION }
 import CmsOptionEditor from "./CmsOptionEditor";
 import CmsForgeAssistantEditor from "./CmsForgeAssistantEditor";
 import CmsForgeMenuEditor from "./CmsForgeMenuEditor";
+import { getAnimalDisplayAge, prepareAnimalAgeForSave } from "../lib/animalAge";
 
 const emptyAnimal = {
   slug: "",
@@ -30,6 +31,12 @@ const emptyAnimal = {
   breed: "Sem raça definida",
   sex: "Macho",
   age: "",
+  ageBaseMonths: null,
+  agePrecision: "",
+  ageApproximate: false,
+  ageReferenceDate: "",
+  registeredAt: "",
+  createdAt: "",
   approximateBirth: "",
   size: "Médio",
   weight: "",
@@ -271,7 +278,7 @@ const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
         animal.name,
         animal.species,
         animal.sex,
-        animal.age,
+        getAnimalDisplayAge(animal),
         animal.city,
         animal.status,
         animal.breed,
@@ -451,6 +458,7 @@ const [animalDraftKey, setAnimalDraftKey] = useState("rascunho-inicial");
     setEditing(animal.slug);
     setAnimalForm({
       ...animal,
+      age: getAnimalDisplayAge(animal),
       compatibility: { ...emptyAnimal.compatibility, ...(animal.compatibility || {}) },
       photos: (animal.photos || []).filter(Boolean).length ? (animal.photos || []).filter(Boolean) : [""],
       profileSelections: { ...(animal.profileSelections || {}) },
@@ -689,14 +697,19 @@ async function saveAnimal(event) {
       return;
     }
 
-    const record = {
+    const previousAnimal =
+      editing !== "new"
+        ? animals.find((animal) => animal.slug === editing) || null
+        : null;
+
+    const record = prepareAnimalAgeForSave({
       ...animalForm,
       slug,
       photos: cleanPhotos,
       temperament: Array.isArray(animalForm.profileSelections?.temperament) && animalForm.profileSelections.temperament.length
         ? animalForm.profileSelections.temperament.slice(0, 3)
         : (temperamentText.trim() ? [temperamentText.trim()] : []),
-    };
+    }, previousAnimal);
 
     let next;
     if (editing === "new") {
@@ -1245,7 +1258,7 @@ async function resetSiteSettings() {
                 <div className="admin-card-heading"><div><span>ANIMAIS</span><h2>Status</h2></div><button onClick={() => setTab("animals")}>Gerenciar →</button></div>
                 {animals.slice(0, 5).map((animal) => (
                   <div className="admin-mini-row" key={animal.slug}>
-                    <div className="admin-animal-mini"><img src={animal.photos?.[0]} alt="" /><div><strong>{animal.name}</strong><span>{animal.species} • {animal.age} • ◉ {Number(profileViews[animal.slug]?.total || 0).toLocaleString("pt-BR")}</span></div></div>
+                    <div className="admin-animal-mini"><img src={animal.photos?.[0]} alt="" /><div><strong>{animal.name}</strong><span>{animal.species} • {getAnimalDisplayAge(animal)} • ◉ {Number(profileViews[animal.slug]?.total || 0).toLocaleString("pt-BR")}</span></div></div>
                     <span className="admin-animal-status">{animal.status}</span>
                   </div>
                 ))}
@@ -1284,7 +1297,7 @@ async function resetSiteSettings() {
                     <img src={animal.photos?.[0]} alt={animal.name} />
                     <div className="admin-animal-info">
                       <strong>{animal.name}</strong>
-                      <span>{animal.species} • {animal.sex} • {animal.age} • {animal.city}</span>
+                      <span>{animal.species} • {animal.sex} • {getAnimalDisplayAge(animal)} • {animal.city}</span>
                       <span className="admin-profile-view-count">
                         ◉ {Number(profileViews[animal.slug]?.total || 0).toLocaleString("pt-BR")} visualizações
                       </span>
@@ -1370,7 +1383,15 @@ async function resetSiteSettings() {
                     <label className="span-2"><span>Nome *</span><input value={animalForm.name} onChange={(e) => updateAnimal("name", e.target.value)} /></label>
                     <label><span>Espécie</span><select value={animalForm.species} onChange={(e) => updateAnimal("species", e.target.value)}><option>Cão</option><option>Gato</option></select></label>
                     <label><span>Sexo</span><select value={animalForm.sex} onChange={(e) => updateAnimal("sex", e.target.value)}><option>Macho</option><option>Fêmea</option></select></label>
-                    <label><span>Idade</span><input value={animalForm.age} onChange={(e) => updateAnimal("age", e.target.value)} placeholder="Ex.: 2 anos" /></label>
+                    <label>
+                      <span>Idade atual</span>
+                      <input
+                        value={animalForm.age}
+                        onChange={(e) => updateAnimal("age", e.target.value)}
+                        placeholder="Ex.: 2 anos ou 6 meses"
+                      />
+                      <small>A idade passa a atualizar automaticamente a partir da data em que o cadastro é salvo.</small>
+                    </label>
                     <label><span>Nascimento aproximado</span><input inputMode="numeric" value={animalForm.approximateBirth || ""} onChange={(e) => updateAnimal("approximateBirth", maskYear(e.target.value))} placeholder="Ex.: 2024" maxLength={4} /></label>
                     <label><span>Raça</span><input value={animalForm.breed || ""} onChange={(e) => updateAnimal("breed", e.target.value)} /></label>
                     <label><span>Cor</span><input value={animalForm.color || ""} onChange={(e) => updateAnimal("color", e.target.value)} /></label>
