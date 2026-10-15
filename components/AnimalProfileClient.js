@@ -95,6 +95,21 @@ export default function AnimalProfileClient({ slug, initialAnimals, initialViews
               <span className={animal.vaccinated ? "ok" : ""}>{animal.vaccinated ? "✓ Vacinado" : "Vacinação pendente"}</span>
               <span className={animal.neutered ? "ok" : ""}>{animal.neutered ? "✓ Castrado" : "Ainda não castrado"}</span>
               <span className={animal.dewormed ? "ok" : ""}>{animal.dewormed ? "✓ Vermifugado" : "Vermifugação pendente"}</span>
+
+              {animal.species === "Gato" && (
+                animal.fivFelvTested === "Sim" ? (
+                  <>
+                    <span className={animal.fivResult === "Negativo" ? "ok feline-result" : "feline-result positive"}>
+                      FIV: {animal.fivResult || "Não informado"}
+                    </span>
+                    <span className={animal.felvResult === "Negativo" ? "ok feline-result" : "feline-result positive"}>
+                      FeLV: {animal.felvResult || "Não informado"}
+                    </span>
+                  </>
+                ) : (
+                  <span className="feline-result pending">FIV/FeLV: não testado</span>
+                )
+              )}
             </div>
             <div className="animal-adoption-actions">
               {canApply ? (

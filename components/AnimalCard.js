@@ -49,6 +49,21 @@ export default function AnimalCard({ animal, priority = false }) {
         <div className="animal-health">
           <span className={animal.vaccinated ? "ok" : ""}>{animal.vaccinated ? "✓" : "○"} Vacinado</span>
           <span className={animal.neutered ? "ok" : ""}>{animal.neutered ? "✓" : "○"} Castrado</span>
+
+          {animal.species === "Gato" && (
+            animal.fivFelvTested === "Sim" ? (
+              <>
+                <span className={animal.fivResult === "Negativo" ? "ok feline-test" : "feline-test positive"}>
+                  FIV {animal.fivResult || "Não informado"}
+                </span>
+                <span className={animal.felvResult === "Negativo" ? "ok feline-test" : "feline-test positive"}>
+                  FeLV {animal.felvResult || "Não informado"}
+                </span>
+              </>
+            ) : (
+              <span className="feline-test pending">FIV/FeLV não testado</span>
+            )
+          )}
         </div>
 
         <Link className="button primary full" href={`/adocao/${animal.slug}`}>

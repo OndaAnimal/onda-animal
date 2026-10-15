@@ -775,3 +775,19 @@ A idade automática é usada em:
 - formulário de adoção;
 - destaques da Home;
 - painel administrativo e pesquisa do CMS.
+
+
+## V51 — FIV / FeLV obrigatório para felinos
+
+No CMS, em `Animais → Saúde e destaque`, gatos agora possuem um bloco próprio de FIV/FeLV.
+
+Regras:
+- para `Gato`, é obrigatório informar se foi testado;
+- se `Sim`, é obrigatório informar o resultado de FIV e FeLV;
+- resultados disponíveis: `Negativo` e `Positivo`;
+- se `Não testado`, o cadastro pode ser salvo e o perfil público exibe essa informação;
+- para cães, o bloco não aparece e os campos são ignorados.
+
+As informações também aparecem:
+- nos cards públicos dos gatos;
+- no perfil completo do felino.

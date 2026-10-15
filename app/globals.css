@@ -6580,3 +6580,100 @@ section.nfg-home-banner,
     margin-right:16px;
   }
 }
+
+
+/* V51 — FIV / FELV PARA FELINOS */
+.admin-fiv-felv-box{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid #cfe3e4;
+  border-radius:18px;
+  background:linear-gradient(135deg,#f7fcfc,#f4faf9);
+}
+
+.admin-fiv-felv-head{
+  margin-bottom:15px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+
+.admin-fiv-felv-head>div>span{
+  color:var(--teal-dark);
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+
+.admin-fiv-felv-head h4{
+  margin-top:4px;
+  color:var(--navy);
+  font-size:18px;
+}
+
+.admin-fiv-felv-head p{
+  margin-top:4px;
+  color:#70858a;
+  font-size:10px;
+  line-height:1.5;
+}
+
+.admin-fiv-felv-required{
+  flex:0 0 auto;
+  padding:6px 9px;
+  border-radius:999px;
+  color:#116d75!important;
+  background:#e5f5f4;
+  font-size:9px!important;
+  font-weight:900!important;
+  letter-spacing:.04em!important;
+}
+
+.admin-fiv-felv-fields{
+  padding-top:14px;
+  border-top:1px solid #dceaea;
+}
+
+.admin-fiv-felv-pending{
+  padding:12px 13px;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  border:1px solid #efdba9;
+  border-radius:12px;
+  background:#fffaf0;
+}
+
+.admin-fiv-felv-pending strong{
+  color:#8a6519;
+  font-size:11px;
+}
+
+.admin-fiv-felv-pending span{
+  color:#816f49;
+  font-size:10px;
+}
+
+.animal-health .feline-test,
+.health-badges .feline-result{
+  font-weight:850;
+}
+
+.animal-health .feline-test.positive,
+.health-badges .feline-result.positive{
+  color:#9c2f4f;
+  background:#fff0f4;
+}
+
+.animal-health .feline-test.pending,
+.health-badges .feline-result.pending{
+  color:#846717;
+  background:#fff6d8;
+}
+
+@media(max-width:620px){
+  .admin-fiv-felv-head{
+    flex-direction:column;
+  }
+}

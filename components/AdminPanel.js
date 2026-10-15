@@ -47,6 +47,9 @@ const emptyAnimal = {
   dewormed: false,
   specialNeeds: false,
   featured: false,
+  fivFelvTested: "",
+  fivResult: "",
+  felvResult: "",
   demo: false,
   color: "",
   energy: "Moderada",
@@ -697,13 +700,43 @@ async function saveAnimal(event) {
       return;
     }
 
+    if (animalForm.species === "Gato") {
+      if (!["Sim", "Não"].includes(animalForm.fivFelvTested)) {
+        notify("Informe se o felino foi testado para FIV/FeLV.");
+        return;
+      }
+
+      if (
+        animalForm.fivFelvTested === "Sim" &&
+        (!["Positivo", "Negativo"].includes(animalForm.fivResult) ||
+          !["Positivo", "Negativo"].includes(animalForm.felvResult))
+      ) {
+        notify("Informe os resultados de FIV e FeLV do felino.");
+        return;
+      }
+    }
+
     const previousAnimal =
       editing !== "new"
         ? animals.find((animal) => animal.slug === editing) || null
         : null;
 
+    const normalizedHealth =
+      animalForm.species === "Gato"
+        ? {
+            fivFelvTested: animalForm.fivFelvTested,
+            fivResult: animalForm.fivFelvTested === "Sim" ? animalForm.fivResult : "",
+            felvResult: animalForm.fivFelvTested === "Sim" ? animalForm.felvResult : "",
+          }
+        : {
+            fivFelvTested: "",
+            fivResult: "",
+            felvResult: "",
+          };
+
     const record = prepareAnimalAgeForSave({
       ...animalForm,
+      ...normalizedHealth,
       slug,
       photos: cleanPhotos,
       temperament: Array.isArray(animalForm.profileSelections?.temperament) && animalForm.profileSelections.temperament.length
@@ -1410,6 +1443,70 @@ async function resetSiteSettings() {
                       <label key={field}><input type="checkbox" checked={!!animalForm[field]} onChange={(e) => updateAnimal(field, e.target.checked)} /><span>{label}</span></label>
                     ))}
                   </div>
+
+                  {animalForm.species === "Gato" && (
+                    <div className="admin-fiv-felv-box">
+                      <div className="admin-fiv-felv-head">
+                        <div>
+                          <span>SAÚDE FELINA • OBRIGATÓRIO</span>
+                          <h4>Teste FIV / FeLV</h4>
+                          <p>Todo gato precisa ter a situação do teste informada antes de salvar o cadastro.</p>
+                        </div>
+                        <span className="admin-fiv-felv-required">Felinos</span>
+                      </div>
+
+                      <div className="admin-fields-grid admin-fiv-felv-fields">
+                        <label className="span-2">
+                          <span>Foi testado para FIV/FeLV? *</span>
+                          <select
+                            value={animalForm.fivFelvTested || ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setAnimalForm((current) => ({
+                                ...current,
+                                fivFelvTested: value,
+                                fivResult: value === "Sim" ? current.fivResult : "",
+                                felvResult: value === "Sim" ? current.felvResult : "",
+                              }));
+                            }}
+                          >
+                            <option value="">Selecione</option>
+                            <option value="Sim">Sim, testado</option>
+                            <option value="Não">Não testado</option>
+                          </select>
+                        </label>
+
+                        {animalForm.fivFelvTested === "Sim" && (
+                          <>
+                            <label>
+                              <span>Resultado FIV *</span>
+                              <select value={animalForm.fivResult || ""} onChange={(e) => updateAnimal("fivResult", e.target.value)}>
+                                <option value="">Selecione</option>
+                                <option value="Negativo">Negativo</option>
+                                <option value="Positivo">Positivo</option>
+                              </select>
+                            </label>
+
+                            <label>
+                              <span>Resultado FeLV *</span>
+                              <select value={animalForm.felvResult || ""} onChange={(e) => updateAnimal("felvResult", e.target.value)}>
+                                <option value="">Selecione</option>
+                                <option value="Negativo">Negativo</option>
+                                <option value="Positivo">Positivo</option>
+                              </select>
+                            </label>
+                          </>
+                        )}
+
+                        {animalForm.fivFelvTested === "Não" && (
+                          <div className="span-2 admin-fiv-felv-pending">
+                            <strong>Teste ainda não realizado</strong>
+                            <span>O perfil público será identificado como “FIV/FeLV não testado”.</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="admin-form-section">
